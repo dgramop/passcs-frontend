@@ -67,6 +67,17 @@
 								display: none;
 						}
 				}
+
+				&--disabled {
+						box-shadow: none;
+						background-color: #cbd5e1;
+						color: #334155;
+
+						.choose__button__modifier {
+								display: none;
+						}
+				}
+
 				padding: 1rem;
 
 
