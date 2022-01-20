@@ -218,7 +218,8 @@ function Slot(props) {
 
 						</div>
 						<div className="slot__slot_info">
-								<div className="slot__slot_info__schedule">{DAYS_OF_THE_WEEK[props.slot.weekday]} {props.slot.start_hour} {props.slot.start_hour >= 12 ? "PM" : "AM"}</div>
+								{/*TODO: replace ALL of this timing logic with the stuff from the old frontend*/}
+								<div className="slot__slot_info__schedule">{DAYS_OF_THE_WEEK[props.slot.weekday]} {props.slot.start_hour}-{(props.slot.start_hour+props.slot.duration_mins/60)%12} {props.slot.start_hour + props.slot.duration_mins/60 >= 12 ? "pm" : "am"}</div>
 								<div className="button slot__slot_info__booking_button">Book</div>
 						</div>
 				</div>
