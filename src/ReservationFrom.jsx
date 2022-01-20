@@ -210,16 +210,13 @@ function Slot(props) {
 										</div>
 																				
 								</div>
-						</div>
-						{showExtendedQualification && <div className="slot__tutor_info">
-								<img alt={"used for alignment, normally not visible"} src="https://pbs.twimg.com/profile_images/1192934662638837763/bbNss3q3_400x400.jpg" className="slot__tutor_info__image slot__tutor_info__image--alignmentHack"/>
-								<div className="slot__tutor_info__bio">
-										<div className="slot__tutor_info__bio__extended_qualification">
-												{props.offering.tutor.background}
-										</div>
-								</div>
-						</div>}
 
+								{showExtendedQualification && <><div></div>
+						<div className="slot__tutor_info__bio__extended_qualification">
+								{props.offering.tutor.background}
+						</div></>}
+
+						</div>
 						<div className="slot__slot_info">
 								<div className="slot__slot_info__schedule">{DAYS_OF_THE_WEEK[props.slot.weekday]} {props.slot.start_hour} {props.slot.start_hour >= 12 ? "PM" : "AM"}</div>
 								<div className="button slot__slot_info__booking_button">Book</div>
