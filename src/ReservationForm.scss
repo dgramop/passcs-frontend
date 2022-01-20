@@ -49,7 +49,12 @@
 
 .choose {
 		user-select: none;
-		.choose__button {
+		&__subtext {
+				font-size: 0.75rem;
+				text-align: center;
+		}
+
+		&__button {
 				cursor: pointer;
 				background: #FEFEFE;
 				box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
@@ -101,6 +106,7 @@
 
 .button {
 		cursor: pointer;
+		user-select: none;
 		background-color: #1E293B;
 		border-radius: 8px;
 
@@ -216,6 +222,38 @@
 				&__schedule {
 						flex-grow: 1;
 						font-weight: bold;
+				}
+		}
+}
+
+.criteria {
+		display: flex;
+		gap: 1rem;
+		padding: 1rem;
+		background-color:white;
+		border-radius: 8px;
+		box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+		align-items: center;
+		justify-content: center;
+
+		&__bubble {
+				background-color:#F1F5F9;
+				border-radius: 8px;
+				padding: 0.75rem;
+				flex-grow: 1;
+				text-align: center;
+				font-weight: bold;
+				color: #334155;
+		}
+
+		&__button {
+				user-select: none;
+				cursor: pointer;
+				color: #64748b;
+				padding: 0.5rem;
+				clip-path: circle(50%);
+				&:hover {
+						background-color: #e2e8f0;
 				}
 		}
 }

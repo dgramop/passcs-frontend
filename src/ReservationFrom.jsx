@@ -168,15 +168,15 @@ function PrefsScreen(props) {
 								return {value: course.id, text: course.course_number+" - "+course.course_name };
 						})}/>
 
-						<Selector value={prefs.capacity} setValue={setPrefValue} name="capacity" title="Meeting Size" icon="people" options={[
-								{text: "One-on-One "+(prefs.payment_frequency === "onetime" ? "$40" : "$35"), value: 1, disabled: !enabledOptions.capacity.has(1)}, {
-								text: "Class of 2 "+(prefs.payment_frequency === "onetime" ? "$35" : "$30"), value: 2, disabled: !enabledOptions.capacity.has(2)}]} />
+						<Selector value={prefs.capacity} setValue={setPrefValue} name="capacity" title="Class Size" icon="people" options={[
+								{text: "One-on-One "+(prefs.payment_frequency === "onetime" ? "$40" : "$35"), value: 1, disabled: !enabledOptions.capacity.has(1), subtext: "Dedicated attention and focus"}, {
+										text: "With Another Student "+(prefs.payment_frequency === "onetime" ? "$35" : "$30"), value: 2, disabled: !enabledOptions.capacity.has(2), subtext: "Automatically paired when available"}]} />
 
-						<Selector value={prefs.class_style} setValue={setPrefValue} name="class_style" title="Meeting Location" icon="place" options={[
+						<Selector value={prefs.class_style} setValue={setPrefValue} name="class_style" title="Session Location" icon="place" options={[
 								{value: "in-person", text:"On-Campus", disabled: !enabledOptions.class_style.has("in-person")},
 								{value: "online", text:"Online", disabled: !enabledOptions.class_style.has("online") }]} />
 						
-						<Selector value={prefs.payment_frequency} setValue={setPrefValue} name="payment_frequency" longer={true} title="Meeting Frequency" icon="autorenew" options={[
+						<Selector value={prefs.payment_frequency} setValue={setPrefValue} name="payment_frequency" longer={true} title="Session Frequency" icon="autorenew" options={[
 								{value: "weekly", text:"Weekly", modifier: {type:"success", text:prefs.payment_frequency === "onetime" ? ("save $5/meeting") : ""}, disabled: !enabledOptions.payment_frequency.has("weekly")},
 										{value: "onetime", text:"One Time", modifier: {type:"error", text:"add $5"}, disabled: !enabledOptions.payment_frequency.has("onetime")}]} />
 						<hr />
@@ -187,7 +187,7 @@ function PrefsScreen(props) {
 				</div>
 		)
 		else return (
-				<SlotSelectionScreen prefs={prefs}/>
+				<SlotSelectionScreen prefs={prefs} back={() => { setSet(false) }}/>
 		)
 }
 
@@ -218,12 +218,22 @@ function Slot(props) {
 
 						</div>
 						<div className="slot__slot_info">
-								{/*TODO: replace ALL of this timing logic with the stuff from the old frontend*/}
+								{/*TODO: replace ALL of this timing logic with the stuff from the old frontend. And if it's a subscription use plural*/}
 								<div className="slot__slot_info__schedule">{DAYS_OF_THE_WEEK[props.slot.weekday]} {props.slot.start_hour}-{(props.slot.start_hour+props.slot.duration_mins/60)%12} {props.slot.start_hour + props.slot.duration_mins/60 >= 12 ? "pm" : "am"}</div>
 								<div className="button slot__slot_info__booking_button">Book</div>
 						</div>
 				</div>
 		)
+}
+
+function Criteria(props) {
+		return (<div className="criteria">
+				<span role="button" className="material-icons criteria__button" onClick={props.edit}>edit</span>
+				<div className="criteria__bubble">{(["Just the tutor in an empty room","One-on-One","With Another Student"])[props.capacity]}</div>
+				<div className="criteria__bubble">{props.class_style}</div>
+				<div className="criteria__bubble">{props.class_number}</div>
+				<div className="criteria__bubble">{props.price}{props.payment_frequency == "weekly" ? "/wk" : ""}</div>
+		</div>)
 }
 
 function SlotSelectionScreen(props) {
@@ -245,15 +255,19 @@ function SlotSelectionScreen(props) {
 
 		console.log(slots);
 
+		// TODO Differentiate This Tuesday vs Next Tuesday with separate headings. Sort by first meeting occurence epoch
+		// Text on headings should be Every Tuesday v s Every Tuesday, Starting Next Week
+
 		return (
 				<div className="reservation_form">
 						<div className="reservation_form__heading">
 								<h2 className="reservation_form__heading__title"> Select a slot </h2>
 								<small className="reservation_form__heading__subtext"> Confirm your payment after this step </small>
+								<Criteria class_size={prefs.class_size} payment_frequency={prefs.payment_frequency} capacity={prefs.capacity} class_number="CS123" price="$10" edit={props.back} />
 								{ DAYS_OF_THE_WEEK.map((day_of_the_week, days_since_monday) => {
 										if(slots[days_since_monday].length > 0)  {
 												return (<>
-												<h3> Every {day_of_the_week} </h3>
+												<h3> {prefs.payment_frequency!=="onetime" ? "Every" : ""} {day_of_the_week} </h3>
 												<div className="slots">
 														{slots[days_since_monday].map((slot) => (
 																<Slot key={slot.slot.id} {...slot} />
