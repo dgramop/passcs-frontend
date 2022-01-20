@@ -17,7 +17,7 @@ function SelectorOption(props) {
 				}}>
 						<div className="choose__subtext">{props.subtext}</div>
 						<div className={"choose__button "+(props.disabled ? "choose__button--disabled " : "")+(props.selected ? "choose__button--selected ": "")}>
-								<div className="choose__button__left">{props.children}</div> <div className={"choose__button__modifier " + ({null: "", "error":"choose__button__modifier--error", "success":"choose__button__modifier--success"}[props.modifier?.type])}>{props.modifier?.text}</div>
+								<div className="choose__button__left">{props.children}</div> <div className={"choose__button__modifier " + ({null: "", "error":"choose__button__modifier--error", "success":"choose__button__modifier--success"}[props.modifier?.type])}>{props.disabled ? "" : props.modifier?.text}</div>
 						</div>
 				</div>
 		)
@@ -167,15 +167,15 @@ function PrefsScreen(props) {
 						})}/>
 
 						<Selector value={prefs.capacity} setValue={setPrefValue} name="capacity" title="Meeting Size" icon="people" options={[
-								{text: "One-on-One "+(prefs.payment_frequency === "weekly" ? "$35" : "$40"), value: 1, disabled: !enabledOptions.capacity.has(1)}, {
-								text: "Class of 2 "+(prefs.payment_frequency === "weekly" ? "$30" : "$35"), value: 2, disabled: !enabledOptions.capacity.has(2)}]} />
+								{text: "One-on-One "+(prefs.payment_frequency === "onetime" ? "$40" : "$35"), value: 1, disabled: !enabledOptions.capacity.has(1)}, {
+								text: "Class of 2 "+(prefs.payment_frequency === "onetime" ? "$35" : "$30"), value: 2, disabled: !enabledOptions.capacity.has(2)}]} />
 
 						<Selector value={prefs.class_style} setValue={setPrefValue} name="class_style" title="Meeting Location" icon="place" options={[
 								{value: "in-person", text:"On-Campus", disabled: !enabledOptions.class_style.has("in-person")},
 								{value: "online", text:"Online", disabled: !enabledOptions.class_style.has("online") }]} />
 						
 						<Selector value={prefs.payment_frequency} setValue={setPrefValue} name="payment_frequency" longer={true} title="Meeting Frequency" icon="autorenew" options={[
-								{value: "weekly", text:"Weekly", modifier: {type:"success", text:"save $5/meeting"}, disabled: !enabledOptions.payment_frequency.has("weekly")},
+								{value: "weekly", text:"Weekly", modifier: {type:"success", text:prefs.payment_frequency === "onetime" ? ("save $5/meeting") : ""}, disabled: !enabledOptions.payment_frequency.has("weekly")},
 										{value: "onetime", text:"One Time", modifier: {type:"error", text:"add $5"}, disabled: !enabledOptions.payment_frequency.has("onetime")}]} />
 						<hr />
 						<div className="reservation_form__submission">
