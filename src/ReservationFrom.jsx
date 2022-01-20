@@ -1,6 +1,8 @@
 import {useState, useEffect} from "react";
 import './ReservationForm.scss';
 
+const DAYS_OF_THE_WEEK = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+
 /**
  * An option for a Selector
  * @param {Boolean} props.selected If this button is selected. Will also be called if the button is both disabled and selected, with an argument of null
@@ -189,13 +191,83 @@ function PrefsScreen(props) {
 		)
 }
 
+function Slot(props) {
+		let [showExtendedQualification, setShowExtendedQualification] = useState(false);
+
+		return (
+				<div className="slot">
+						<div className="slot__tutor_info">
+								<img alt={"photo of "+props.offering.tutor.name} src="https://pbs.twimg.com/profile_images/1192934662638837763/bbNss3q3_400x400.jpg" className="slot__tutor_info__image"/>
+								<div className="slot__tutor_info__bio">
+										<div className="slot__tutor_info__bio__name">
+												{props.offering.tutor.name}
+										</div>
+										<div className="slot__tutor_info__bio__qualification">
+												{props.offering.qualification} <span role="button" className="slot__tutor_info__bio__see_more" onClick={()=> {setShowExtendedQualification(!showExtendedQualification)}}>
+												see {showExtendedQualification ? "less": "more"}
+										</span>
+
+										</div>
+																				
+								</div>
+						</div>
+						{showExtendedQualification && <div className="slot__tutor_info">
+								<img alt={"used for alignment, normally not visible"} src="https://pbs.twimg.com/profile_images/1192934662638837763/bbNss3q3_400x400.jpg" className="slot__tutor_info__image slot__tutor_info__image--alignmentHack"/>
+								<div className="slot__tutor_info__bio">
+										<div className="slot__tutor_info__bio__extended_qualification">
+												{props.offering.tutor.background}
+										</div>
+								</div>
+						</div>}
+
+						<div className="slot__slot_info">
+								<div className="slot__slot_info__schedule">{DAYS_OF_THE_WEEK[props.slot.weekday]} {props.slot.start_hour} {props.slot.start_hour >= 12 ? "PM" : "AM"}</div>
+								<div className="button slot__slot_info__booking_button">Book</div>
+						</div>
+				</div>
+		)
+}
+
 function SlotSelectionScreen(props) {
+		let prefs = props.prefs;
+		let [slots, setSlots] = useState([[], [], [], [], [], [], []]);
+
+		useEffect(() => {
+				let action = async () => {
+						// the assumption is that if it matches weekly it imples that it also matches onetime. That's why we can assume onetime even if it's payment_frequency isn't initialized yet
+						let slots = (await (await fetch(`/slots?class=${prefs.course}&subscription=${prefs.payment_frequency==="weekly"}&class_style=${prefs.class_style}&capacity=${prefs.capacity}`)).json()).data
+						let slots_by_day = [[], [], [], [], [], [], []];
+						for(let slot of slots) { //TODO: time conversions
+								slots_by_day[slot.slot.weekday].push(slot);
+						}
+						setSlots(slots_by_day);
+				};
+				action();
+		}, [prefs])
+
+		console.log(slots);
+
 		return (
 				<div className="reservation_form">
 						<div className="reservation_form__heading">
 								<h2 className="reservation_form__heading__title"> Select a slot </h2>
 								<small className="reservation_form__heading__subtext"> Confirm your payment after this step </small>
-								<h3> Every Monday </h3>
+								{ DAYS_OF_THE_WEEK.map((day_of_the_week, days_since_monday) => {
+										if(slots[days_since_monday].length > 0)  {
+												return (<>
+												<h3> Every {day_of_the_week} </h3>
+												<div className="slots">
+														{slots[days_since_monday].map((slot) => (
+																<Slot key={slot.slot.id} {...slot} />
+														))}
+												</div>
+												</>);
+										}
+										else {
+												return (<></>);
+										}
+								})
+								}
 						</div>
 				</div>
 		)
