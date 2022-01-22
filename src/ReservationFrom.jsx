@@ -220,7 +220,8 @@ function Slot(props) {
 						<div className="slot__slot_info">
 								{/*TODO: replace ALL of this timing logic with the stuff from the old frontend. And if it's a subscription use plural*/}
 								<div className="slot__slot_info__schedule">{DAYS_OF_THE_WEEK[props.slot.weekday]}{props.meetings.length > 1 ? "s" : ""} {props.slot.start_hour}-{(props.slot.start_hour+props.slot.duration_mins/60)%12} {props.slot.start_hour + props.slot.duration_mins/60 >= 12 ? "pm" : "am"}</div>
-								<div className="button slot__slot_info__booking_button" onClick={() => {if(props.onBook) props.onBook({slot: props.slot, offering: props.offering, meetings: props.meetings})}}>Book<span className="material-icons">arrow_forward</span></div>
+								{props.onBook && <div className="button slot__slot_info__booking_button" onClick={() => {if(props.onBook) props.onBook({slot: props.slot, offering: props.offering, meetings: props.meetings})}}>Book<span className="material-icons">arrow_forward</span></div>}
+								{!props.onBook && <div className="slot__slot_info__disconnect_button" onClick={() => {if(props.onUnBook) props.onUnBook({slot: props.slot, offering: props.offering, meetings: props.meetings})}}>change booking<span className="material-icons">edit</span></div>}
 						</div>
 				</div>
 		)
@@ -291,14 +292,20 @@ function SlotSelectionScreen(props) {
 				</div>
 		)
 		else return (
-				<Payment prefs={prefs} slot={selectedSlot}/>
+				<Payment prefs={prefs} slot={selectedSlot} editPrefs={props.back} editSlot={() => setSelectedSlot(null)}/>
 		)
 }
 
 function Payment(props) {
-		return (<>
-				{JSON.stringify(props)}
-		</>
+		return (
+		<div className="reservation_form">
+				<div className="reservation_form__heading">
+						<h2 className="reservation_form__heading__title">Confirm Booking</h2>
+						<small className="reservation_form__heading__subtext">Your card will be charged</small>
+				</div>
+				<h3> Your Booking </h3>
+				<Slot {...props.slot} onUnBook={()=>props.editSlot()} />
+		</div>
 		)
 }
 
