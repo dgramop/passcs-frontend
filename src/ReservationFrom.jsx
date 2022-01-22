@@ -204,7 +204,7 @@ function Slot(props) {
 										</div>
 										<div className="slot__tutor_info__bio__qualification">
 												{props.offering.qualification} <span role="button" className="slot__tutor_info__bio__see_more" onClick={()=> {setShowExtendedQualification(!showExtendedQualification)}}>
-												see {showExtendedQualification ? "less": "more"}
+												{showExtendedQualification ? "less": "more"}
 										</span>
 
 										</div>
@@ -219,8 +219,8 @@ function Slot(props) {
 						</div>
 						<div className="slot__slot_info">
 								{/*TODO: replace ALL of this timing logic with the stuff from the old frontend. And if it's a subscription use plural*/}
-								<div className="slot__slot_info__schedule">{DAYS_OF_THE_WEEK[props.slot.weekday]} {props.slot.start_hour}-{(props.slot.start_hour+props.slot.duration_mins/60)%12} {props.slot.start_hour + props.slot.duration_mins/60 >= 12 ? "pm" : "am"}</div>
-								<div className="button slot__slot_info__booking_button">Book</div>
+								<div className="slot__slot_info__schedule">{DAYS_OF_THE_WEEK[props.slot.weekday]}{props.meetings.length > 1 ? "s" : ""} {props.slot.start_hour}-{(props.slot.start_hour+props.slot.duration_mins/60)%12} {props.slot.start_hour + props.slot.duration_mins/60 >= 12 ? "pm" : "am"}</div>
+								<div className="button slot__slot_info__booking_button" onClick={() => {if(props.onBook) props.onBook({slot: props.slot, offering: props.offering, meetings: props.meetings})}}>Book<span className="material-icons">arrow_forward</span></div>
 						</div>
 				</div>
 		)
@@ -232,20 +232,27 @@ function Criteria(props) {
 				<div className="criteria__bubble">{(["Just the tutor in an empty room","One-on-One","With Another Student"])[props.capacity]}</div>
 				<div className="criteria__bubble">{props.class_style}</div>
 				<div className="criteria__bubble">{props.class_number}</div>
-				<div className="criteria__bubble">{props.price}{props.payment_frequency == "weekly" ? "/wk" : ""}</div>
+				<div className="criteria__bubble">{props.price}{props.payment_frequency === "weekly" ? "/wk" : ""}</div>
 		</div>)
 }
 
 function SlotSelectionScreen(props) {
 		let prefs = props.prefs;
 		let [slots, setSlots] = useState([[], [], [], [], [], [], []]);
+		let [classNumber, setClassNumber] = useState("");
+		let [selectedSlot, setSelectedSlot] = useState(null);
 
 		useEffect(() => {
 				let action = async () => {
 						// the assumption is that if it matches weekly it imples that it also matches onetime. That's why we can assume onetime even if it's payment_frequency isn't initialized yet
 						let slots = (await (await fetch(`/slots?class=${prefs.course}&subscription=${prefs.payment_frequency==="weekly"}&class_style=${prefs.class_style}&capacity=${prefs.capacity}`)).json()).data
+						if(slots.length === 0) return;
+						if(prefs.course !== slots[0].offering["class"].id) throw new Error("first meeting doesn't match selected class ID");
+						setClassNumber(slots[0].offering["class"].course_number);
+						
 						let slots_by_day = [[], [], [], [], [], [], []];
 						for(let slot of slots) { //TODO: time conversions
+
 								slots_by_day[slot.slot.weekday].push(slot);
 						}
 						setSlots(slots_by_day);
@@ -257,20 +264,20 @@ function SlotSelectionScreen(props) {
 
 		// TODO Differentiate This Tuesday vs Next Tuesday with separate headings. Sort by first meeting occurence epoch
 		// Text on headings should be Every Tuesday v s Every Tuesday, Starting Next Week
-
+		if(!selectedSlot)
 		return (
 				<div className="reservation_form">
 						<div className="reservation_form__heading">
 								<h2 className="reservation_form__heading__title"> Select a slot </h2>
 								<small className="reservation_form__heading__subtext"> Confirm your payment after this step </small>
-								<Criteria class_size={prefs.class_size} payment_frequency={prefs.payment_frequency} capacity={prefs.capacity} class_number="CS123" price="$10" edit={props.back} />
+								<Criteria class_size={prefs.class_size} payment_frequency={prefs.payment_frequency} capacity={prefs.capacity} class_number={classNumber} price="$10" class_style={{"online": "Online","in-person":"On campus"}[prefs.class_style]} edit={props.back} />
 								{ DAYS_OF_THE_WEEK.map((day_of_the_week, days_since_monday) => {
 										if(slots[days_since_monday].length > 0)  {
 												return (<>
 												<h3> {prefs.payment_frequency!=="onetime" ? "Every" : ""} {day_of_the_week} </h3>
 												<div className="slots">
 														{slots[days_since_monday].map((slot) => (
-																<Slot key={slot.slot.id} {...slot} />
+																<Slot onBook={(slot) => {setSelectedSlot(slot)}} key={slot.slot.id} {...slot} />
 														))}
 												</div>
 												</>);
@@ -282,6 +289,16 @@ function SlotSelectionScreen(props) {
 								}
 						</div>
 				</div>
+		)
+		else return (
+				<Payment prefs={prefs} slot={selectedSlot}/>
+		)
+}
+
+function Payment(props) {
+		return (<>
+				{JSON.stringify(props)}
+		</>
 		)
 }
 
