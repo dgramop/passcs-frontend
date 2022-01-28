@@ -181,7 +181,9 @@ function PrefsScreen(props) {
 										{value: "onetime", text:"One Time", modifier: {type:"error", text:"add $5"}, disabled: !enabledOptions.payment_frequency.has("onetime")}]} />
 						<hr />
 						<div className="reservation_form__submission">
-								<div className={"button reservation_form__submission__primaryButton "+(submit_disabled ? "button--disabled" : "")} role="button" onClick={() => { if(!submit_disabled) setSet(true)}}>Select Tutor + Time <span className="material-icons">east</span></div>
+								<Button extraClasses="reservation_form__submission__primaryButton" disabled={submit_disabled} onClick={() => { if(!submit_disabled) setSet(true)}} >
+										Select Tutor + Time <span className="material-icons">east</span>
+								</Button>
 								<small className="reservation_form__submission__subtext"> You won't be charged yet </small>
 						</div>
 				</div>
@@ -221,14 +223,14 @@ function Slot(props) {
 								{/*TODO: replace ALL of this timing logic with the stuff from the old frontend. And if it's a subscription use plural*/}
 								<div className="slot__slot_info__schedule">{DAYS_OF_THE_WEEK[props.slot.weekday]}{props.meetings.length > 1 ? "s" : ""} {props.slot.start_hour}-{(props.slot.start_hour+props.slot.duration_mins/60)%12} {props.slot.start_hour + props.slot.duration_mins/60 >= 12 ? "pm" : "am"}</div>
 								{props.onBook && <div className="button slot__slot_info__booking_button" onClick={() => {if(props.onBook) props.onBook({slot: props.slot, offering: props.offering, meetings: props.meetings})}}>Book<span className="material-icons">arrow_forward</span></div>}
-								{!props.onBook && <div className="slot__slot_info__disconnect_button" onClick={() => {if(props.onUnBook) props.onUnBook({slot: props.slot, offering: props.offering, meetings: props.meetings})}}>change booking<span className="material-icons">edit</span></div>}
+								{!props.onBook && <div className="slot__slot_info__disconnect_button" onClick={() => {if(props.onUnBook) props.onUnBook({slot: props.slot, offering: props.offering, meetings: props.meetings})}}>change booking <span className="material-icons slot__slot_info__disconnect_button__icon">edit</span></div>}
 						</div>
 				</div>
 		)
 }
 
 function Criteria(props) {
-		return (<div className="criteria">
+		return (<div className={"criteria "+(props.invisible ? "criteria--invisible" :"")}>
 				<span role="button" className="material-icons criteria__button" onClick={props.edit}>edit</span>
 				<div className="criteria__bubble">{(["Just the tutor in an empty room","One-on-One","With Another Student"])[props.capacity]}</div>
 				<div className="criteria__bubble">{props.class_style}</div>
@@ -296,7 +298,22 @@ function SlotSelectionScreen(props) {
 		)
 }
 
+/**
+ * props.icon {String} Text for the material icon to use
+ * props.children {String} Text displayed next to the assurance
+ */
+function Assurance(props) {
+		return (
+		<div className="assurance">
+				<span className="assurance__icon material-icons">{props.icon}</span>
+				<span className="assurance__text">{props.children}</span>
+		</div>
+		)
+}
+
 function Payment(props) {
+		let [disable, setDisabled] = useState(false);
+
 		return (
 		<div className="reservation_form">
 				<div className="reservation_form__heading">
@@ -305,6 +322,72 @@ function Payment(props) {
 				</div>
 				<h3> Your Booking </h3>
 				<Slot {...props.slot} onUnBook={()=>props.editSlot()} />
+				<div className="payment_form">
+						<h3 className="payment_form__title"> Payment </h3>
+						<Criteria invisible/>
+						<div className="payment_form__line">
+								<div className="input_group">
+										<label className="payment_form__label" for="firstname">
+												First Name
+										</label>
+										<input size="10" className="payment_form__input payment_form__input--half" name="firstname" id="firstname" disabled={disable}/>
+								</div>
+
+								<div className="input_group">
+										<label className="payment_form__label" for="lastname">
+												Last Name
+										</label>
+										<input size="10" className="payment_form__input payment_form__input--half" name="lastname" id="lastname" disabled={disable}/>
+								</div>
+						</div>
+						<div className="input_group">
+								<label for="email" className="payment_form__label" >
+										Email Address
+								</label>
+								<input name="email" id="email" className="payment_form__input" disabled={disable}/>
+						</div>
+
+						<div className="input_group">
+								<label for="phone" className="payment_form__label" >
+										Phone Number
+								</label>
+								<input name="phone" className="payment_form__input" disabled={disable}/>
+						</div>
+						<div className="assurances">
+								<Assurance icon="lock">
+										Your payment is secured by Stripe and SSL
+								</Assurance>
+								<Assurance icon="check">
+										Eligible for the passCS Guarentee, subject to <a href="TODO">terms</a>
+								</Assurance>
+								<Assurance icon="logout">
+										Easy cancellation
+								</Assurance>
+						</div>
+						<div className="payment_form__submission_deck">
+								<div className="payment_form__submission_deck__qualification">
+										Your payments will automatically stop at the end of the semester. $30 now, then 24 hours before each session
+								</div>
+								<Button extraClasses="payment_form__submission_deck__submit">
+										Pay
+								</Button>
+						</div>
+				</div>
+		</div>
+		)
+}
+
+/**
+ * props.extraClasses Additional classes
+ * props.disabled Disabled
+ * props.onClick On click function
+ * props.children Button content
+ */
+
+function Button(props) {
+		return (
+		<div role="button" className={"button "+(props.disabled ? "button--disabled " : "")+props.extraClasses} onClick={() => {if(!props.disabled && props.onClick) props.onClick()}}>
+				{props.children}
 		</div>
 		)
 }

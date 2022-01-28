@@ -217,6 +217,25 @@ $max_width_reservation_form: 700px;
 						padding-left: 1rem;
 						padding-right: 1rem;
 				}
+
+				&__disconnect_button {
+						display: flex;
+						align-items: center;
+						gap: 0.5rem;
+
+						user-select: none;
+						cursor: pointer;
+						padding: 0.5rem;
+						border-radius: 8px;
+
+						&:hover {
+								background-color: #e2e8f0;
+						}
+
+						&__icon {
+								color: #64748b;
+						}
+				}
 				
 				&__schedule {
 						flex-grow: 1;
@@ -235,6 +254,11 @@ $max_width_reservation_form: 700px;
 		align-items: center;
 		justify-content: center;
 		max-width: calc($max_width_reservation_form - 2rem);
+
+		&--invisible {
+				box-shadow: none;
+				background-color: transparent;
+		}
 
 		&__bubble {
 				background-color:#F1F5F9;
@@ -257,3 +281,69 @@ $max_width_reservation_form: 700px;
 				}
 		}
 }
+
+.input_group {
+		display: flex;
+		flex-direction: column;
+		flex-grow:1;
+}
+
+.payment_form {
+		background-color: #FFFFFF;
+		border-radius: 12px;
+		box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+		display: flex;
+		flex-direction: column;
+		padding: 4rem;
+		gap: 1rem;
+
+		&__input {
+				background: #F1F5F9;
+				border: 3px solid #334155;
+				border-radius: 8px;
+				padding: 0.5rem;
+				font-size: 1.1rem;
+		}
+
+		&__label {
+				
+		}
+
+		&__line {
+				display: flex;
+				flex-direction: column;
+				@include md {
+						flex-direction: row;
+				}
+				gap: 1rem;
+				align-items: stretch;
+		}
+
+		&__submission_deck {
+				display: flex;
+				align-items: flex-end;
+				justify-content: space-between;
+				gap: 1rem;
+
+				&__qualification {
+						font-size: 0.75rem;
+						max-width: 70%;
+				}
+
+				&__submit {
+						padding-left: 2rem;
+						padding-right: 2rem;
+				}
+		}
+}
+
+.assurance {
+		display: flex;
+		gap: 0.5rem;
+		align-items: center;
+		&__icon {
+				color: #059669;
+				font-size: inherit;
+		}
+}
+
