@@ -247,7 +247,13 @@ $max_width_reservation_form: 700px;
 				
 				&__schedule {
 						flex-grow: 1;
-						font-weight: bold;
+						&__recur {
+								font-weight: bold;
+						}
+
+						&__begin {
+								font-weight: 400;
+						}
 				}
 		}
 }

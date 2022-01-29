@@ -45,7 +45,6 @@ function Selector(props) {
 		let value = props.value;
 		let setValue = props.setValue;
 
-		console.log("value is "+value);
 
 
 		return (
@@ -124,7 +123,6 @@ function PrefsScreen(props) {
 		let setPrefValue = (name, value) => {
 				setPrefs({...prefs, [name]: value});
 		}
-		console.log(prefs);
 
 		useEffect(() => {
 				let action = async () => {
@@ -206,16 +204,13 @@ function PrefsScreen(props) {
  * Gives time info for the given time zone for a given slot
  */
 function timezone_time_from_slot(slot) {
-		console.log(slot.start_hour, slot.weekday);
 		let start_hour = slot.start_hour - (new Date()).getTimezoneOffset()/60;
 		let weekday = slot.weekday;
-		console.log(start_hour, weekday);
 		while(start_hour < 0) { //there exists a much faster non-iterative way to do this, go fuck yourself
 				weekday--;
 				start_hour+=24;
 				if(weekday < 0) weekday += 7;
 		}
-		console.log(start_hour, weekday);
 		return {start_hour, weekday};
 }
 
@@ -227,6 +222,7 @@ function Slot(props) {
 		let end_hour = (start_hour+props.slot.duration_mins/60);
 		let end_hour_str = end_hour%12 === 0 ? "12" : end_hour%12;
 		let timestring = `${DAYS_OF_THE_WEEK[weekday]}${props.meetings.length > 1 ? "s" : ""} ${start_hour_str}-${end_hour_str} ${end_hour >= 12 ? "pm" : "am"}`;
+		let first_meeting_date = new Date(props.meetings[0].occurrence_epoch*1000);
 
 		return (
 				<div className="slot">
@@ -253,9 +249,9 @@ function Slot(props) {
 						</div>
 						<div className="slot__slot_info">
 								{/*TODO: replace ALL of this timing logic with the stuff from the old frontend. And if it's a subscription use plural*/}
-								<div className="slot__slot_info__schedule">{timestring}</div>
+								<div className="slot__slot_info__schedule"><span className="slot__slot_info__schedule__recur">{timestring}</span> <span className="slot__slot_info__schedule__begin">Starts {first_meeting_date.getMonth() +1}/{first_meeting_date.getDate()}</span></div>
 								{props.onBook && <div className="button slot__slot_info__booking_button" onClick={() => {if(props.onBook) props.onBook({slot: props.slot, offering: props.offering, meetings: props.meetings})}}>Book<span className="material-icons">arrow_forward</span></div>}
-								{!props.onBook && <div className="slot__slot_info__disconnect_button" onClick={() => {if(props.onUnBook) props.onUnBook({slot: props.slot, offering: props.offering, meetings: props.meetings})}}>change booking <span className="material-icons slot__slot_info__disconnect_button__icon">edit</span></div>}
+								{!props.onBook && <div className="slot__slot_info__disconnect_button" onClick={() => {if(props.onUnBook) props.onUnBook({slot: props.slot, offering: props.offering, meetings: props.meetings})}}>Change<span className="material-icons slot__slot_info__disconnect_button__icon">edit</span></div>}
 						</div>
 				</div>
 		)
@@ -301,7 +297,6 @@ function SlotSelectionScreen(props) {
 				action();
 		}, [prefs])
 
-		console.log(slots);
 
 		// TODO Differentiate This Tuesday vs Next Tuesday with separate headings. Sort by first meeting occurence epoch
 		// Text on headings should be Every Tuesday v s Every Tuesday, Starting Next Week
@@ -357,6 +352,9 @@ function Payment(props) {
 		const stripe = useStripe();
 		const elements = useElements();
 
+		let font_size = window.getComputedStyle(document.getElementsByClassName("payment_form__input")[0], null).getPropertyValue('font-size');;
+		console.log(font_size);
+
 		return (
 		<div className="reservation_form">
 				<div className="reservation_form__heading">
@@ -401,7 +399,7 @@ function Payment(props) {
 								<label for="phone" className="payment_form__label" >
 										Card
 								</label>
-								<CardElement className="payment_form__input" disabled={disable} />
+								<CardElement options={{style:{base:{fontSize:font_size}}}} className="payment_form__input" disabled={disable} />
 						</div>
 						<div className="assurances">
 								<Assurance icon="lock">
