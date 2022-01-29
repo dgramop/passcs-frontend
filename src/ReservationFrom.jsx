@@ -346,14 +346,79 @@ function Assurance(props) {
 		)
 }
 
+async function register_customer(firstname, lastname, email, phone) {
+		let form_data = new FormData();
+		form_data.append('email',email);
+		form_data.append('phone',phone);
+		form_data.append('firstname',firstname);
+		form_data.append('lastname',lastname);
+
+		let fetch_res = await fetch("/customers", {method: "POST", body: form_data});
+		let json_res = await fetch_res.json();
+		console.log(json_res);
+}
+
+/**
+ * Registers for a given slot
+ * @returns the stripe client secret
+ */
+async function register_slot(slot, prefs, offering) {
+}
+
+function normalize_phone(phone) {
+		return 
+}
+
 function Payment(props) {
 		let [disable, setDisabled] = useState(false);
+		
+		let [form, setForm] = useState({
+				// angry tell us to higlight the input
+				firstname: {value: "", invalid:true, angry: false},
+				lastname: {value: "", invalid: true, angry: false},
+				email: {value: "", invalid: true, angry: false},
+				phone: {value: "", invalid: true, angry: false}
+		});
+
+		function updateForm(name, value) {
+				if(name==='phone' && (!((new RegExp("^[0-9\-]*$")).test(value)) || value.length>12)){
+						return;
+				} else if (name=='phone' && value.length >=10) {
+						setForm({...form, phone: {...form[name], invalid:false, value}})
+				} else if (name === 'phone' && value.length < 10) {
+						setForm({...form, phone: {...form[name], invalid:true, value}})
+				}
+				else if(name==='email' && (new RegExp("^[^@]+@[^@]+\.[^@]+$")).test(form.email.value)) {
+						console.log("valid email");
+						setForm({...form, email: {...form[name], invalid:false, value}})
+				}
+				else if((name==='firstname' || name==='lastname') && value.length > 0) {
+					
+						console.log("name is valid, setting invalid to be false");
+						setForm({...form, [name]: {...form[name], invalid:false, value}})
+				}
+				else setForm({...form, [name]: {...form[name], value}})
+		}
+
+		function setAngry(e) {
+				setForm({...form, [e.target.name]: {...form[e.target.name], angry:true}})
+				console.log("set angry", e.target.name, form[e.target.name].invalid);
+		}
 
 		const stripe = useStripe();
 		const elements = useElements();
 
 		let font_size = window.getComputedStyle(document.getElementsByClassName("payment_form__input")[0], null).getPropertyValue('font-size');;
 		console.log(font_size);
+
+		async function submit() {
+				setDisabled(true);
+				if(!(new RegExp("^[^@]+@[^@]+\.[^@]+$")).test(form.email.value)) {
+						setForm({...form, email: {...form.email, invalid:true}})
+				}
+				//register_customer(form.firstname, form.lastname, form.email, form.phone.replace(/[^0-9\.]/g, ''))
+				setTimeout(()=>setDisabled(false),1000);
+		}
 
 		return (
 		<div className="reservation_form">
@@ -372,34 +437,34 @@ function Payment(props) {
 										<label className="payment_form__label" for="firstname">
 												First Name
 										</label>
-										<input size="10" className="payment_form__input payment_form__input--half" name="firstname" id="firstname" disabled={disable} placeholder="Richard"/>
+										<input onBlur={setAngry} value={form.firstname.value} onChange={(e) => {updateForm("firstname", e.target.value)}} size="10" className={"payment_form__input payment_form__input--half "+(form.firstname.angry && form.firstname.invalid ? "payment_form__input--angry " :"")} name="firstname" id="firstname" disabled={disable} placeholder="Richard"/>
 								</div>
 
 								<div className="input_group">
 										<label className="payment_form__label" for="lastname">
 												Last Name
 										</label>
-										<input size="10" className="payment_form__input payment_form__input--half" name="lastname" id="lastname" disabled={disable} placeholder="Stallman"/>
+										<input onBlur={setAngry} value={form.lastname.value} onChange={(e) => {updateForm("lastname", e.target.value)}} size="10" className={"payment_form__input payment_form__input--half "+(form.lastname.angry && form.lastname.invalid ? "payment_form__input--angry " :"")} name="lastname" id="lastname" disabled={disable} placeholder="Stallman"/>
 								</div>
 						</div>
 						<div className="input_group">
 								<label for="email" className="payment_form__label" >
 										Email Address
 								</label>
-								<input name="email" id="email" type="email" className="payment_form__input" disabled={disable} placeholder="rstallman@gmu.edu"/>
+								<input onBlur={setAngry} value={form.email.value} onChange={(e) => {updateForm("email", e.target.value)}} name="email" id="email" type="email" className={"payment_form__input "+(form.email.angry && form.email.invalid ? "payment_form__input--angry " :"")} disabled={disable} placeholder="rstallman@gmu.edu"/>
 						</div>
 
 						<div className="input_group">
 								<label for="phone" className="payment_form__label" >
 										Phone Number
 								</label>
-								<input name="phone" className="payment_form__input" disabled={disable} type="phone" placeholder="5555555555"/>
+								<input onBlur={setAngry} value={form.phone.value} onChange={(e) => {updateForm("phone", e.target.value)}} name="phone" className={"payment_form__input "+(form.phone.angry && form.phone.invalid ? "payment_form__input--angry " :"")} disabled={disable} type="phone" placeholder="5555555555"/>
 						</div>
 						<div className="input_group">
 								<label for="phone" className="payment_form__label" >
 										Card
 								</label>
-								<CardElement options={{style:{base:{fontSize:font_size}}}} className="payment_form__input" disabled={disable} />
+								<CardElement options={{style:{base:{fontSize:font_size}}, disabled: disable}} className="payment_form__input"/>
 						</div>
 						<div className="assurances">
 								<Assurance icon="lock">
@@ -414,9 +479,9 @@ function Payment(props) {
 						</div>
 						<div className="payment_form__submission_deck">
 								<div className="payment_form__submission_deck__qualification">
-										Your payments will automatically stop at the end of the semester. $30 now, then 24 hours before each session
+										{props.prefs.payment_frequency === "weekly" && <>Your payments will automatically stop at the end of the semester. ${props.price} now, then 24 hours before each session</>}
 								</div>
-								<Button extraClasses="payment_form__submission_deck__submit">
+								<Button disabled={disable || form.firstname.invalid || form.lastname.invalid || form.email.invalid || form.phone.invalid} onClick={submit} extraClasses="payment_form__submission_deck__submit">
 										Pay
 								</Button>
 						</div>
@@ -434,7 +499,10 @@ function Payment(props) {
 
 function Button(props) {
 		return (
-		<div role="button" className={"button "+(props.disabled ? "button--disabled " : "")+props.extraClasses} onClick={() => {if(!props.disabled && props.onClick) props.onClick()}}>
+		<div role="button" className={"button "+(props.disabled ? "button--disabled " : "")+props.extraClasses} onClick={() => {
+				if(!props.disabled && props.onClick) props.onClick()
+				if(props.disabled && props.onDisabledClick) props.onDisabledClick()
+				}}>
 				{props.children}
 		</div>
 		)
