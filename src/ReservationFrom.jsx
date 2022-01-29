@@ -1,6 +1,13 @@
 import {useState, useEffect} from "react";
 import './ReservationForm.scss';
 
+import {CardElement, useElements, useStripe, Elements} from '@stripe/react-stripe-js';
+import {loadStripe} from '@stripe/stripe-js';
+
+// Make sure to call `loadStripe` outside of a component’s render to avoid
+// recreating the `Stripe` object on every render.
+const stripePromise = loadStripe('pk_test_51JdnMmABGmiERRLGxLTG2jrTUkEzP1ySRI5ofnnm3QLKTqqClvCzoxBBiBa9rlYlsepjmeyMmo4ISTpUrMqkaYbu00QlZCW7H9');
+
 const DAYS_OF_THE_WEEK = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 
 /**
@@ -156,6 +163,8 @@ function PrefsScreen(props) {
 
 		let submit_disabled = prefs.university == null || prefs.course == null || prefs.capacity == null || prefs.class_style == null || prefs.payment_frequency == null;
 
+		let prices_by_class_size = { 1: (prefs.payment_frequency === "onetime" ? 40 : 35), 2: (prefs.payment_frequency === "onetime" ? 35 : 30) };
+
 		if(!set)
 		return (
 				<div className="reservation_form">
@@ -169,8 +178,8 @@ function PrefsScreen(props) {
 						})}/>
 
 						<Selector value={prefs.capacity} setValue={setPrefValue} name="capacity" title="Class Size" icon="people" options={[
-								{text: "One-on-One "+(prefs.payment_frequency === "onetime" ? "$40" : "$35"), value: 1, disabled: !enabledOptions.capacity.has(1), subtext: "Dedicated attention and focus"}, {
-										text: "With Another Student "+(prefs.payment_frequency === "onetime" ? "$35" : "$30"), value: 2, disabled: !enabledOptions.capacity.has(2), subtext: "Automatically paired when available"}]} />
+								{text: "One-on-One $"+prices_by_class_size[1], value: 1, disabled: !enabledOptions.capacity.has(1), subtext: "Dedicated attention and focus"}, {
+										text: "2 Student Class $"+prices_by_class_size[2], value: 2, disabled: !enabledOptions.capacity.has(2), subtext: "Automatically paired when available"}]} />
 
 						<Selector value={prefs.class_style} setValue={setPrefValue} name="class_style" title="Session Location" icon="place" options={[
 								{value: "in-person", text:"On-Campus", disabled: !enabledOptions.class_style.has("in-person")},
@@ -189,7 +198,7 @@ function PrefsScreen(props) {
 				</div>
 		)
 		else return (
-				<SlotSelectionScreen prefs={prefs} back={() => { setSet(false) }}/>
+				<SlotSelectionScreen price={prices_by_class_size[prefs.capacity]} prefs={prefs} back={() => { setSet(false) }}/>
 		)
 }
 
@@ -232,7 +241,7 @@ function Slot(props) {
 function Criteria(props) {
 		return (<div className={"criteria "+(props.invisible ? "criteria--invisible" :"")}>
 				<span role="button" className="material-icons criteria__button" onClick={props.edit}>edit</span>
-				<div className="criteria__bubble">{(["Just the tutor in an empty room","One-on-One","With Another Student"])[props.capacity]}</div>
+				<div className="criteria__bubble">{(["Just the tutor in an empty room","One-on-One","2 Student Class"])[props.capacity]}</div>
 				<div className="criteria__bubble">{props.class_style}</div>
 				<div className="criteria__bubble">{props.class_number}</div>
 				<div className="criteria__bubble">{props.price}{props.payment_frequency === "weekly" ? "/wk" : ""}</div>
@@ -244,6 +253,12 @@ function SlotSelectionScreen(props) {
 		let [slots, setSlots] = useState([[], [], [], [], [], [], []]);
 		let [classNumber, setClassNumber] = useState("");
 		let [selectedSlot, setSelectedSlot] = useState(null);
+
+		// later passed to Payment page
+		let [clientSecret, setClientSecret] = useState("");
+		let options = {
+				clientSecret
+		}
 
 		useEffect(() => {
 				let action = async () => {
@@ -273,7 +288,7 @@ function SlotSelectionScreen(props) {
 						<div className="reservation_form__heading">
 								<h2 className="reservation_form__heading__title"> Select a slot </h2>
 								<small className="reservation_form__heading__subtext"> Confirm your payment after this step </small>
-								<Criteria class_size={prefs.class_size} payment_frequency={prefs.payment_frequency} capacity={prefs.capacity} class_number={classNumber} price="$10" class_style={{"online": "Online","in-person":"On campus"}[prefs.class_style]} edit={props.back} />
+								<Criteria class_size={prefs.class_size} payment_frequency={prefs.payment_frequency} capacity={prefs.capacity} class_number={classNumber} price={"$"+props.price} class_style={{"online": "Online","in-person":"On campus"}[prefs.class_style]} edit={props.back} />
 								{ DAYS_OF_THE_WEEK.map((day_of_the_week, days_since_monday) => {
 										if(slots[days_since_monday].length > 0)  {
 												return (<>
@@ -294,7 +309,9 @@ function SlotSelectionScreen(props) {
 				</div>
 		)
 		else return (
-				<Payment prefs={prefs} slot={selectedSlot} editPrefs={props.back} editSlot={() => setSelectedSlot(null)}/>
+				<Elements stripe={stripePromise}>
+						<Payment price={props.price} prefs={prefs} slot={selectedSlot} editPrefs={props.back} editSlot={() => setSelectedSlot(null)}/>
+				</Elements>
 		)
 }
 
@@ -314,6 +331,9 @@ function Assurance(props) {
 function Payment(props) {
 		let [disable, setDisabled] = useState(false);
 
+		const stripe = useStripe();
+		const elements = useElements();
+
 		return (
 		<div className="reservation_form">
 				<div className="reservation_form__heading">
@@ -322,36 +342,43 @@ function Payment(props) {
 				</div>
 				<h3> Your Booking </h3>
 				<Slot {...props.slot} onUnBook={()=>props.editSlot()} />
+				<br/>
 				<div className="payment_form">
 						<h3 className="payment_form__title"> Payment </h3>
-						<Criteria invisible/>
+						<Criteria invisible class_size={props.prefs.class_size} payment_frequency={props.prefs.payment_frequency} capacity={props.prefs.capacity} class_number={props.slot.offering.class.course_number} price={"$"+props.price} class_style={{"online": "Online","in-person":"On campus"}[props.prefs.class_style]} edit={props.editPrefs} />
 						<div className="payment_form__line">
 								<div className="input_group">
 										<label className="payment_form__label" for="firstname">
 												First Name
 										</label>
-										<input size="10" className="payment_form__input payment_form__input--half" name="firstname" id="firstname" disabled={disable}/>
+										<input size="10" className="payment_form__input payment_form__input--half" name="firstname" id="firstname" disabled={disable} placeholder="Richard"/>
 								</div>
 
 								<div className="input_group">
 										<label className="payment_form__label" for="lastname">
 												Last Name
 										</label>
-										<input size="10" className="payment_form__input payment_form__input--half" name="lastname" id="lastname" disabled={disable}/>
+										<input size="10" className="payment_form__input payment_form__input--half" name="lastname" id="lastname" disabled={disable} placeholder="Stallman"/>
 								</div>
 						</div>
 						<div className="input_group">
 								<label for="email" className="payment_form__label" >
 										Email Address
 								</label>
-								<input name="email" id="email" className="payment_form__input" disabled={disable}/>
+								<input name="email" id="email" type="email" className="payment_form__input" disabled={disable} placeholder="rstallman@gmu.edu"/>
 						</div>
 
 						<div className="input_group">
 								<label for="phone" className="payment_form__label" >
 										Phone Number
 								</label>
-								<input name="phone" className="payment_form__input" disabled={disable}/>
+								<input name="phone" className="payment_form__input" disabled={disable} type="phone" placeholder="5555555555"/>
+						</div>
+						<div className="input_group">
+								<label for="phone" className="payment_form__label" >
+										Card
+								</label>
+								<CardElement className="payment_form__input" disabled={disable} />
 						</div>
 						<div className="assurances">
 								<Assurance icon="lock">

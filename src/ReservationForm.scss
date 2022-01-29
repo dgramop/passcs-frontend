@@ -41,8 +41,11 @@ $max_width_reservation_form: 700px;
 		&__options {
 				display: flex;
 				gap: 1rem;
+				text-align: center;
+
 				&--longer {
 						flex-direction: column;
+						text-align:left;
 				}
 		}
 		margin-bottom: 2rem;
@@ -54,6 +57,10 @@ $max_width_reservation_form: 700px;
 		&__subtext {
 				font-size: 0.75rem;
 				text-align: center;
+				text-overflow: ellipsis;
+				overflow: hidden;
+				white-space:nowrap;
+				height: 1rem;
 		}
 
 		&__button {
@@ -246,6 +253,7 @@ $max_width_reservation_form: 700px;
 
 .criteria {
 		display: flex;
+		flex-wrap: wrap;
 		gap: 1rem;
 		padding: 1rem;
 		background-color:white;
@@ -258,6 +266,7 @@ $max_width_reservation_form: 700px;
 		&--invisible {
 				box-shadow: none;
 				background-color: transparent;
+				padding: 0rem;
 		}
 
 		&__bubble {
@@ -294,7 +303,7 @@ $max_width_reservation_form: 700px;
 		box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 		display: flex;
 		flex-direction: column;
-		padding: 4rem;
+		padding: 2rem;
 		gap: 1rem;
 
 		&__input {
@@ -345,5 +354,11 @@ $max_width_reservation_form: 700px;
 				color: #059669;
 				font-size: inherit;
 		}
+}
+
+.assurances {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
 }
 
