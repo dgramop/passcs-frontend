@@ -12,7 +12,8 @@ $max_width_reservation_form: 700px;
 				padding: 4rem;
 		}
 
-		max-width: 800px;
+		max-width: 750px;
+//		max-width: calc(800px - 4rem);
 
 		&__heading {
 				display: flex;
@@ -305,6 +306,7 @@ $max_width_reservation_form: 700px;
 		flex-direction: column;
 		padding: 2rem;
 		gap: 1rem;
+		max-width: calc($max_width_reservation_form - 4rem);
 
 		&__input {
 				background: #F1F5F9;

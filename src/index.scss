@@ -58,6 +58,12 @@ body, html {
 		}
 
 		@include lg {
-				font-size: 22px;
+				font-size: 20px;
 		}
+}
+
+a {
+		color: #334155;
+		font-weight: 600;
+		text-decoration: none;
 }
