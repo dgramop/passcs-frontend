@@ -356,13 +356,25 @@ async function register_customer(firstname, lastname, email, phone) {
 		let fetch_res = await fetch("/customers", {method: "POST", body: form_data});
 		let json_res = await fetch_res.json();
 		console.log(json_res);
+		return json_res;
 }
 
 /**
  * Registers for a given slot
  * @returns the stripe client secret
  */
-async function register_slot(slot, prefs, offering) {
+async function register_payment(slot, prefs, offering, first_meeting) {
+		let form_data = new FormData();
+		form_data.append('meeting',first_meeting.id);
+		form_data.append('slot',slot.id);
+		form_data.append('class_style',prefs.class_style);
+		form_data.append('capacity',prefs.capacity);
+		form_data.append('offering',offering.id);
+
+		let fetch_res = await fetch("/payments", {method: "POST", body: form_data});
+		let json_res = await fetch_res.json();
+		console.log(json_res);
+		return json_res;
 }
 
 function normalize_phone(phone) {
@@ -380,10 +392,12 @@ function Payment(props) {
 				phone: {value: "", invalid: true, angry: false}
 		});
 
+		let [error, setError] = useState(null);
+
 		function updateForm(name, value) {
 				if(name==='phone' && (!((new RegExp("^[0-9\-]*$")).test(value)) || value.length>12)){
 						return;
-				} else if (name=='phone' && value.length >=10) {
+				} else if (name ==='phone' && value.length >=10) {
 						setForm({...form, phone: {...form[name], invalid:false, value}})
 				} else if (name === 'phone' && value.length < 10) {
 						setForm({...form, phone: {...form[name], invalid:true, value}})
@@ -413,11 +427,62 @@ function Payment(props) {
 
 		async function submit() {
 				setDisabled(true);
-				if(!(new RegExp("^[^@]+@[^@]+\.[^@]+$")).test(form.email.value)) {
-						setForm({...form, email: {...form.email, invalid:true}})
+				let customer = null;
+				try {
+							customer = await register_customer(form.firstname.value, form.lastname.value, form.email.value, form.phone.value.replace(new RegExp("[^0-9\.]","g"),""));
+				} catch(e) {
+						if(e.error) {
+								switch(e.error) {
+										default:
+												setError(e.error)
+												break;
+								}
+						} else {
+								console.log(e);
+								setError("Unknown Error");
+								setDisabled(false)
+						}
+						setDisabled(false)
+						return;
 				}
-				//register_customer(form.firstname, form.lastname, form.email, form.phone.replace(/[^0-9\.]/g, ''))
-				setTimeout(()=>setDisabled(false),1000);
+
+				let payment = null;
+				try {
+						payment = await register_payment(props.slot.slot, props.prefs, props.slot.offering, props.slot.meetings[0])
+				} catch(e) {
+						if(e.error) {
+								switch(e.error) {
+										default:
+												setError(e.error)
+												break;
+								}
+						} else {
+								console.log(e);
+								setError("Unknown Error");
+								setDisabled(false)
+						}
+						setDisabled(false)
+						return;				
+				}
+
+				const payload = await stripe.confirmCardPayment(payment.data.client_secret, {
+						payment_method: {
+								card: elements.getElement(CardElement),
+								billing_details: {
+										name: props.prefs.firstname+" "+props.prefs.lastname
+								}
+						}
+				})						
+
+				console.log(payload);
+
+				if(payload.error) {
+						setError(payload.error.message);
+						setDisabled(false);
+						return;
+				}
+
+				setDisabled(false);
 		}
 
 		return (
@@ -451,7 +516,7 @@ function Payment(props) {
 								<label for="email" className="payment_form__label" >
 										Email Address
 								</label>
-								<input onBlur={setAngry} value={form.email.value} onChange={(e) => {updateForm("email", e.target.value)}} name="email" id="email" type="email" className={"payment_form__input "+(form.email.angry && form.email.invalid ? "payment_form__input--angry " :"")} disabled={disable} placeholder="rstallman@gmu.edu"/>
+								<input onBlur={setAngry} value={form.email.value} onChange={(e) => {updateForm("email", e.target.value)}} name="email" autoComplete="off" id="email" type="email" className={"payment_form__input "+(form.email.angry && form.email.invalid ? "payment_form__input--angry " :"")} disabled={disable} placeholder="rstallman@gmu.edu"/>
 						</div>
 
 						<div className="input_group">
