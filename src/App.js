@@ -1,10 +1,10 @@
 import './App.scss';
-import ReservationForm from './ReservationFrom';
+import Home from './Home';
 
 function App() {
   return (
 		  <div>
-				  <ReservationForm/>
+				  <Home/>
 		  </div>
   );
 }

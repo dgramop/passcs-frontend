@@ -1,0 +1,178 @@
+@import "index.scss";
+.container {
+		padding: 4rem;
+		padding-bottom: 2rem;
+		max-width: 1000px;
+
+		margin-left: auto;
+		margin-right: auto;
+
+
+		@include sm {
+				padding: 2rem;
+				padding-bottom: 2rem;
+		}
+
+}
+
+.home_hero {
+		background-color: #1E293B;
+		display: flex;
+		justify-content: space-between;
+
+		padding: 4rem;
+		padding-bottom: 2rem;
+		max-width: 1000px;
+
+		margin-left: auto;
+		margin-right: auto;
+
+		@include sm {
+				padding: 2rem;
+				padding-bottom: 2rem;
+		}
+
+		&__container {
+				background-color: #1E293B;
+				margin-bottom: 2rem;
+		}
+		
+		&__logo {
+				font-size: 3rem;
+		}
+
+		&__main {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 0.5rem;
+				justify-content: flex-end;
+		}
+
+		&__distraction__reportcard {
+				background-color: #E2E8F0;
+				padding: 1rem;
+				transform-origin: bottom center;
+				box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+				transform: translateY(2rem) rotate(-19.5deg);
+				//transform: rotate(-30deg);
+				width: 200px;
+
+				display: none;
+				@include sm {
+						display: flex;
+				}
+				flex-direction: column;
+
+				&__title {
+						font-weight:700;
+						font-size: 1.2rem;
+						color:  #334155;
+				}
+
+				&__graderow {
+						display: flex;
+						justify-content: space-between;
+
+						&__grade {
+								font-weight: 600;
+								text-align: left;
+								width: 2rem;
+						}
+
+				}
+		}
+		
+		&__tagline {
+				font-weight: bold;
+				color: #CBD5E1;
+		}
+
+		&__primary_button {
+				background-color: #065F46;
+				color: #ECFDF5;
+		}
+
+		&__secondary_button {
+				background-color: transparent;
+				color: #CBD5E1;
+		}
+}
+
+.pass {
+		color:white;
+		font-style: italic;
+		font-weight: bold;
+}
+
+.cs {
+		color: #28E13B;
+		font-style: italic;
+		font-weight: bold;
+}
+
+.cards {
+		display: flex;
+		gap: 1rem;
+		flex-direction: column ;
+}
+
+.card {
+		//get padding from reservation form
+		display: grid;
+		grid-template-columns: min-content 1fr;
+		background-color: #F8FAFC;
+		border-radius: 24px;
+		box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+		gap: 1rem;
+		padding: 2rem;
+		align-items: baseline;
+		
+
+		&__icon__container {
+				background-color: #E2E8F0;
+				color: #334155;
+				min-width: 3rem;
+				min-height: 3rem;
+				clip-path: circle(1.5rem);
+				text-align: center;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+
+				& > img {
+						width: 3rem;
+						height: 3rem;
+				}
+		}
+
+		&__title {
+				color: #1E293B;
+				padding: 0;
+				margin: 0;
+		}
+
+
+		&__body {
+				line-height: 1.6rem;
+				font-size: 1.3rem;
+		}
+
+		&--testimonial {
+				color: #F8FAFC;
+				.card__title {
+						line-height: 1em;
+						color: #F8FAFC;
+				}
+
+				.card__tagline {
+						color: #E2E8F0;
+						padding: 0;
+						margin:0;
+						line-height: 2em;
+				}
+
+				align-items: center;
+				background-color: #1E293B;
+		}
+}

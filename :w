@@ -361,7 +361,6 @@ async function register_customer(firstname, lastname, email, phone) {
 
 /**
  * Registers for a given slot
- * @returns the stripe client secret
  */
 async function register_payment(slot, prefs, offering, first_meeting) {
 		let form_data = new FormData();
@@ -377,8 +376,26 @@ async function register_payment(slot, prefs, offering, first_meeting) {
 		return json_res;
 }
 
-function normalize_phone(phone) {
-		return 
+async function register_subscription(slot, prefs, offering, first_meeting) {
+		let form_data = new FormData();
+		form_data.append('meeting',first_meeting.id);
+		form_data.append('slot',slot.id);
+		form_data.append('class_style',prefs.class_style);
+		form_data.append('capacity',prefs.capacity);
+		form_data.append('offering',offering.id);
+
+		let fetch_res = await fetch("/subscriptions", {method: "POST", body: form_data});
+		let json_res = await fetch_res.json();
+		console.log(json_res);
+		return json_res;
+}
+
+async function get_logged_in_customer() {
+		let customer_resp = await fetch("/customers/0");
+		if(customer_resp.error) {
+				throw customer_resp;
+		}
+		else return customer_resp?.data;
 }
 
 function Payment(props) {
@@ -428,44 +445,149 @@ function Payment(props) {
 		async function submit() {
 				setDisabled(true);
 				let customer = null;
-				try {
-							customer = await register_customer(form.firstname.value, form.lastname.value, form.email.value, form.phone.value.replace(new RegExp("[^0-9\.]","g"),""));
-				} catch(e) {
-						if(e.error) {
-								switch(e.error) {
-										default:
-												setError(e.error)
-												break;
+
+				try  {
+						customer = await get_logged_in_customer() 
+				} catch (e) {
+						customer = null;
+				}
+
+				if(!customer) {
+						//customer isn't logged in, so we'll try to register the customer
+						try {
+								let resp = await register_customer(form.firstname.value, form.lastname.value, form.email.value, form.phone.value.replace(new RegExp("[^0-9\.]","g"),""));
+								if(resp.error) {
+										switch(resp.error.type) {
+												case "ValidationError": 
+														setError("Please update your "+resp.error.field);
+														setForm({...form, [resp.error.field]: {...form[resp.error.field], angry:true, invalid: true}})
+														break;
+												case "DBError": 
+														setError("System Error. Please contact dhruv@passcs.io or try again later.");
+														break;
+												case "StripeError":
+														setError("Payment Gateway Error. Please contact dhruv@passcs.io or try again later.");
+														break;
+												case "CookieAuthError":
+														setError("Failed to log you in. Please try contact dhruv@passcs.io, or try again with a new email address");
+														break;
+												case "AlreadyExists":
+														setError("You must log in to complete this transaction. We emailed you a quick login link to your email, you may return to this tab after logging in");
+														//TODO: dispatch a log-in link
+														break;
+												default:
+														setError(resp.error.type)
+														break;
+										}
+										setDisabled(false)
+										customer = resp?.customer;
+										return;
 								}
-						} else {
+						} catch(e) {
+								console.log(e);
+								setError("Unknown Error");
+								setDisabled(false)
+								return;
+						}
+				} 
+
+				let client_secret = client_secret;
+				if(props.prefs.payment_frequency === 'weekly') {
+						try {
+								let resp = (await register_subscription(props.slot.slot, props.prefs, props.slot.offering, props.slot.meetings[0]));
+								if (resp.error) {
+										switch(resp.error.type) {
+												case "NotCustomer":
+														setError("You aren't a customer, and therefore cannot complete this transaction");
+														break;
+												case "DBError":
+														setError("System Error. Please contact dhruv@passcs.io or try again later.");
+														break;
+												case "MeetingAndSlotDontMatch": 
+														setError("Invalid first meeting for chosen slot")
+														break;
+												case "PrefFailedToMatch": 
+														setError("Somebody beat you to this booking! Failed to match "+resp.error.pref)
+														break;
+												case "MeetingFull":
+														setError("Somebody beat you to this booking! There is no more space")
+														break;
+												case "AlreadyExists":
+														setError("You have already subscribed to this slot")
+														break;
+												case "CustomerNotFound":
+														setError("This customer has been deleted or does not exist");
+														break;
+												case "MeetingNotFound": 
+														setError("This meeting has been deleted");
+														break;
+												case "StripeError":
+														setError("Payment Gateway Error: Could not complete transaction");
+														break;
+												default:
+														setError(resp.error)
+														break;
+										}
+										setDisabled(false);
+										return;
+								} else {
+										client_secret = resp.data.client_secret;
+								}
+						} catch (e) {
 								console.log(e);
 								setError("Unknown Error");
 								setDisabled(false)
 						}
-						setDisabled(false)
-						return;
-				}
-
-				let payment = null;
-				try {
-						payment = await register_payment(props.slot.slot, props.prefs, props.slot.offering, props.slot.meetings[0])
-				} catch(e) {
-						if(e.error) {
-								switch(e.error) {
-										default:
-												setError(e.error)
-												break;
+				} else {
+						try {
+								let resp = (await register_payment(props.slot.slot, props.prefs, props.slot.offering, props.slot.meetings[0]));
+								if(resp.error) {
+										switch(resp.error.type) {
+												case "NotCustomer":
+														setError("You aren't a customer, and therefore cannot complete this transaction");
+														break;
+												case "DBError":
+														setError("System Error. Please contact dhruv@passcs.io or try again later.");
+														break;
+												case "MeetingAndSlotDontMatch": 
+														setError("Invalid meeting for chosen slot")
+														break;
+												case "PrefFailedToMatch": 
+														setError("Somebody beat you to this booking! Failed to match "+resp.error.pref)
+														break;
+												case "MeetingFull":
+														setError("Somebody beat you to this booking! There is no more space")
+														break;
+												case "AlreadyExists":
+														setError("You have already joined this meeting")
+														break;
+												case "CustomerNotFound":
+														setError("This customer has been deleted or does not exist");
+														break;
+												case "MeetingNotFound": 
+														setError("This meeting has been deleted");
+														break;
+												case "StripeError":
+														setError("Payment Gateway Error: Could not complete transaction");
+														break;
+												default:
+														setError(resp.error.type)
+														break;
+										}
+										setDisabled(false)
+										return;
+								} else {
+										client_secret = resp.data.client_secret;
 								}
-						} else {
+						} catch(e) {
 								console.log(e);
 								setError("Unknown Error");
 								setDisabled(false)
+								return;				
 						}
-						setDisabled(false)
-						return;				
 				}
 
-				const payload = await stripe.confirmCardPayment(payment.data.client_secret, {
+				const payload = await stripe.confirmCardPayment(client_secret, {
 						payment_method: {
 								card: elements.getElement(CardElement),
 								billing_details: {
@@ -544,6 +666,7 @@ function Payment(props) {
 						</div>
 						<div className="payment_form__submission_deck">
 								<div className="payment_form__submission_deck__qualification">
+										{error && <><div className="payment_form__error">{JSON.stringify(error)}</div><br/></>}
 										{props.prefs.payment_frequency === "weekly" && <>Your payments will automatically stop at the end of the semester. ${props.price} now, then 24 hours before each session</>}
 								</div>
 								<Button disabled={disable || form.firstname.invalid || form.lastname.invalid || form.email.invalid || form.phone.invalid} onClick={submit} extraClasses="payment_form__submission_deck__submit">
