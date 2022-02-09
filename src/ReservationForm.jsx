@@ -134,10 +134,6 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 				action();
 		},[])
 
-		useLayoutEffect(() => {
-				if(props.scrollFn) props.scrollFn()
-		}, [set])
-
 		useEffect(() => {
 				let action = async () => {
 						// the assumption is that if it matches weekly it imples that it also matches onetime. That's why we can assume onetime even if it's payment_frequency isn't initialized yet
@@ -202,7 +198,7 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 				</div>
 		)
 		else return (
-				<SlotSelectionScreen ref={ref} price={prices_by_class_size[prefs.capacity]} prefs={prefs} back={() => { setSet(false) }} scrollFn={props.scrollFn}/>
+				<SlotSelectionScreen ref={ref} price={prices_by_class_size[prefs.capacity]} prefs={prefs} back={() => { setSet(false); props.scrollFn() }} scrollFn={props.scrollFn}/>
 				
 		)
 })
@@ -695,7 +691,7 @@ const Payment = React.forwardRef((props, ref) => {
 						</div>
 						<div className="payment_form__submission_deck">
 								<div className="payment_form__submission_deck__qualification">
-										{error && <><div className="payment_form__error">{JSON.stringify(error)}</div><br/></>}
+										{error && <><div className="payment_form__error">{error}</div><br/></>}
 										{props.prefs.payment_frequency === "weekly" && <>Your payments will automatically stop at the end of the semester. ${props.price} now, then 24 hours before each session</>}
 								</div>
 								<Button disabled={disable || (!loggedIn && (form.firstname.invalid || form.lastname.invalid || form.email.invalid || form.phone.invalid))} onClick={submit} extraClasses="payment_form__submission_deck__submit">

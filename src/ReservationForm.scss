@@ -303,6 +303,11 @@ $max_width_reservation_form: 700px;
 		gap: 1rem;
 		max-width: calc($max_width_reservation_form - 4rem);
 
+		&__error {
+				color: #d97706;
+				font-weight: bold;
+		}
+
 		&__input {
 				background: #F1F5F9;
 				border: 3px solid #334155;
