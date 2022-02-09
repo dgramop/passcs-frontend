@@ -2,6 +2,9 @@ import ReservationForm from './ReservationForm';
 import './Home.scss'
 import './index.scss'
 import {Button} from "./Components";
+import shakir from "./Shakir.jpg";
+import React, {forwardRef, useRef, useEffect, createRef}  from "react";
+
 /**
  * Makes a paper like card on the screen
  * @param {String} props.icon the google icon, as text
@@ -12,7 +15,7 @@ import {Button} from "./Components";
 function Testimonial(props) {
 		return (
 				<section className="card card--testimonial">
-						<div className="card__icon__container"><img alt={props.title+"'s profile (head etc.)"} src="https://static.generated.photos/vue-static/face-generator/landing/wall/7.jpg" /></div>
+						<div className="card__icon__container"><img alt={props.title+"'s profile (head etc.)"} src={props.photo} /></div>
 						<div className="card__title__block"><h2 className="card__title">{props.title}</h2><div className="card__tagline">passCS Customer</div></div>
 						<div></div>
 						<div className="card__body">{props.children}</div>
@@ -39,6 +42,7 @@ function Card(props) {
 }
 
 export default function Home() {
+		const reservationRef = useRef();
 		return (<>
 				<div className="home_hero__container">
 						<div className="home_hero">
@@ -51,7 +55,7 @@ export default function Home() {
 												pass class, guarenteed*
 										</div>
 										<div className="home_hero__buttontray">
-												<Button extraClasses="home_hero__primary_button">View Options</Button>
+												<Button onClick={() => {reservationRef.current.scrollIntoView()}} extraClasses="home_hero__primary_button">View Options</Button>
 												<Button extraClasses="home_hero__secondary_button">Login</Button>
 										</div>
 								</div>
@@ -70,10 +74,10 @@ export default function Home() {
 						<Card title="Pass or your money back" icon="check">
 								Get that extra piece of mind. If you don’t pass after taking at least 12 hours of one-on-one passCS Tutoring, we’ll refund the money you paid us. <a href="/terms">See additional terms</a>
 						</Card>
-						<Testimonial title="Shakir" tagline="passCS Customer">
+						<Testimonial photo={shakir} title="Shakir" tagline="passCS Customer">
 								“passCS helped me understand core programming, actually it is better than two hours lecture in class. Thanks passCS”.
 						</Testimonial>
-						<ReservationForm/>
+						<ReservationForm ref={reservationRef} scrollFn={()=>reservationRef.current.scrollIntoView(true)}/>
 				</div>
 		</>)
 }

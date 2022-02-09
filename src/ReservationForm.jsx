@@ -1,4 +1,4 @@
-import {useState, useEffect} from "react";
+import React, {useState, useEffect, forwardRef, useLayoutEffect} from "react";
 import './ReservationForm.scss';
 import {Button} from "./Components";
 
@@ -114,7 +114,8 @@ function summarize(prefs, slots) {
 		return {capacity, class_style, payment_frequency}
 }
 
-function PrefsScreen(props) {
+
+const PrefsScreen = React.forwardRef((props, ref) => {
 		let [prefs, setPrefs] = useState({university:"GMU", capacity: 1, class_style: "in-person", payment_frequency: "weekly"})
 		let [set, setSet] = useState(false);
 		let [classes, setClasses] = useState([]);
@@ -132,6 +133,10 @@ function PrefsScreen(props) {
 				};
 				action();
 		},[])
+
+		useLayoutEffect(() => {
+				if(props.scrollFn) props.scrollFn()
+		}, [set])
 
 		useEffect(() => {
 				let action = async () => {
@@ -166,16 +171,16 @@ function PrefsScreen(props) {
 
 		if(!set)
 		return (
-				<div className="reservation_form">
+				<div ref={ref} className="reservation_form">
 						<div className="reservation_form__heading">
-								<h2 className="reservation_form__heading__title"> Find a seat </h2>
+								<h2 id="reservation" className="reservation_form__heading__title"> Find a seat </h2>
 								<small className="reservation_form__heading__subtext"> You won't be charged yet </small>
 						</div>
 						<Selector value={prefs.university} setValue={setPrefValue} name="university" title="University" icon="school" options={[{text: "George Mason", value: "GMU"}]} > </Selector>
 						<Selector value={prefs.course} setValue={setPrefValue} name="course" longer={true} title="Class" icon="class" options={classes.map((course) => {
 								return {value: course.id, text: course.course_number+" - "+course.course_name };
 						})}/>
-
+						{prefs.course != null && slots.length == 0 && <div className="out_of_stock">Sorry, no availability for selected class. Try again later</div>}
 						<Selector value={prefs.capacity} setValue={setPrefValue} name="capacity" title="Class Size" icon="people" options={[
 								{text: "One-on-One $"+prices_by_class_size[1], value: 1, disabled: !enabledOptions.capacity.has(1), subtext: "Dedicated attention and focus"}, {
 										text: "2 Student Class $"+prices_by_class_size[2], value: 2, disabled: !enabledOptions.capacity.has(2), subtext: "Automatically paired when available"}]} />
@@ -189,7 +194,7 @@ function PrefsScreen(props) {
 										{value: "onetime", text:"One Time", modifier: {type:"error", text:"add $5"}, disabled: !enabledOptions.payment_frequency.has("onetime")}]} />
 						<hr />
 						<div className="reservation_form__submission">
-								<Button extraClasses="reservation_form__submission__primaryButton" disabled={submit_disabled} onClick={() => { if(!submit_disabled) setSet(true)}} >
+								<Button extraClasses="reservation_form__submission__primaryButton" disabled={submit_disabled} onClick={() => { if(!submit_disabled) { setSet(true)}}} >
 										Select Tutor + Time <span className="material-icons">east</span>
 								</Button>
 								<small className="reservation_form__submission__subtext"> You won't be charged yet </small>
@@ -197,9 +202,10 @@ function PrefsScreen(props) {
 				</div>
 		)
 		else return (
-				<SlotSelectionScreen price={prices_by_class_size[prefs.capacity]} prefs={prefs} back={() => { setSet(false) }}/>
+				<SlotSelectionScreen ref={ref} price={prices_by_class_size[prefs.capacity]} prefs={prefs} back={() => { setSet(false) }} scrollFn={props.scrollFn}/>
+				
 		)
-}
+})
 
 /**
  * Gives time info for the given time zone for a given slot
@@ -268,11 +274,16 @@ function Criteria(props) {
 		</div>)
 }
 
-function SlotSelectionScreen(props) {
+const SlotSelectionScreen = React.forwardRef((props, ref) => {
 		let prefs = props.prefs;
 		let [slots, setSlots] = useState([[], [], [], [], [], [], []]);
 		let [classNumber, setClassNumber] = useState("");
 		let [selectedSlot, setSelectedSlot] = useState(null);
+
+		let slot_selected = selectedSlot==null;
+		useLayoutEffect(() => {
+				if(props.scrollFn) props.scrollFn();
+		}, [ref, slots, slot_selected])
 
 		useEffect(() => {
 				let action = async () => {
@@ -297,9 +308,9 @@ function SlotSelectionScreen(props) {
 		// Text on headings should be Every Tuesday v s Every Tuesday, Starting Next Week
 		if(!selectedSlot)
 		return (
-				<div className="reservation_form">
+				<div ref={ref} className="reservation_form">
 						<div className="reservation_form__heading">
-								<h2 className="reservation_form__heading__title"> Select a slot </h2>
+								<h2 className="reservation_form__heading__title" id="reservation"> Select a slot </h2>
 								<small className="reservation_form__heading__subtext"> Confirm your payment after this step </small>
 								<Criteria class_size={prefs.class_size} payment_frequency={prefs.payment_frequency} capacity={prefs.capacity} class_number={classNumber} price={"$"+props.price} class_style={{"online": "Online","in-person":"On campus"}[prefs.class_style]} edit={props.back} />
 								{ DAYS_OF_THE_WEEK.map((day_of_the_week, days_since_monday) => {
@@ -323,10 +334,10 @@ function SlotSelectionScreen(props) {
 		)
 		else return (
 				<Elements stripe={stripePromise}>
-						<Payment price={props.price} prefs={prefs} slot={selectedSlot} editPrefs={props.back} editSlot={() => setSelectedSlot(null)}/>
+						<Payment ref={ref} price={props.price} prefs={prefs} slot={selectedSlot} editPrefs={props.back} editSlot={() => setSelectedSlot(null)} scrollFn={props.scrollFn}/>
 				</Elements>
 		)
-}
+})
 
 /**
  * props.icon {String} Text for the material icon to use
@@ -394,13 +405,18 @@ async function get_logged_in_customer() {
 		else return customer_resp?.data;
 }
 
-function Payment(props) {
+const Payment = React.forwardRef((props, ref) => {
 		let [disable, setDisabled] = useState(false);
 		let [loggedIn, setLoggedIn] = useState(false);
+
 
 		useEffect(() => {
 				get_logged_in_customer().then(() => setLoggedIn(true)).catch(()=> setLoggedIn(false))
 		}, []);
+
+		useLayoutEffect(() => {
+				if(props.scrollFn) props.scrollFn();
+		}, [props, loggedIn])
 
 		let [form, setForm] = useState({
 				// angry tell us to higlight the input
@@ -621,7 +637,7 @@ function Payment(props) {
 		}
 
 		return (
-		<div className="reservation_form">
+		<div className="reservation_form" ref={ref}>
 				<div className="reservation_form__heading">
 						<h2 className="reservation_form__heading__title">Confirm Booking</h2>
 						<small className="reservation_form__heading__subtext">Your card will be charged</small>
@@ -689,12 +705,9 @@ function Payment(props) {
 				</div>
 		</div>
 		)
-}
+})
 
 
 
-export default function ReservationForm() {
-		return (
-				<PrefsScreen/>
-		);
-}
+const ReservationForm = React.forwardRef((props, ref) => ( <PrefsScreen {...props} ref={ref}/> ))
+export default ReservationForm;
