@@ -1,6 +1,4 @@
 import './CustomerDashboard.scss';
-import dhruv from './Dhruv.jpg';
-import shakir from './Shakir.jpg';
 import { Button } from './Components';
 
 /**
@@ -19,7 +17,7 @@ function SlotCard(props) {
 						{props.course}
 				</div>
 				<div className="slotcard__tutorinfo">
-						<img className="slotcard__tutorinfo__photo" src={props.photo} alt={props.tutor.name+"'s photo"}/>
+						<img className="slotcard__tutorinfo__photo" src={"/"+props.tutor.id+".jpg"} alt={props.tutor.name+"'s photo"}/>
 						<div className="slotcard__tutorinfo__attrs">
 								<div className="slotcard__tutorinfo__attr slotcard__tutorinfo__attr--name">{props.tutor.name}</div>
 								<div className="slotcard__tutorinfo__attr">{props.tutor.email}</div>
@@ -51,10 +49,8 @@ export default function CustomerDashboard(props) {
 								</div>
 						</header>
 						<main className="customer_dashboard_main container">
-								<SlotCard course="CS262" tutor={{name:"Dhruv", email:"dhruv@passcs.io", phone: 571524303}} slot={{}} meetings={{}} photo={dhruv}/>
-								<SlotCard course="CS310" tutor={{name:"Dhruv", email:"dhruv@passcs.io", phone: 571524303}} slot={{}} meetings={{}} photo={shakir}/>
-								<SlotCard course="CS316" tutor={{name:"Dhruv", email:"dhruv@passcs.io", phone: 571524303}} slot={{}} meetings={{}} photo={shakir}/>
-								<SlotCard course="CS319" tutor={{name:"Dhruv", email:"dhruv@passcs.io", phone: 571524303}} slot={{}} meetings={{}} photo={shakir}/>
+								<SlotCard course="CS262" tutor={{id:1, name:"Dhruv", email:"dhruv@passcs.io", phone: 571524303}} slot={{}} meetings={{}} />
+								<SlotCard course="CS310" tutor={{id:3, name:"Akshay", email:"dhruv@passcs.io", phone: 571524303}} slot={{}} meetings={{}} />
 						</main>
 				</>
 		)

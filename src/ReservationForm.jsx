@@ -230,7 +230,7 @@ function Slot(props) {
 		return (
 				<div className="slot">
 						<div className="slot__tutor_info">
-								<img alt={"photo of "+props.offering.tutor.name} src="https://pbs.twimg.com/profile_images/1192934662638837763/bbNss3q3_400x400.jpg" className="slot__tutor_info__image"/>
+								<img alt={"photo of "+props.offering.tutor.name} src={"/"+props.offering.tutor.id+".jpg"} className="slot__tutor_info__image"/>
 								<div className="slot__tutor_info__bio">
 										<div className="slot__tutor_info__bio__name">
 												{props.offering.tutor.name}
