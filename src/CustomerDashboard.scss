@@ -4,6 +4,7 @@
 		box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 		$border_radius: 1rem;
 		border-radius: $border_radius;
+		max-width: 550px;
 		&__header {
 				border-top-right-radius: $border_radius;
 				border-top-left-radius: $border_radius;
@@ -69,6 +70,9 @@
 				display: flex;
 				align-items: center;
 				gap: 1rem;
+				max-width: 1000px;
+				margin-left: auto;
+				margin-right: auto;
 		}
 
 

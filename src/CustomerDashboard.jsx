@@ -43,7 +43,7 @@ export default function CustomerDashboard(props) {
 										<h1 className="header__title"> Your Classes </h1>
 								</div>
 						</header>
-						<main>
+						<main className="container">
 								<SlotCard course="CS262" tutor={{name:"Dhruv", email:"dhruv@passcs.io", phone: 571524303}} slot={{}} meetings={{}}/>
 						</main>
 				</>
