@@ -1,0 +1,86 @@
+@import "./index.scss";
+
+.slotcard {
+		box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+		$border_radius: 1rem;
+		border-radius: $border_radius;
+		&__header {
+				border-top-right-radius: $border_radius;
+				border-top-left-radius: $border_radius;
+				&--blue {
+						background-color: #0284C7;
+				}
+				
+				&--red {
+						background-color: #DC2626;
+				}
+				
+				&--green {
+						background-color: #16A34A;
+				}
+				
+				&--orange {
+						background-color: #EA580C;
+				}
+				
+				&--purple {
+						background-color: #C026D3;
+				}
+				color: white;
+		}
+
+		&__tutorinfo {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				justify-content: flex-start;
+				&__photo {
+						background-color:grey;
+						clip-path: circle(40%);
+						width: 100px;
+				}
+
+				&__attrs {
+				}
+
+				&__attr {
+						color: #334155;
+						&--name {
+								font-size: 1.2rem;
+								color: #1E293B;
+						}
+				}
+		}
+}
+
+.header {
+		background-color: white;
+		box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+		margin-bottom: 1rem;;
+
+		&__content {
+				padding:1rem;
+				padding-left: 2rem;
+				padding-right: 2rem;
+				@include sm {
+						padding-left: 4rem;
+						padding-right: 4rem;
+				}
+				display: flex;
+				align-items: center;
+				gap: 1rem;
+		}
+
+
+		&__content > * {
+				font-size: 1.25rem;
+				padding: 0;
+				margin: 0;
+				font-weight: normal;
+		}
+
+		&__icon {
+				color: #334155;
+		}
+
+}
