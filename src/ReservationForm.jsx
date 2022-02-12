@@ -173,9 +173,9 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 								<small className="reservation_form__heading__subtext"> You won't be charged yet </small>
 						</div>
 						<Selector value={prefs.university} setValue={setPrefValue} name="university" title="University" icon="school" options={[{text: "George Mason", value: "GMU"}]} > </Selector>
-						<Selector value={prefs.course} setValue={setPrefValue} name="course" longer={true} title="Class" icon="class" options={classes.map((course) => {
+						<Selector value={prefs.course} setValue={setPrefValue} name="course" longer={true} title="Class" icon="class" options={classes.length > 0 ? classes.map((course) => {
 								return {value: course.id, text: course.course_number+" - "+course.course_name };
-						})}/>
+						}) : [{value:"-1", text:"No classes available to book", disabled:true}]}/>
 						{prefs.course != null && slots.length == 0 && <div className="out_of_stock">Sorry, no availability for selected class. Try again later</div>}
 						<Selector value={prefs.capacity} setValue={setPrefValue} name="capacity" title="Class Size" icon="people" options={[
 								{text: "One-on-One $"+prices_by_class_size[1], value: 1, disabled: !enabledOptions.capacity.has(1), subtext: "Dedicated attention and focus"}, {
