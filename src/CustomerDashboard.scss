@@ -97,6 +97,8 @@
 
 				display: flex;
 				justify-content: space-between;
+				border-bottom-left-radius: $border_radius;
+				border-bottom-right-radius: $border_radius;
 		}
 }
 
@@ -131,6 +133,8 @@
 
 		&__icon {
 				color: #334155;
+				width: 1.5rem;
+				height: 1.5rem;
 		}
 
 }

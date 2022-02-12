@@ -14,3 +14,26 @@ export function Button(props) {
 		</div>
 		)
 }
+
+export function Modal(props) {
+		return (<>
+				<div className="modal__container" onClick={() => props.close()}>
+				</div>
+				<div className="modal">
+						<div className="modal__title">
+								{props.title}
+						</div>
+						<div className="modal__text">
+								{props.children}
+						</div>
+						<div className="modal__buttons">
+								{props.buttons.secondaries.map((buttonProps) => (
+										<Button secondary={true} {...buttonProps}>{buttonProps.text}</Button>
+								))}
+								
+								<Button {...props.buttons.primary} extraClasses={(props.buttons.primary.extraClasses || "") + " modal__buttons__primary"} >{props.buttons.primary.text}</Button>
+						</div>
+				</div>
+		</>
+		)
+}
