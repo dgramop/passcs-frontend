@@ -649,21 +649,21 @@ const Payment = React.forwardRef((props, ref) => {
 										<label className="payment_form__label" for="firstname">
 												First Name
 										</label>
-										<input onBlur={setAngry} value={form.firstname.value} onChange={(e) => {updateForm("firstname", e.target.value)}} size="10" className={"payment_form__input payment_form__input--half "+(form.firstname.angry && form.firstname.invalid ? "payment_form__input--angry " :"")} name="firstname" id="firstname" disabled={disable} placeholder="Richard"/>
+										<input onBlur={setAngry} value={form.firstname.value} onChange={(e) => {updateForm("firstname", e.target.value)}} size="10" className={"payment_form__input payment_form__input--half "+(form.firstname.angry && form.firstname.invalid ? "angry " :"")} name="firstname" id="firstname" disabled={disable} placeholder="Richard"/>
 								</div>
 
 								<div className="input_group">
 										<label className="payment_form__label" for="lastname">
 												Last Name
 										</label>
-										<input onBlur={setAngry} value={form.lastname.value} onChange={(e) => {updateForm("lastname", e.target.value)}} size="10" className={"payment_form__input payment_form__input--half "+(form.lastname.angry && form.lastname.invalid ? "payment_form__input--angry " :"")} name="lastname" id="lastname" disabled={disable} placeholder="Stallman"/>
+										<input onBlur={setAngry} value={form.lastname.value} onChange={(e) => {updateForm("lastname", e.target.value)}} size="10" className={"payment_form__input payment_form__input--half "+(form.lastname.angry && form.lastname.invalid ? "angry " :"")} name="lastname" id="lastname" disabled={disable} placeholder="Stallman"/>
 								</div>
 						</div>
 						<div className="input_group">
 								<label for="email" className="payment_form__label" >
 										Email Address
 								</label>
-								<input onBlur={setAngry} value={form.email.value} onChange={(e) => {updateForm("email", e.target.value)}} name="email" autoComplete="off" id="email" type="email" className={"payment_form__input "+(form.email.angry && form.email.invalid ? "payment_form__input--angry " :"")} disabled={disable} placeholder="rstallman@gmu.edu"/>
+								<input onBlur={setAngry} value={form.email.value} onChange={(e) => {updateForm("email", e.target.value)}} name="email" autoComplete="off" id="email" type="email" className={"payment_form__input "+(form.email.angry && form.email.invalid ? "angry " :"")} disabled={disable} placeholder="rstallman@gmu.edu"/>
 						</div>
 
 						<div className="input_group">
