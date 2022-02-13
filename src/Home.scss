@@ -185,3 +185,17 @@
 				background-color: #1E293B;
 		}
 }
+
+
+
+#login__email {
+		width: calc(100% - 1.5rem);
+		@include sm {
+				width: 80%;
+		}
+}
+
+.login__error {
+				color: #d97706;
+				font-weight: bold;
+		}

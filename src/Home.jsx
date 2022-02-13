@@ -1,9 +1,9 @@
 import ReservationForm from './ReservationForm';
 import './Home.scss'
 import './index.scss'
-import {Button} from "./Components";
+import {Button, Modal} from "./Components";
 import shakir from "./Shakir.jpg";
-import React, {forwardRef, useRef, useEffect, createRef}  from "react";
+import React, {useState, useRef, useEffect, createRef}  from "react";
 
 /**
  * Makes a paper like card on the screen
@@ -41,9 +41,37 @@ function Card(props) {
 		);
 }
 
+async function sendLoginLink(email) {
+		try {
+				let r = await fetch("/login?user_type=customer&email="+email,{method: "POST"});
+				r = await r.json()
+				if(r.error) throw r.error
+				return r;
+		} catch(e) {
+				if(!e.type) throw new Error({type: "Cannot contact server"})
+				else throw e;
+		}
+}
+
 export default function Home() {
 		const reservationRef = useRef();
-		return (<>
+		const [showLogIn, setShowLogIn] = useState(false);
+		const [email, setEmail] = useState("");
+		const [waitingForLogIn, setWaitingForLogIn] = useState(false);
+		const [loginError, setLoginError] = useState(null);
+		const [showLoginSuccess, setShowLoginSuccess] = useState(false);
+
+		return (<> 
+				{showLogIn && <Modal title="Get a magic log-in link" icon="auto_fix_high" buttons={{primary: {text:"Send Link", onClick: async () => { setLoginError(null); setWaitingForLogIn(true); try { if((await sendLoginLink(email)).status == "success") {setShowLogIn(false); setShowLoginSuccess(true);}  } catch(e) { if(e.type) setLoginError(e.type); else console.log(e) }; setWaitingForLogIn(false); }, disabled:!(new RegExp("^[^@]+@[^@]+\.[^@]+$")).test(email) || waitingForLogIn}, secondaries: [{text:"Go Back", onClick:()=> setShowLogIn(false)}]}} close={()=>setShowLogIn(false)}>
+						We’ll email you a link you can use to log-in with in with one click
+						<div className="modal__text__form">
+								<label htmlFor="login__email">Email Address</label><br/>
+								<input id="login__email" size="10" type="email" placeholder="jdoe@gmail.com" onChange={(e) => setEmail(e.target.value)}/>
+								{loginError && <div className="login__error">{loginError}</div>}
+						</div>
+				</Modal>}
+				{showLoginSuccess && <Modal title="Check your inbox" icon="email" buttons={{primary:{text:"Close", onClick: ()=>setShowLoginSuccess(false)}}} close={()=>setShowLoginSuccess(false)}>
+				</Modal>}
 				<div className="home_hero__container">
 						<div className="home_hero">
 								<div className="home_hero__main">
@@ -56,7 +84,7 @@ export default function Home() {
 										</div>
 										<div className="home_hero__buttontray">
 												<Button onClick={() => {reservationRef.current.scrollIntoView()}} extraClasses="home_hero__primary_button">View Options</Button>
-												<Button extraClasses="home_hero__secondary_button">Login</Button>
+												<Button extraClasses="home_hero__secondary_button" onClick={()=>setShowLogIn(true)}>Login</Button>
 										</div>
 								</div>
 								<div className="home_hero__distraction">

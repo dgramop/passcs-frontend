@@ -101,30 +101,55 @@ a {
 }
 
 .modal {
+		$padding: 2rem;
 		z-index: 10;
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		// since top and left refer to top left corner of element
-		// we correct the error
-		transform: translate(-50%, -50%);
-
+		position: fixed;
+		
 		margin: auto;
 		background-color: white;
 		max-width: 750px;
 		display: flex;
 		flex-direction: column;
-		border-radius: 0.5rem;
-		padding: 2rem;
+		padding: $padding;
 		
-		&__title {
+		height: calc(100% - 2 * $padding);
+		width: calc(100% - 2 * $padding);
+		justify-content: center;
+		@include sm {
+				width:calc($screen-sm-min - (2 * $padding));
+				border-radius: 0.5rem;
+				height: auto;
+				top: 50%;
+				left: 50%;
+				// since top and left refer to top left corner of element
+				// we correct the error
+				transform: translate(-50%, -50%);
+
+		}
+		
+		&__header {
 				font-size: 1.2rem;
 				font-weight: bold;
+				display: flex;
+				align-items: center;
+				gap:0.5rem;
+				&__icon {
+						color: #334155;
+				}
+
+				
 		}
 
+		
+
 		&__text {
-				flex-grow: 1;
+				@include sm {
+						flex-grow: 1;
+				}
 				margin-bottom: 2rem;
+				&__form {
+						padding-top: 0.5rem;
+				}
 		}
 
 		&__buttons {
@@ -138,11 +163,24 @@ a {
 				background-color: rgba(0,0,0,0.25);
 				top:0;
 				left:0;
-				position:absolute;
+				position:fixed;
 				z-index: 9;
 				width: 100%;
 				height: 100%;
 				margin: 0;
 				padding:0;
+		}
+}
+
+.payment_form__input, input:not([type=submit]):not([type=file]) {
+		background: #F1F5F9;
+		border: 3px solid #334155;
+		border-radius: 8px;
+		padding: 0.5rem;
+		font-size: 1.1rem;
+
+		&:disabled {
+				border: 3px solid #64748B;
+				background-color: #F8FAFC;
 		}
 }

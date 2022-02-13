@@ -20,14 +20,15 @@ export function Modal(props) {
 				<div className="modal__container" onClick={() => props.close()}>
 				</div>
 				<div className="modal">
-						<div className="modal__title">
-								{props.title}
+						<div className="modal__header">
+								{props.icon && <span className="material-icons modal__header__icon">{props.icon}</span>}
+								<span className="modal__header__title">{props.title}</span>
 						</div>
 						<div className="modal__text">
 								{props.children}
 						</div>
 						<div className="modal__buttons">
-								{props.buttons.secondaries.map((buttonProps) => (
+								{props.buttons.secondaries && props.buttons.secondaries.map((buttonProps) => (
 										<Button secondary={true} {...buttonProps}>{buttonProps.text}</Button>
 								))}
 								
