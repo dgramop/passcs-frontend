@@ -1,6 +1,6 @@
 import React, {useState, useEffect, forwardRef, useLayoutEffect} from "react";
 import './ReservationForm.scss';
-import {Button} from "./Components";
+import {Button, DAYS_OF_THE_WEEK, timezone_time_from_slot} from "./Components";
 
 import {CardElement, useElements, useStripe, Elements} from '@stripe/react-stripe-js';
 import {loadStripe} from '@stripe/stripe-js';
@@ -9,7 +9,6 @@ import {loadStripe} from '@stripe/stripe-js';
 // recreating the `Stripe` object on every render.
 const stripePromise = loadStripe('pk_test_51JdnMmABGmiERRLGxLTG2jrTUkEzP1ySRI5ofnnm3QLKTqqClvCzoxBBiBa9rlYlsepjmeyMmo4ISTpUrMqkaYbu00QlZCW7H9');
 
-const DAYS_OF_THE_WEEK = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 
 /**
  * An option for a Selector
@@ -203,19 +202,7 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 		)
 })
 
-/**
- * Gives time info for the given time zone for a given slot
- */
-function timezone_time_from_slot(slot) {
-		let start_hour = slot.start_hour - (new Date()).getTimezoneOffset()/60;
-		let weekday = slot.weekday;
-		while(start_hour < 0) { //there exists a much faster non-iterative way to do this, go fuck yourself
-				weekday--;
-				start_hour+=24;
-				if(weekday < 0) weekday += 7;
-		}
-		return {start_hour, weekday};
-}
+
 
 function Slot(props) {
 		let [showExtendedQualification, setShowExtendedQualification] = useState(false);

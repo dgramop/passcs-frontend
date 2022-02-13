@@ -1,4 +1,19 @@
 /**
+ * Gives time info for the given time zone for a given slot
+ */
+export function timezone_time_from_slot(slot) {
+		let start_hour = slot.start_hour - (new Date()).getTimezoneOffset()/60;
+		let weekday = slot.weekday;
+		while(start_hour < 0) { //there exists a much faster non-iterative way to do this, go fuck yourself
+				weekday--;
+				start_hour+=24;
+				if(weekday < 0) weekday += 7;
+		}
+		return {start_hour, weekday};
+}
+
+export const DAYS_OF_THE_WEEK = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+/**
  * props.extraClasses Additional classes
  * props.disabled Disabled
  * props.onClick On click function
