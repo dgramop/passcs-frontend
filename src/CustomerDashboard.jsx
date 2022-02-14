@@ -1,7 +1,7 @@
 import './CustomerDashboard.scss';
 import {DAYS_OF_THE_WEEK, timezone_time_from_slot, Button, Modal} from './Components';
 import { useState, useEffect } from "react";
-import {Router, Routes, Route} from "react-router-dom";
+import {Router, Routes, Route, Link, useParams} from "react-router-dom";
 
 async function skip_payment(payment) {
 		try {
@@ -68,7 +68,7 @@ function SlotCard(props) {
 						<div className="slotcard__scheduleinfo__row"><span className="material-icons">group</span> <span>{(["The tutor, all by themselves!!", "One-on-One", "One-on-Two"])[next_meeting.meeting.capacity] || "One-on-"+next_meeting.meeting.capacity}</span></div>
 				</div>
 				<div className="slotcard__buttontray">
-						<Button secondary> Manage Billing </Button>
+						<Link to={"billing/"+next_meeting.meeting.slot}><Button secondary> Manage Billing </Button></Link>
 						{can_skip_next_meeting && <Button onClick={() => setSkipConfirmOpen(true)} > Skip Next Class </Button>}
 				</div>
 				{skipConfirmOpen && <Modal title="Skip Next Meeting" close={() => setSkipConfirmOpen(false)} buttons={
@@ -123,7 +123,7 @@ export default function CustomerDashboard(props) {
 
 		return (
 				<Routes>
-						<Route path="/" element={<>
+						<Route index element={<>
 										<header className="header">
 												<div className="header__content">
 														<img className="header__icon" src={"/flag192.png"} alt="passCS icon: a green pennant flag"/>
@@ -137,7 +137,15 @@ export default function CustomerDashboard(props) {
 												{error && <span className="form__error">{error}</span>}
 										</main>
 						</>}/>
-						<Route path="billing/:slot" element={<>payments</> }/>
+						<Route path="billing/:slot_id" element={<BillingInfo slots={slots} />}/>
 				</Routes>
+		)
+}
+
+function BillingInfo(props) {
+		return (
+				<>
+						{JSON.stringify(props.slots[useParams().slot_id])}
+				</>
 		)
 }
