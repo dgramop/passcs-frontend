@@ -1,12 +1,16 @@
 import CustomerDashboard from './CustomerDashboard';
 import './App.scss';
 import Home from './Home';
+import {Routes, Route} from "react-router-dom"
 
 function App() {
   return (
-		  <div>
-				  <CustomerDashboard />
-		  </div>
+		  <Routes>
+				  <Route path="/">
+						  <Route index element={<Home/>} />
+						  <Route path="dashboard/*" element={<CustomerDashboard/>}/>
+				  </Route>
+		  </Routes>
   );
 }
 
