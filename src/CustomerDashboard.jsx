@@ -1,7 +1,7 @@
 import './CustomerDashboard.scss';
 import {DAYS_OF_THE_WEEK, timezone_time_from_slot, Button, Modal} from './Components';
 import { useState, useEffect } from "react";
-import {Router, Routes, Route, Link, useParams} from "react-router-dom";
+import {Router, Routes, Route, Link, useParams, Navigate} from "react-router-dom";
 
 async function skip_payment(payment) {
 		try {
@@ -121,7 +121,12 @@ export default function CustomerDashboard(props) {
 				get_slots();
 		},[])
 
-		return (
+		//TODO: get rid of styling hack?
+		return (<>
+				<style>
+						body {"{ background-color:#F8FAFC };" }
+				</style>
+
 				<Routes>
 						<Route index element={<>
 										<header className="header">
@@ -138,14 +143,54 @@ export default function CustomerDashboard(props) {
 										</main>
 						</>}/>
 						<Route path="billing/:slot_id" element={<BillingInfo slots={slots} />}/>
-				</Routes>
+				</Routes></>
 		)
 }
 
 function BillingInfo(props) {
+		let params = useParams();
+		if(!params || !params.slot_id || props.slots == null || props.slots[params.slot_id]==null) {
+				return (
+						<Navigate replace to="/dashboard" />
+				);
+		};
 		return (
 				<>
-						{JSON.stringify(props.slots[useParams().slot_id])}
+						<header className="header">
+								<div className="header__content">
+										<img className="header__icon" src={"/flag192.png"} alt="passCS icon: a green pennant flag"/>
+										<h1 className="header__title"> Billing Details </h1>
+								</div>
+						</header>
+						<main>
+								<div className="paymenthistory">
+										<div className="paymenthistory__title">
+												Payment History
+										</div>
+										<table>
+												<thead className="paymenthistory__tableheader">
+														<td>Due</td>
+														<td>Status</td>
+														{/* TODO<td>Amount</td>*/}
+												</thead>
+												<tbody>
+														{props.slots[params.slot_id].meeting_info.map((meeting_info) => {
+																let due_date = new Date(meeting_info.meeting.occurrence_epoch*1000);
+																return (
+																<tr id={meeting_info.meeting.id}>
+																		<td className="paymenthistory__duedate">
+																				{due_date.getMonth()+1}/{due_date.getDate()}
+																		</td >
+																		<td className={"paymenthistory__paymentstatus "+((({"succeeded":"paymenthistory__paymentstatus--succeeded","subscription_pending":"paymenthistory__paymentstatus--subscription_pending", "processing":"paymenthistory__paymentstatus--processing"})[meeting_info.payment.payment_status] || "paymenthistory__paymentstatus--error"))}>
+																				{({"requires_confirmation":"Skipped","succeeded":"Succeeded","subscription_pending":"Scheduled", "processing":"Processing"})[meeting_info.payment.payment_status]}
+																		</td>
+																</tr>
+																)
+														})}
+												</tbody>
+										</table>
+								</div>
+						</main>
 				</>
 		)
 }

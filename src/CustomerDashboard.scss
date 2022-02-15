@@ -145,3 +145,17 @@
 		grid-template-columns: 1fr 1fr;
 		//background-color: #F8FAFC;
 }
+
+.paymenthistory {
+		background-color: white;
+		border-radius: 1rem;
+
+		&__title {
+				color: #334155;
+				font-weight: bold;
+		}
+
+		&__tableheader {
+				color: #94A3B8;
+		}
+}
