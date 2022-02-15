@@ -137,6 +137,11 @@
 				height: 1.5rem;
 		}
 
+		&__homelink {
+				display: flex;
+				align-items: center;
+		}
+
 }
 
 .customer_dashboard_main {
@@ -147,15 +152,68 @@
 }
 
 .paymenthistory {
+		$padding: 1rem;
+		$border-radius: 1rem;
 		background-color: white;
-		border-radius: 1rem;
+		border-radius: $border-radius;
+		box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+		max-width: $screen-sm-min;
+
+		&__back {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				margin-bottom: 1rem;
+		}
+		
 
 		&__title {
+				padding-left:$padding;
+				padding-right:$padding;
+				padding-top:$padding;
 				color: #334155;
 				font-weight: bold;
 		}
 
+		& > table {
+				padding-left:$padding;
+				padding-right:$padding;
+				margin-bottom: $padding;
+				border-spacing: 1rem;
+		}
+
 		&__tableheader {
 				color: #94A3B8;
+		}
+
+		&__paymentstatus {
+				font-weight: 700;
+				&--succeeded {
+						color: #047857;
+				}
+
+				&--subscription_pending {
+						color: #475569;
+				}
+
+				&--processing {
+						color: #0E7490;
+				}
+
+				&--error {
+						color: #B45309;
+				}
+		}
+
+		&__buttontray {
+				background-color: #F1F5F9;
+				padding: 0.5rem;
+				padding-left: $padding;
+
+				display: flex;
+				border-bottom-left-radius: $border_radius;
+				border-bottom-right-radius: $border_radius;
+				justify-content: space-between;
+				align-items: baseline;
 		}
 }

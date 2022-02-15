@@ -93,6 +93,10 @@ a {
 				color: #475569;
 				padding-left: 0rem;
 				padding-right: 0rem;
+
+				&--red {
+						color: #B91C1C;
+				}
 		}
 }
 
@@ -126,6 +130,10 @@ a {
 				transform: translate(-50%, -50%);
 
 		}
+
+		@include md {
+				width:calc($screen-md-min - (2 * $padding));
+		}
 		
 		&__header {
 				font-size: 1.2rem;
@@ -154,7 +162,12 @@ a {
 
 		&__buttons {
 				display: flex;
-				justify-content: space-between;
+				gap: 1rem;
+				&__secondary {
+						flex-grow: 1;
+						display: flex;
+						gap: 1rem;
+				}
 		}
 
 		&__container {
