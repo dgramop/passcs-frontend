@@ -1,6 +1,6 @@
 import React, {useState, useEffect, forwardRef, useLayoutEffect} from "react";
 import './ReservationForm.scss';
-import {Button, DAYS_OF_THE_WEEK, timezone_time_from_slot} from "./Components";
+import {get_logged_in_customer, Button, DAYS_OF_THE_WEEK, timezone_time_from_slot} from "./Components";
 
 import {CardElement, useElements, useStripe, Elements} from '@stripe/react-stripe-js';
 import {loadStripe} from '@stripe/stripe-js';
@@ -379,14 +379,6 @@ async function register_subscription(slot, prefs, offering, first_meeting) {
 		return json_res;
 }
 
-async function get_logged_in_customer() {
-		let customer_resp = await fetch("/customers/0");
-		customer_resp = await customer_resp.json()
-		if(customer_resp.error) {
-				throw customer_resp;
-		}
-		else return customer_resp?.data;
-}
 
 const Payment = React.forwardRef((props, ref) => {
 		let [disable, setDisabled] = useState(false);

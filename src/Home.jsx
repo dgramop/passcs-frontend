@@ -1,9 +1,10 @@
 import ReservationForm from './ReservationForm';
 import './Home.scss'
 import './index.scss'
-import {Button, Modal} from "./Components";
+import {Button, Modal, get_logged_in_customer} from "./Components";
 import shakir from "./Shakir.jpg";
 import React, {useState, useRef, useEffect, createRef}  from "react";
+import {Link} from "react-router-dom";
 
 /**
  * Makes a paper like card on the screen
@@ -61,6 +62,20 @@ export default function Home() {
 		const [loginError, setLoginError] = useState(null);
 		const [showLoginSuccess, setShowLoginSuccess] = useState(false);
 
+		const [isLoggedIn, setIsLogggedIn] = useState(false);
+		let checkLogin = async () => {
+				try {
+						await get_logged_in_customer()
+						setIsLogggedIn(true);
+				} catch(e) {
+						setIsLogggedIn(false);
+				}
+		};
+
+		useEffect(() => {
+				checkLogin()
+		}, [])
+
 		return (<> 
 				{showLogIn && <Modal title="Get a magic log-in link" icon="auto_fix_high" buttons={{primary: {text:"Send Link", onClick: async () => { setLoginError(null); setWaitingForLogIn(true); try { if((await sendLoginLink(email)).status == "success") {setShowLogIn(false); setShowLoginSuccess(true);}  } catch(e) { if(e.type) setLoginError(e.type); else console.log(e) }; setWaitingForLogIn(false); }, disabled:!(new RegExp("^[^@]+@[^@]+\.[^@]+$")).test(email) || waitingForLogIn}, secondaries: [{text:"Go Back", onClick:()=> setShowLogIn(false)}]}} close={()=>setShowLogIn(false)}>
 						We’ll email you a link you can use to log-in with in with one click
@@ -83,8 +98,14 @@ export default function Home() {
 												pass class, guarenteed*
 										</div>
 										<div className="home_hero__buttontray">
-												<Button onClick={() => {reservationRef.current.scrollIntoView()}} extraClasses="home_hero__primary_button">View Options</Button>
-												<Button extraClasses="home_hero__secondary_button" onClick={()=>setShowLogIn(true)}>Login</Button>
+												{!isLoggedIn && <>
+														<Button onClick={() => {reservationRef.current.scrollIntoView()}} extraClasses="home_hero__primary_button">View Options</Button>
+														<Button extraClasses="home_hero__secondary_button" onClick={()=>setShowLogIn(true)}>Login</Button>
+												</> }
+												{isLoggedIn && <>
+														<Link to="dashboard"><Button primary extraClasses="home_hero__primary_button">Your Classes</Button></Link>
+														<Button onClick={() => {reservationRef.current.scrollIntoView()}} extraClasses="home_hero__secondary_button">Session Registration</Button>
+												</> }
 										</div>
 								</div>
 								<div className="home_hero__distraction">

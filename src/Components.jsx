@@ -1,3 +1,13 @@
+
+export async function get_logged_in_customer() {
+		let customer_resp = await fetch("/customers/0");
+		customer_resp = await customer_resp.json()
+		if(customer_resp.error) {
+				throw customer_resp;
+		}
+		else return customer_resp?.data;
+}
+
 /**
  * Gives time info for the given time zone for a given slot
  */
