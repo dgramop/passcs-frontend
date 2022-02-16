@@ -479,9 +479,12 @@ const Payment = React.forwardRef((props, ref) => {
 														break;
 										}
 										setDisabled(false)
-										customer = resp?.customer;
 										setLoggedIn(false)
 										return;
+								} else {
+										setDisabled(false)
+										setLoggedIn(true)
+										customer = resp?.data.customer;
 								}
 						} catch(e) {
 								console.log(e);
