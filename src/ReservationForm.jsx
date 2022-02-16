@@ -458,7 +458,7 @@ const Payment = React.forwardRef((props, ref) => {
 								if(resp.error) {
 										switch(resp.error.type) {
 												case "ValidationError": 
-														setError("Please update your "+resp.error.field);
+														setError("Please update your "+(({"firstname":"First Name", "lastname": "Last Name"})[resp.error.field] || resp.error.field));
 														setForm({...form, [resp.error.field]: {...form[resp.error.field], angry:true, invalid: true}})
 														break;
 												case "DBError": 
@@ -480,7 +480,7 @@ const Payment = React.forwardRef((props, ref) => {
 										}
 										setDisabled(false)
 										customer = resp?.customer;
-										setLoggedIn(true)
+										setLoggedIn(false)
 										return;
 								}
 						} catch(e) {
