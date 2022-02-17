@@ -1,7 +1,7 @@
 import './CustomerDashboard.scss';
 import {DAYS_OF_THE_WEEK, timezone_time_from_slot, Button, Modal} from './Components';
-import { useState, useEffect } from "react";
-import {Router, Routes, Route, Link, useParams, Navigate} from "react-router-dom";
+import {useState, useEffect} from "react";
+import {Routes, Route, Link, useParams, Navigate} from "react-router-dom";
 
 async function skip_payment(payment) {
 		try {
@@ -263,7 +263,7 @@ function BillingInfo(props) {
 														Autopay {subscription_string}
 												</div>
 
-												{props.slots[params.slot_id].subscription && <Button disabled={props.slots[params.slot_id].subscription.payment_status!=="active" } onClick={()=> setCancelModalOpen(true)}>
+												{props.slots[params.slot_id].subscription && <Button disabled={props.slots[params.slot_id].subscription.payment_status!=="active" && props.slots[params.slot_id].subscription.payment_status!=="trialing" } onClick={()=> setCancelModalOpen(true)}>
 														End Payments
 												</Button>}
 										</div>
