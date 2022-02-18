@@ -1,7 +1,7 @@
 import ReservationForm from './ReservationForm';
 import './Home.scss'
 import './index.scss'
-import {Button, Modal, get_logged_in_customer, LoginModal} from "./Components";
+import {Button, Modal, get_token, LoginModal} from "./Components";
 import shakir from "./Shakir.jpg";
 import React, {useState, useRef, useEffect, createRef}  from "react";
 import {Link} from "react-router-dom";
@@ -51,12 +51,13 @@ export default function Home() {
 		const [isLoggedIn, setIsLogggedIn] = useState(false);
 		let checkLogin = async () => {
 				try {
-						await get_logged_in_customer()
-						setIsLogggedIn(true);
+						setIsLogggedIn((await get_token()).user_type);
 				} catch(e) {
 						setIsLogggedIn(false);
 				}
 		};
+
+	console.log(checkLogin)
 
 		useEffect(() => {
 				checkLogin()
@@ -82,9 +83,12 @@ export default function Home() {
 														<Button onClick={() => {reservationRef.current.scrollIntoView()}} extraClasses="home_hero__primary_button">View Options</Button>
 														<Button extraClasses="home_hero__secondary_button" onClick={()=>setShowLogIn(true)}>Login</Button>
 												</> }
-												{isLoggedIn && <>
+												{isLoggedIn === "customer" && <>
 														<Link to="dashboard"><Button primary extraClasses="home_hero__primary_button">Your Classes</Button></Link>
 														<Button onClick={() => {reservationRef.current.scrollIntoView()}} extraClasses="home_hero__secondary_button">Add a Class</Button>
+												</> }
+												{isLoggedIn === "tutor" && <>
+														<Link to="tutors"><Button primary extraClasses="home_hero__primary_button">Tutor Dashboard</Button></Link>
 												</> }
 										</div>
 								</div>

@@ -22,6 +22,15 @@ export async function get_logged_in_customer() {
 		else return customer_resp?.data;
 }
 
+export async function get_token() {
+		let token_resp = await fetch("/checkauth");
+		token_resp = await token_resp.json()
+		if(token_resp.error) {
+				throw token_resp;
+		}
+		else return token_resp?.data;
+}
+
 /**
  * Gives time info for the given time zone for a given slot
  */
