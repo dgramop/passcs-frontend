@@ -12,7 +12,7 @@ export async function get_logged_in_customer() {
  * Gives time info for the given time zone for a given slot
  */
 export function timezone_time_from_slot(slot) {
-	let date = new Date(slot.anchor_epoch);
+	let date = new Date(slot.anchor_epoch*1000);
 	
 	return {start_hour: date.getHours(), weekday: (date.getDay() + 6)%7};
 }

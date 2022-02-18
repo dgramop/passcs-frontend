@@ -278,8 +278,10 @@ const SlotSelectionScreen = React.forwardRef((props, ref) => {
 						
 						let slots_by_day = [[], [], [], [], [], [], []];
 						for(let slot of slots) { //TODO: time conversions
+							let {weekday} = timezone_time_from_slot(slot.slot);
+							console.log(weekday)
 
-								slots_by_day[slot.slot.weekday].push(slot);
+								slots_by_day[weekday].push(slot);
 						}
 						setSlots(slots_by_day);
 				};
