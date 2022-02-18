@@ -1,3 +1,16 @@
+import {useState} from "react"
+
+async function sendLoginLink(email) {
+		try {
+				let r = await fetch("/login?user_type=customer&email="+email,{method: "POST"});
+				r = await r.json()
+				if(r.error) throw r.error
+				return r;
+		} catch(e) {
+				if(!e.type) throw new Error({type: "Cannot contact server"})
+				else throw e;
+		}
+}
 
 export async function get_logged_in_customer() {
 		let customer_resp = await fetch("/customers/0");
@@ -58,4 +71,27 @@ export function Modal(props) {
 				</div>
 		</>
 		)
+}
+
+
+export function LoginModal(props) {
+		const [email, setEmail] = useState("");
+		const [waitingForLogIn, setWaitingForLogIn] = useState(false);
+		const [loginError, setLoginError] = useState(null);
+		const [showLoginSuccess, setShowLoginSuccess] = useState(false);
+
+	if(showLoginSuccess) {
+		return(<Modal title="Check your inbox" icon="email" buttons={{primary:{text:"Close", onClick: ()=>{setShowLoginSuccess(false); props.close()}}}} close={()=>setShowLoginSuccess(false)}>
+		</Modal>)
+	} else {
+			return (
+			<Modal title="Get a magic log-in link" icon="auto_fix_high" buttons={{primary: {text:"Send Link", onClick: async () => { setLoginError(null); setWaitingForLogIn(true); try { if((await sendLoginLink(email)).status === "success") {setShowLoginSuccess(true);}  } catch(e) { if(e.type) setLoginError(e.type); else console.log(e) }; setWaitingForLogIn(false); }, disabled:!(new RegExp("^[^@]+@[^@]+\.[^@]+$")).test(email) || waitingForLogIn}, secondaries: [{text:"Go Back", onClick:()=> props.close()}]}} close={()=>props.close()}>
+					We’ll email you a link you can use to log-in with in with one click
+					<div className="modal__text__form">
+							<label htmlFor="login__email">Email Address</label><br/>
+							<input id="login__email" size="10" type="email" placeholder="jdoe@gmail.com" onChange={(e) => setEmail(e.target.value)}/>
+							{loginError && <div className="login__error">{loginError}</div>}
+					</div>
+			</Modal>)
+	}
 }
