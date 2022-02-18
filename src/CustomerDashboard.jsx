@@ -182,8 +182,8 @@ function BillingInfo(props) {
 		let next_meeting = get_next_meeting(props.slots[params.slot_id].meeting_info)
 		let subscription_string = "disabled"
 		if(props.slots[params.slot_id].subscription) {
-			let subscription_string = props.slots[params.slot_id].subscription?.payment_status.replace("_", " ") || "";
-			if(subscription_string==="trialing") subscription_string = "Active (First Meeting)";
+			subscription_string = props.slots[params.slot_id].subscription?.payment_status.replace("_", " ") || "";
+			if(subscription_string==="trialing") subscription_string = "Active";
 		} 		
 
 		let can_skip_next_meeting = next_meeting.payment.payment_status === "subscription_pending" 
@@ -255,7 +255,7 @@ function BillingInfo(props) {
 										<div className="paymenthistory__buttontray">
 												<div className={
 														"paymenthistory__paymentstatus "+((({"active":"paymenthistory__paymentstatus--succeeded",
-														"trialing":"paymenthistory__paymentstatus--subscription_pending",
+														"trialing":"paymenthistory__paymentstatus--succeeded",
 														"incomplete":"paymenthistory__paymentstatus--processing",
 														"incomplete-expired":"paymenthistory__paymentstatus--processing",
 														"unpaid":"paymenthistory__paymentstatus--error",
