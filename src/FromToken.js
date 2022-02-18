@@ -9,7 +9,7 @@ export default function FromToken(props) {
 		
 	let login = async (token) => {
 		try {
-			let resp = await fetch(`/login?token=${encodeURIComponent(token)}`)
+			let resp = await fetch(`/api/login?token=${encodeURIComponent(token)}`)
 			let json = await resp.json()
 			if(json.error) {
 				switch(json.error.type) {

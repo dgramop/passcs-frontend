@@ -7,9 +7,9 @@ async function sendLoginLink(email) {
 				if(email.indexOf("@passcs.io") !== -1)
 				{
 					// a bit of a hack, but easy to fix
-					r = await fetch("/login?user_type=tutor&email="+email,{method: "POST"});
+					r = await fetch("/api/login?user_type=tutor&email="+email,{method: "POST"});
 				} else {
-					r = await fetch("/login?user_type=customer&email="+email,{method: "POST"});
+					r = await fetch("/api/login?user_type=customer&email="+email,{method: "POST"});
 				}
 
 				r = await r.json()
@@ -22,7 +22,7 @@ async function sendLoginLink(email) {
 }
 
 export async function get_logged_in_customer() {
-		let customer_resp = await fetch("/customers/0");
+		let customer_resp = await fetch("/api/customers/0");
 		customer_resp = await customer_resp.json()
 		if(customer_resp.error) {
 				throw customer_resp;
@@ -31,7 +31,7 @@ export async function get_logged_in_customer() {
 }
 
 export async function get_token() {
-		let token_resp = await fetch("/checkauth");
+		let token_resp = await fetch("/api/checkauth");
 		token_resp = await token_resp.json()
 		if(token_resp.error) {
 				throw token_resp;

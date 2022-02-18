@@ -127,7 +127,7 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 
 		useEffect(() => {
 				let action = async () => {
-						let classes = (await (await fetch("/classes")).json()).data
+						let classes = (await (await fetch("/api/classes")).json()).data
 						setClasses(classes);
 				};
 				action();
@@ -149,7 +149,7 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 								optionalQuery += "&capacity="+prefs.capacity;
 						}
 
-						let slots = (await (await fetch(`/slots?class=${prefs.course}&${optionalQuery}`)).json()).data
+						let slots = (await (await fetch(`/api/slots?class=${prefs.course}&${optionalQuery}`)).json()).data
 						setSlots(slots);
 				};
 				action();
@@ -271,7 +271,7 @@ const SlotSelectionScreen = React.forwardRef((props, ref) => {
 		useEffect(() => {
 				let action = async () => {
 						// the assumption is that if it matches weekly it imples that it also matches onetime. That's why we can assume onetime even if it's payment_frequency isn't initialized yet
-						let slots = (await (await fetch(`/slots?class=${prefs.course}&subscription=${prefs.payment_frequency==="weekly"}&class_style=${prefs.class_style}&capacity=${prefs.capacity}`)).json()).data
+						let slots = (await (await fetch(`/api/slots?class=${prefs.course}&subscription=${prefs.payment_frequency==="weekly"}&class_style=${prefs.class_style}&capacity=${prefs.capacity}`)).json()).data
 						if(slots.length === 0) return;
 						if(prefs.course !== slots[0].offering["class"].id) throw new Error("first meeting doesn't match selected class ID");
 						setClassNumber(slots[0].offering["class"].course_number);
@@ -344,7 +344,7 @@ async function register_customer(firstname, lastname, email, phone) {
 		form_data.append('firstname',firstname);
 		form_data.append('lastname',lastname);
 
-		let fetch_res = await fetch("/customers", {method: "POST", body: form_data});
+		let fetch_res = await fetch("/api/customers", {method: "POST", body: form_data});
 		let json_res = await fetch_res.json();
 		console.log(json_res);
 		return json_res;
@@ -361,7 +361,7 @@ async function register_payment(slot, prefs, offering, first_meeting) {
 		form_data.append('capacity',prefs.capacity);
 		form_data.append('offering',offering.id);
 
-		let fetch_res = await fetch("/payments", {method: "POST", body: form_data});
+		let fetch_res = await fetch("/api/payments", {method: "POST", body: form_data});
 		let json_res = await fetch_res.json();
 		console.log(json_res);
 		return json_res;
@@ -375,7 +375,7 @@ async function register_subscription(slot, prefs, offering, first_meeting) {
 		form_data.append('capacity',prefs.capacity);
 		form_data.append('offering',offering.id);
 
-		let fetch_res = await fetch("/subscriptions", {method: "POST", body: form_data});
+		let fetch_res = await fetch("/api/subscriptions", {method: "POST", body: form_data});
 		let json_res = await fetch_res.json();
 		console.log(json_res);
 		return json_res;

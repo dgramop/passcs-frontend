@@ -5,7 +5,7 @@ import {Routes, Route, Link, useParams, Navigate} from "react-router-dom";
 
 async function skip_payment(payment) {
 		try {
-				let req = await fetch("/payments/"+payment.id+"/skip", { method: "POST" });
+				let req = await fetch("/api/payments/"+payment.id+"/skip", { method: "POST" });
 				let res = await req.json();
 				if(res.error) throw res.error;
 				else return res;
@@ -18,7 +18,7 @@ async function skip_payment(payment) {
 
 async function cancel_subscription(subscription_id) {
 		try {
-				let req = await fetch("/subscriptions/"+subscription_id+"/cancel", { method: "POST" });
+				let req = await fetch("/api/subscriptions/"+subscription_id+"/cancel", { method: "POST" });
 				let res = await req.json();
 				if(res.error) throw res.error;
 				else return res;
@@ -118,7 +118,7 @@ export default function CustomerDashboard(props) {
 		let [error, setError] = useState(null);
 
 		let get_slots = async () => {
-						let slots = await fetch("/customers/0/slots");
+						let slots = await fetch("/api/customers/0/slots");
 						let resp = await slots.json();
 						if(resp.error) {
 								switch(resp.error.type) {
