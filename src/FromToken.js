@@ -25,7 +25,14 @@ export default function FromToken(props) {
 				}
 			} else {
 				setLoginError(null)
-				navigate("/dashboard")
+				if(json.data.token.user_type === "customer")
+				{
+					navigate("/dashboard")
+				} else if(json.data.token.user_type === "tutor") {
+					navigate("/tutors")
+				} else {
+					setLoginError("Unknown user type")
+				}
 			}
 		} catch(e) {
 			setLoginError("Unable to communicate with server")

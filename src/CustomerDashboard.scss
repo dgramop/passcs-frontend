@@ -1,5 +1,7 @@
 @import "./index.scss";
 
+//TODO: rename to reflect the fact that this module is reusable and is used in tutor dashboard as well
+
 .slotcard {
 		box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 		$border_radius: 1rem;
@@ -74,7 +76,7 @@
 				}
 		}
 
-		&__scheduleinfo {
+		&__scheduleinfo, &__customerinfo {
 				padding: $slotcard_padding;
 				display: flex;
 				flex-direction:column;

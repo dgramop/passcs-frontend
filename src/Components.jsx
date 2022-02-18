@@ -1,4 +1,5 @@
 import {useState} from "react"
+import {Link} from "react-router-dom"
 
 async function sendLoginLink(email) {
 		try {
@@ -94,4 +95,26 @@ export function LoginModal(props) {
 					</div>
 			</Modal>)
 	}
+}
+
+export function get_next_meeting(meeting_info) {
+		let next_meeting = meeting_info[0];
+		for(let meeting of meeting_info) {
+				if(meeting.meeting.occurrence_epoch < next_meeting.meeting.occurrence_epoch && next_meeting.meeting.payment_status !== "skipped") {
+						next_meeting = meeting;
+				}
+		};
+
+		return next_meeting;
+}
+
+export function Header(props) {
+		return (
+		<header className="header">
+				<div className="header__content">
+						<Link className="header__homelink" to="/"><img className="header__icon" src={"/flag192.png"} alt="passCS icon: a green pennant flag"/></Link>
+						<h1 className="header__title"> {props.title} </h1>
+				</div>
+		</header>
+		)
 }

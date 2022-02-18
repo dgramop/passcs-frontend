@@ -1,5 +1,5 @@
 import './CustomerDashboard.scss';
-import {DAYS_OF_THE_WEEK, timezone_time_from_slot, Button, Modal} from './Components';
+import {DAYS_OF_THE_WEEK, timezone_time_from_slot, Button, Modal, get_next_meeting, Header} from './Components';
 import {useState, useEffect} from "react";
 import {Routes, Route, Link, useParams, Navigate} from "react-router-dom";
 
@@ -29,16 +29,7 @@ async function cancel_subscription(subscription_id) {
 		
 }
 
-function get_next_meeting(meeting_info) {
-		let next_meeting = meeting_info[0];
-		for(let meeting of meeting_info) {
-				if(meeting.meeting.occurrence_epoch < next_meeting.meeting.occurrence_epoch && next_meeting.meeting.payment_status !== "skipped") {
-						next_meeting = meeting;
-				}
-		};
 
-		return next_meeting;
-}
 
 /**
  * @param {props.title} Class name for the slotcard
@@ -276,13 +267,4 @@ function BillingInfo(props) {
 		)
 }
 
-function Header(props) {
-		return (
-		<header className="header">
-				<div className="header__content">
-						<Link className="header__homelink" to="/"><img className="header__icon" src={"/flag192.png"} alt="passCS icon: a green pennant flag"/></Link>
-						<h1 className="header__title"> {props.title} </h1>
-				</div>
-		</header>
-		)
-}
+
