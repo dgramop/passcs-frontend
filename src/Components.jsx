@@ -3,7 +3,15 @@ import {Link} from "react-router-dom"
 
 async function sendLoginLink(email) {
 		try {
-				let r = await fetch("/login?user_type=customer&email="+email,{method: "POST"});
+				let r;
+				if(email.indexOf("@passcs.io") !== -1)
+				{
+					// a bit of a hack, but easy to fix
+					r = await fetch("/login?user_type=tutor&email="+email,{method: "POST"});
+				} else {
+					r = await fetch("/login?user_type=customer&email="+email,{method: "POST"});
+				}
+
 				r = await r.json()
 				if(r.error) throw r.error
 				return r;
@@ -100,7 +108,7 @@ export function LoginModal(props) {
 					<div className="modal__text__form">
 							<label htmlFor="login__email">Email Address</label><br/>
 							<input id="login__email" size="10" type="email" placeholder="jdoe@gmail.com" onChange={(e) => setEmail(e.target.value)}/>
-							{loginError && <div className="login__error">{loginError}</div>}
+							{loginError && <div className="login__error">{loginError && (({"UserNotFound": "We can't find your account"})[loginError] || loginError) }</div>}
 					</div>
 			</Modal>)
 	}
