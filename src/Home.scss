@@ -56,9 +56,12 @@
 		&__distraction__reportcard {
 				background-color: #E2E8F0;
 				padding: 1rem;
-				transform-origin: bottom center;
+				transform-origin: bottom right;
 				box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-				transform: translateY(2rem) rotate(-19.5deg);
+				transform: translateY(3rem) rotate(-19.5deg) ;
+				@include md {
+					transform: translateY(3rem) rotate(-19.5deg) scale(1.2);
+				}
 				//transform: rotate(-30deg);
 				width: 10rem;
 
@@ -90,6 +93,13 @@
 		&__tagline {
 				font-weight: bold;
 				color: #CBD5E1;
+		}
+
+		&__tagpara {
+				color: #CBD5E1;
+				font-size: 0.8rem;
+				line-height: 1rem;
+				max-width: 16rem;
 		}
 
 		&__primary_button {

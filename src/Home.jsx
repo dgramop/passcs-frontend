@@ -74,6 +74,9 @@ export default function Home() {
 										<div className="home_hero__tagline">
 												pass class, guarenteed*
 										</div>
+										<div className="home_hero__tagpara">
+												founded by former teaching assistants and class toppers to get you through class. 
+										</div>
 										<div className="home_hero__buttontray">
 												{!isLoggedIn && <>
 														<Button onClick={() => {reservationRef.current.scrollIntoView()}} extraClasses="home_hero__primary_button">View Options</Button>
@@ -81,7 +84,7 @@ export default function Home() {
 												</> }
 												{isLoggedIn && <>
 														<Link to="dashboard"><Button primary extraClasses="home_hero__primary_button">Your Classes</Button></Link>
-														<Button onClick={() => {reservationRef.current.scrollIntoView()}} extraClasses="home_hero__secondary_button">Session Registration</Button>
+														<Button onClick={() => {reservationRef.current.scrollIntoView()}} extraClasses="home_hero__secondary_button">Add a Class</Button>
 												</> }
 										</div>
 								</div>
@@ -119,11 +122,11 @@ function ReportCard() {
 		return (<div className="home_hero__distraction__reportcard">
 						<div className="home_hero__distraction__reportcard__title"> transcript </div>
 						<ClassGrade course="CS112" grade="A+" />
+						<ClassGrade course="CS211" grade="A" />
 						<ClassGrade course="CS262" grade="A" />
 						<ClassGrade course="CS310" grade="A+" />
 						<ClassGrade course="MATH113" grade="A-" />
 						<ClassGrade course="MATH213" grade="A" />
-						<ClassGrade course="CS112" grade="A+" />
 				</div>
 		)
 }
