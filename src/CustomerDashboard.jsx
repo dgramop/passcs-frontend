@@ -180,9 +180,12 @@ function BillingInfo(props) {
 				);
 		};
 		let next_meeting = get_next_meeting(props.slots[params.slot_id].meeting_info)
-		let subscription_string = props.slots[params.slot_id].subscription?.payment_status.replace("_", " ") || "";
-		if(subscription_string==="trialing") subscription_string = "Active (First Meeting)";
-		
+		let subscription_string = "disabled"
+		if(props.slots[params.slot_id].subscription) {
+			let subscription_string = props.slots[params.slot_id].subscription?.payment_status.replace("_", " ") || "";
+			if(subscription_string==="trialing") subscription_string = "Active (First Meeting)";
+		} 		
+
 		let can_skip_next_meeting = next_meeting.payment.payment_status === "subscription_pending" 
 
 		let cancelbuttonconfig = {
@@ -263,9 +266,9 @@ function BillingInfo(props) {
 														Autopay {subscription_string}
 												</div>
 
-												{props.slots[params.slot_id].subscription && <Button disabled={props.slots[params.slot_id].subscription.payment_status!=="active" && props.slots[params.slot_id].subscription.payment_status!=="trialing" } onClick={()=> setCancelModalOpen(true)}>
+												<Button disabled={props.slots[params.slot_id].subscription == null || (props.slots[params.slot_id].subscription.payment_status!=="active" && props.slots[params.slot_id].subscription.payment_status!=="trialing" )} onClick={()=> setCancelModalOpen(true)}>
 														End Payments
-												</Button>}
+												</Button>
 										</div>
 								</div>
 						</main>

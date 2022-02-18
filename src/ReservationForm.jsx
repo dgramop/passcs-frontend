@@ -667,9 +667,9 @@ const Payment = React.forwardRef((props, ref) => {
 								<Assurance icon="check">
 										Eligible for the passCS Guarentee, subject to <a href="TODO">terms</a>
 								</Assurance>
-								<Assurance icon="logout">
+								{props.prefs.payment_frequency === 'weekly' && <Assurance icon="logout">
 										Easy cancellation
-								</Assurance>
+								</Assurance>}
 						</div>
 						<div className="payment_form__submission_deck">
 								<div className="payment_form__submission_deck__qualification">
