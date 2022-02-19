@@ -18,25 +18,31 @@ function TutorDashboardSlot(props) {
 					{timestring} <span className="mild_emph">Meets: {next_meeting_date.getMonth() +1}/{next_meeting_date.getDate()}</span>
 				</div>
 				<div className="slotcard__customerinfo">
-					<small>Your customers</small>
-					{next_meeting.payments.map((payment) => {
-						return (<>
-							<div className="slotcard__customerinfo__row">
-								<span className="material-icons">face</span> <span className="mild_emph">{payment.customer.firstname} {payment.customer.lastname}</span>
-							</div>
-							<div className="slotcard__customerinfo__row">
-								<span className="material-icons" style={{opacity:0}}>face</span> <span className="material-icons">payment</span> Payment {payment.payment_status.charAt(0).toUpperCase() + payment.payment_status.substring(1)}
-							</div>
-							<div className="slotcard__customerinfo__row">
-								<span className="material-icons" style={{opacity:0}}>face</span> <span className="material-icons">mail</span> {payment.customer.email}
-							</div>
-							<div className="slotcard__customerinfo__row">
-								<span className="material-icons" style={{opacity:0}}>face</span> <span className="material-icons">phone</span> {payment.customer.phone}
-							</div>
-							</>)
-					})}
+					{next_meeting.meeting.reservations_taken === 0 && <> 
+						No bookings for this slot; No work scheduled
+					</>}
+					{next_meeting.meeting.reservations_taken > 0 &&
+					<>
+						<small>Your customers</small>
+						{next_meeting.payments.map((payment) => {
+							return (<>
+								<div className="slotcard__customerinfo__row">
+									<span className="material-icons">face</span> <span className="mild_emph">{payment.customer.firstname} {payment.customer.lastname}</span>
+								</div>
+								<div className="slotcard__customerinfo__row">
+									<span className="material-icons" style={{opacity:0}}>face</span> <span className="material-icons">payment</span> Payment {payment.payment_status.charAt(0).toUpperCase() + payment.payment_status.substring(1)}
+								</div>
+								<div className="slotcard__customerinfo__row">
+									<span className="material-icons" style={{opacity:0}}>face</span> <span className="material-icons">mail</span> {payment.customer.email}
+								</div>
+								<div className="slotcard__customerinfo__row">
+									<span className="material-icons" style={{opacity:0}}>face</span> <span className="material-icons">phone</span> {payment.customer.phone}
+								</div>
+								</>)
+						})}
+					</> }
 				</div>
-				<hr/>
+				{next_meeting.meeting.reservations_taken > 0 && <hr/>}
 				{next_meeting.meeting.reservations_taken > 0 && <div className="slotcard__scheduleinfo">
 						<div className="slotcard__scheduleinfo__row"><span className="material-icons">class</span> <b>{next_meeting.course.course_number}</b> </div>
 						<div className="slotcard__scheduleinfo__row"><span className="material-icons">room</span> {({"in-person":"On Campus", "online":"Online"})[next_meeting.meeting.class_style]}</div>

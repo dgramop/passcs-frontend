@@ -667,7 +667,7 @@ const Payment = React.forwardRef((props, ref) => {
 										Your payment is secured by Stripe and SSL
 								</Assurance>
 								<Assurance icon="check">
-										Eligible for the passCS Guarentee, subject to <a href="TODO">terms</a>
+										Eligible for the passCS Guarantee, subject to <a href="TODO">terms</a>
 								</Assurance>
 								{props.prefs.payment_frequency === 'weekly' && <Assurance icon="logout">
 										Easy cancellation

@@ -73,7 +73,7 @@ export default function Home() {
 												<span className="cs">CS</span>
 										</div>
 										<div className="home_hero__tagline">
-												pass class, guarenteed*
+												pass class, guaranteed*
 										</div>
 										<div className="home_hero__tagpara">
 												founded by former teaching assistants and class toppers to get you through class. 
@@ -105,7 +105,7 @@ export default function Home() {
 								You won't get confused. Explanations in clear english that tell you everything you need to know. Choose between in-person and online to fit your needs.
 						</Card>
 						<Card title="Pass or your money back" icon="check">
-								Get that extra piece of mind. If you don’t pass after taking at least 12 hours of one-on-one passCS Tutoring, we’ll refund the money you paid us. <a href="/terms">See additional terms</a>
+								Get that extra peace of mind. If you don’t pass after taking at least 12 hours of one-on-one passCS Tutoring, we’ll refund the money you paid us. <a href="/terms">See additional terms</a>
 						</Card>
 						<Testimonial photo={shakir} title="Shakir" tagline="passCS Customer">
 								“passCS helped me understand core programming, actually it is better than two hours lecture in class. Thanks passCS”.
