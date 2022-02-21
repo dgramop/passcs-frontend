@@ -119,6 +119,7 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 		let [set, setSet] = useState(false);
 		let [classes, setClasses] = useState([]);
 		let [slots, setSlots] = useState([]);
+		let [error, setError] = useState(null);
 		let [enabledOptions, setEnabledOptions] = useState({capacity:new Set(), payment_frequency:new Set(), class_style: new Set()});
 
 		let setPrefValue = (name, value) => {
@@ -135,6 +136,7 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 
 		useEffect(() => {
 				let action = async () => {
+						setError(null);
 						// the assumption is that if it matches weekly it imples that it also matches onetime. That's why we can assume onetime even if it's payment_frequency isn't initialized yet
 						let optionalQuery = "";
 						if(prefs.payment_frequency !== null) {
@@ -150,9 +152,16 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 						}
 
 						let slots = (await (await fetch(`/api/slots?class=${prefs.course}&${optionalQuery}`)).json()).data
+					 	if(slots.length == 0) {
+							setError("Sorry, no availability for selected class. Try again later");
+						}
 						setSlots(slots);
 				};
-				action();
+				try {
+					action();
+				} catch (e) {
+					setError("Couldn't communicate with server. Check back later!");
+				}
 
 		},[prefs.course]) //intentionally short here, because we have a client-side resolver for similar information that actually gives us a summary
 
@@ -175,7 +184,10 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 						<Selector value={prefs.course} setValue={setPrefValue} name="course" longer={true} title="Class" icon="class" options={classes.length > 0 ? classes.map((course) => {
 								return {value: course.id, text: course.course_number+" - "+course.course_name };
 						}) : [{value:"-1", text:"No classes available to book", disabled:true}]}/>
-						{prefs.course != null && slots.length == 0 && <div className="out_of_stock">Sorry, no availability for selected class. Try again later</div>}
+
+						{error && <div className="reservation_form__error">{error}</div>}
+						{prefs.course == null && <div className="reservation_form__instructions"><span className="material-icons">info</span> <span>Please select a class to continue</span></div>}
+
 						<Selector value={prefs.capacity} setValue={setPrefValue} name="capacity" title="Class Size" icon="people" options={[
 								{text: "One-on-One $"+prices_by_class_size[1], value: 1, disabled: !enabledOptions.capacity.has(1), subtext: "Focused attention"}, {
 										text: "One-on-Two $"+prices_by_class_size[2], value: 2, disabled: !enabledOptions.capacity.has(2), subtext: "Two students/session"}]} />

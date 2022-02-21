@@ -2,16 +2,28 @@
 
 $max_width_reservation_form: 700px;
 
-.out_of_stock {
-		color: #d97706;
-		font-weight: bold;
-}
+
 
 .reservation_form {
 		background: #F8FAFC;
 		box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 		border-radius: 24px;
 
+		&__error {
+				color: #d97706;
+				font-weight: bold;
+		}
+
+		&__instructions {
+				color: #0284c7;
+				display: flex;
+				align-items: center;
+				gap: 0.25rem;
+				font-weight: bold;
+				& > .material-icons {
+					color: #0ea5e9;
+				}
+		}
 		
 		padding: 2rem;
 		@include sm {
