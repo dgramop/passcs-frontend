@@ -45,6 +45,8 @@ function Card(props) {
 
 
 export default function Home() {
+
+		console.log("environment",process.env.NODE_ENV);
 		const reservationRef = useRef();
 		const [showLogIn, setShowLogIn] = useState(false);
 
