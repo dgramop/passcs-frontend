@@ -9,6 +9,8 @@ $max_width_reservation_form: 700px;
 		box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 		border-radius: 24px;
 
+		
+
 		&__error {
 				color: #d97706;
 				font-weight: bold;
@@ -91,10 +93,21 @@ $max_width_reservation_form: 700px;
 				font-weight: bold;
 				display: flex;
 
+			//	&__originalprice {
+				& > &__left > s {
+					color: #64748b;
+					text-decoration: line-through;
+					text-decoration-thickness: 2px;
+				}
+
 				&--selected {
 						box-shadow: none;
 						background-color: #059669;
 						color: #ecfdf5;
+
+						& > .choose__button__left > s {
+							color: #bbf7d0;
+						}
 
 						.choose__button__modifier {
 								display: none;

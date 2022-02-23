@@ -172,7 +172,16 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 
 		let submit_disabled = prefs.university == null || prefs.course == null || prefs.capacity == null || prefs.class_style == null || prefs.payment_frequency == null;
 
-		let prices_by_class_size = { 1: (prefs.payment_frequency === "onetime" ? 40 : 35), 2: (prefs.payment_frequency === "onetime" ? 35 : 30) };
+		let prices_by_class_size = { 
+			1: {
+				discounted: (prefs.payment_frequency === "onetime" ? 40 : 35),
+				original: 50 
+			},
+			2: {
+				discounted: (prefs.payment_frequency === "onetime" ? 35 : 30),
+				original: 45
+			}
+		};
 
 		if(!set)
 		return (
@@ -190,8 +199,8 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 						{prefs.course == null && <div className="reservation_form__instructions"><span className="material-icons">info</span> <span>Please select a class to continue</span></div>}
 
 						<Selector value={prefs.capacity} setValue={setPrefValue} name="capacity" title="Class Size" icon="people" options={[
-								{text: "One-on-One $"+prices_by_class_size[1], value: 1, disabled: !enabledOptions.capacity.has(1), subtext: "Focused attention"}, {
-										text: "One-on-Two $"+prices_by_class_size[2], value: 2, disabled: !enabledOptions.capacity.has(2), subtext: "Two students/session"}]} />
+							{text: <>One-on-One <s className="reservation_form__originalprice">${prices_by_class_size[1].original}</s> ${prices_by_class_size[1].discounted}</>, value: 1, disabled: !enabledOptions.capacity.has(1), subtext: "Focused attention"}, {
+							text: <>One-on-Two <s className="reservation_form__originalprice">${prices_by_class_size[2].original}</s> ${prices_by_class_size[2].discounted}</>, value: 2, disabled: !enabledOptions.capacity.has(2), subtext: "Two students/session"}]} />
 
 						<Selector value={prefs.class_style} setValue={setPrefValue} name="class_style" title="Session Location" icon="place" options={[
 								{value: "in-person", text:"On-Campus", disabled: !enabledOptions.class_style.has("in-person")},
@@ -210,7 +219,7 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 				</div>
 		)
 		else return (
-				<SlotSelectionScreen ref={ref} price={prices_by_class_size[prefs.capacity]} prefs={prefs} back={() => { setSet(false); props.scrollFn() }} scrollFn={props.scrollFn}/>
+				<SlotSelectionScreen ref={ref} price={prices_by_class_size[prefs.capacity].discounted} prefs={prefs} back={() => { setSet(false); props.scrollFn() }} scrollFn={props.scrollFn}/>
 				
 		)
 })
