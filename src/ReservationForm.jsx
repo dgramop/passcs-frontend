@@ -219,7 +219,7 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 				</div>
 		)
 		else return (
-				<SlotSelectionScreen ref={ref} price={prices_by_class_size[prefs.capacity].discounted} prefs={prefs} back={() => { setSet(false); props.scrollFn() }} scrollFn={props.scrollFn}/>
+				<SlotSelectionScreen slots={slots} ref={ref} price={prices_by_class_size[prefs.capacity].discounted} prefs={prefs} back={() => { setSet(false); props.scrollFn() }} scrollFn={props.scrollFn}/>
 				
 		)
 })
@@ -297,10 +297,10 @@ const SlotSelectionScreen = React.forwardRef((props, ref) => {
 		}, [ref, slots, slot_selected])
 
 		useEffect(() => {
-				let action = async () => {
-						// the assumption is that if it matches weekly it imples that it also matches onetime. That's why we can assume onetime even if it's payment_frequency isn't initialized yet
-						let slots = (await (await fetch(`/api/slots?class=${prefs.course}&subscription=${prefs.payment_frequency==="weekly"}&class_style=${prefs.class_style}&capacity=${prefs.capacity}`)).json()).data
-						if(slots.length === 0) return;
+			let action = async () => {
+
+						// if the previous step let us come here, we must have a complete query in props.slots
+						let slots = props.slots
 						if(prefs.course !== slots[0].offering["class"].id) throw new Error("first meeting doesn't match selected class ID");
 						setClassNumber(slots[0].offering["class"].course_number);
 						
@@ -314,7 +314,7 @@ const SlotSelectionScreen = React.forwardRef((props, ref) => {
 						setSlots(slots_by_day);
 				};
 				action();
-		}, [prefs])
+		}, [prefs, props.slots])
 
 
 		// TODO Differentiate This Tuesday vs Next Tuesday with separate headings. Sort by first meeting occurence epoch
