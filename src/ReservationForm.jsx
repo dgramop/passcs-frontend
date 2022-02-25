@@ -25,10 +25,10 @@ function SelectorOption(props) {
 				<div className={"choose"} role="button" onClick={() => {
 						if(!props.disabled && props.onSelect) props.onSelect(props.value);
 				}}>
-						<div className="choose__subtext">{props.subtext}</div>
 						<div className={"choose__button "+(props.disabled ? "choose__button--disabled " : "")+(props.selected ? "choose__button--selected ": "")}>
 								<div className="choose__button__left">{props.children}</div> <div className={"choose__button__modifier " + ({null: "", "error":"choose__button__modifier--error", "success":"choose__button__modifier--success"}[props.modifier?.type])}>{props.disabled ? "" : props.modifier?.text}</div>
 						</div>
+					{props.subtext && <div className="choose__subtext">{props.subtext}</div>}
 				</div>
 		)
 }
@@ -209,7 +209,7 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 						<Selector value={prefs.payment_frequency} setValue={setPrefValue} name="payment_frequency" longer={true} title="Session Frequency" icon="autorenew" options={[
 								{value: "weekly", text:"Weekly", modifier: {type:"success", text:prefs.payment_frequency === "onetime" ? ("save $5/meeting") : ""}, disabled: !enabledOptions.payment_frequency.has("weekly")},
 										{value: "onetime", text:"One Time", modifier: {type:"error", text:"add $5"}, disabled: !enabledOptions.payment_frequency.has("onetime")}]} />
-						<hr />
+						<hr className="reservation_form__submission__divider" />
 						<div className="reservation_form__submission">
 								<Button extraClasses="reservation_form__submission__primaryButton" disabled={submit_disabled} onClick={() => { if(!submit_disabled) { setSet(true)}}} >
 										Select Tutor + Time <span className="material-icons">east</span>
@@ -261,9 +261,9 @@ function Slot(props) {
 						</div>
 						<div className="slot__slot_info">
 								{/*TODO: replace ALL of this timing logic with the stuff from the old frontend. And if it's a subscription use plural*/}
-								<div className="slot__slot_info__schedule"><span className="slot__slot_info__schedule__recur">{timestring}</span> <span className="slot__slot_info__schedule__begin">Starts {first_meeting_date.getMonth() +1}/{first_meeting_date.getDate()}</span></div>
+								<div className="slot__slot_info__schedule"><div className="slot__slot_info__schedule__recur">{timestring}</div> <div className="slot__slot_info__schedule__begin">Starts {first_meeting_date.getMonth() +1}/{first_meeting_date.getDate()}</div></div>
 								{props.onBook && <div className="button slot__slot_info__booking_button" onClick={() => {if(props.onBook) props.onBook({slot: props.slot, offering: props.offering, meetings: props.meetings})}}>Book<span className="material-icons">arrow_forward</span></div>}
-								{!props.onBook && <div className="slot__slot_info__disconnect_button" onClick={() => {if(props.onUnBook) props.onUnBook({slot: props.slot, offering: props.offering, meetings: props.meetings})}}>Change<span className="material-icons slot__slot_info__disconnect_button__icon">edit</span></div>}
+								{!props.onBook && <div className="slot__slot_info__disconnect_button" onClick={() => {if(props.onUnBook) props.onUnBook({slot: props.slot, offering: props.offering, meetings: props.meetings})}}><span className="material-icons slot__slot_info__disconnect_button__icon">edit</span></div>}
 						</div>
 				</div>
 		)
@@ -271,11 +271,17 @@ function Slot(props) {
 
 function Criteria(props) {
 		return (<div className={"criteria "+(props.invisible ? "criteria--invisible" :"")}>
-				<span role="button" className="material-icons criteria__button" onClick={props.edit}>edit</span>
-				<div className="criteria__bubble">{(["Just the tutor in an empty room","One-on-One","2 Student Class"])[props.capacity]}</div>
+				<div className="criteria__heading">
+					<span className="criteria__heading__title">Filters</span>
+					<span role="button" onClick={props.edit} className="material-icons criteria__heading__button" >edit</span>
+				</div>
+
+			<div className="criteria__bubble__container">
+				<div className="criteria__bubble">{(["Just the tutor in an empty room","One-on-One","One-on-Two"])[props.capacity]}</div>
 				<div className="criteria__bubble">{props.class_style}</div>
 				<div className="criteria__bubble">{props.class_number}</div>
 				<div className="criteria__bubble">{props.price}{props.payment_frequency === "weekly" ? "/wk" : ""}</div>
+			</div>
 		</div>)
 }
 
@@ -316,9 +322,12 @@ const SlotSelectionScreen = React.forwardRef((props, ref) => {
 		if(!selectedSlot)
 		return (
 				<div ref={ref} className="reservation_form">
+						<Button extraClasses="reservation_form__backbutton" onClick={props.back} secondary><span className="material-icons">arrow_back</span></Button>
 						<div className="reservation_form__heading">
 								<h2 className="reservation_form__heading__title" id="reservation"> Select a slot </h2>
 								<small className="reservation_form__heading__subtext"> Confirm your payment after this step </small>
+						</div>
+						<div>
 								<Criteria class_size={prefs.class_size} payment_frequency={prefs.payment_frequency} capacity={prefs.capacity} class_number={classNumber} price={"$"+props.price} class_style={{"online": "Online","in-person":"On campus"}[prefs.class_style]} edit={props.back} />
 								{ DAYS_OF_THE_WEEK.map((day_of_the_week, days_since_monday) => {
 										if(slots[days_since_monday].length > 0)  {
@@ -640,16 +649,17 @@ const Payment = React.forwardRef((props, ref) => {
 
 		return (
 		<div className="reservation_form" ref={ref}>
+				<Button extraClasses="reservation_form__backbutton" onClick={props.editSlot} secondary><span className="material-icons">arrow_back</span></Button>
 				<div className="reservation_form__heading">
 						<h2 className="reservation_form__heading__title">Confirm Booking</h2>
 						<small className="reservation_form__heading__subtext">Your card will be charged</small>
 				</div>
-				<h3> Your Booking </h3>
+				<Criteria class_size={props.prefs.class_size} payment_frequency={props.prefs.payment_frequency} capacity={props.prefs.capacity} class_number={props.slot.offering.class.course_number} price={"$"+props.price} class_style={{"online": "Online","in-person":"On campus"}[props.prefs.class_style]} edit={props.editPrefs} />
+				<br/>
 				<Slot {...props.slot} onUnBook={()=>props.editSlot()} />
 				<br/>
 				<div className="payment_form">
-						<h3 className="payment_form__title"> Payment </h3>
-						<Criteria invisible class_size={props.prefs.class_size} payment_frequency={props.prefs.payment_frequency} capacity={props.prefs.capacity} class_number={props.slot.offering.class.course_number} price={"$"+props.price} class_style={{"online": "Online","in-person":"On campus"}[props.prefs.class_style]} edit={props.editPrefs} />
+						<h3 className="payment_form__title"> Book Meeting </h3>
 						{!loggedIn && <><div className="payment_form__line">
 								<div className="input_group">
 										<label className="payment_form__label" for="firstname">
