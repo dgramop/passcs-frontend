@@ -300,7 +300,9 @@ const SlotSelectionScreen = React.forwardRef((props, ref) => {
 			let action = async () => {
 
 						// if the previous step let us come here, we must have a complete query in props.slots
-						let slots = props.slots
+						let slots = props.slots.sort((sa,sb) => {
+							return new Date(sa.slot.anchor_epoch*1000).getHours() - new Date(sb.slot.anchor_epoch*1000).getHours();
+						})
 						if(prefs.course !== slots[0].offering["class"].id) throw new Error("first meeting doesn't match selected class ID");
 						setClassNumber(slots[0].offering["class"].course_number);
 						
