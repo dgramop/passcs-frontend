@@ -174,12 +174,12 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 
 		let prices_by_class_size = { 
 			1: {
-				discounted: (prefs.payment_frequency === "onetime" ? 40 : 35),
+				discounted: (prefs.payment_frequency === "onetime" ? 35 : 34),
 				original: 50 
 			},
 			2: {
-				discounted: (prefs.payment_frequency === "onetime" ? 35 : 30),
-				original: 45
+				discounted: (prefs.payment_frequency === "onetime" ? 30 : 29),
+				original: 35
 			}
 		};
 
@@ -207,8 +207,8 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 								{value: "online", text:"Online", disabled: !enabledOptions.class_style.has("online") }]} />
 						
 						<Selector value={prefs.payment_frequency} setValue={setPrefValue} name="payment_frequency" longer={true} title="Session Frequency" icon="autorenew" options={[
-								{value: "weekly", text:"Weekly", modifier: {type:"success", text:prefs.payment_frequency === "onetime" ? ("save $5/meeting") : ""}, disabled: !enabledOptions.payment_frequency.has("weekly")},
-										{value: "onetime", text:"One Time", modifier: {type:"error", text:"add $5"}, disabled: !enabledOptions.payment_frequency.has("onetime")}]} />
+								{value: "weekly", text:"Weekly", modifier: {type:"success", text:prefs.payment_frequency === "onetime" ? ("save $1/meeting") : ""}, disabled: !enabledOptions.payment_frequency.has("weekly")},
+										{value: "onetime", text:"One Time", modifier: {type:"error", text:"add $1"}, disabled: !enabledOptions.payment_frequency.has("onetime")}]} />
 						<hr className="reservation_form__submission__divider" />
 						<div className="reservation_form__submission">
 								<Button extraClasses="reservation_form__submission__primaryButton" disabled={submit_disabled} onClick={() => { if(!submit_disabled) { setSet(true)}}} >
