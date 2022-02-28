@@ -10,6 +10,7 @@ $max_width_reservation_form: 900px;
 		border-radius: 24px;
 		display: flex;
 		flex-direction: column;
+		gap: 1rem;
 
 		&__backbutton {
 			align-self: flex-start;
@@ -79,7 +80,6 @@ $max_width_reservation_form: 900px;
 						text-align:left;
 				}
 		}
-		margin-bottom: 1.5rem;
 
 }
 

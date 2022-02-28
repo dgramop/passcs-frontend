@@ -657,9 +657,7 @@ const Payment = React.forwardRef((props, ref) => {
 						<small className="reservation_form__heading__subtext">Your card will be charged</small>
 				</div>
 				<Criteria class_size={props.prefs.class_size} payment_frequency={props.prefs.payment_frequency} capacity={props.prefs.capacity} class_number={props.slot.offering.class.course_number} price={"$"+props.price} class_style={{"online": "Online","in-person":"On campus"}[props.prefs.class_style]} edit={props.editPrefs} />
-				<br/>
 				<Slot {...props.slot} onUnBook={()=>props.editSlot()} />
-				<br/>
 				<div className="payment_form">
 						<h3 className="payment_form__title"> Book Meeting </h3>
 						{!loggedIn && <><div className="payment_form__line">
