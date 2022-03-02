@@ -1,6 +1,7 @@
 import React, {useState, useEffect, forwardRef, useLayoutEffect} from "react";
 import './ReservationForm.scss';
 import {get_logged_in_customer, Button, DAYS_OF_THE_WEEK, timezone_time_from_slot} from "./Components";
+import {useNavigate} from "react-router-dom";
 
 import {CardElement, useElements, useStripe, Elements} from '@stripe/react-stripe-js';
 import {loadStripe} from '@stripe/stripe-js';
@@ -418,6 +419,7 @@ async function register_subscription(slot, prefs, offering, first_meeting) {
 const Payment = React.forwardRef((props, ref) => {
 		let [disable, setDisabled] = useState(false);
 		let [loggedIn, setLoggedIn] = useState(false);
+		let navigate = useNavigate();
 
 
 		useEffect(() => {
@@ -644,6 +646,8 @@ const Payment = React.forwardRef((props, ref) => {
 						setError(payload.error.message);
 						setDisabled(false);
 						return;
+				} else {
+					navigate("/dashboard");
 				}
 
 				setDisabled(false);
