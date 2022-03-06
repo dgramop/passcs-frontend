@@ -115,9 +115,9 @@ export function LoginModal(props) {
 }
 
 export function get_next_meeting(meeting_info) {
-		let next_meeting = meeting_info[0];
+		let next_meeting = null;
 		for(let meeting of meeting_info) {
-				if(meeting.meeting.occurrence_epoch < next_meeting.meeting.occurrence_epoch && next_meeting.meeting.payment_status !== "skipped") {
+			if((next_meeting == null || meeting.meeting.occurrence_epoch < next_meeting.meeting.occurrence_epoch) && meeting.meeting.occurrence_epoch*1000 > Date.now()) {
 						next_meeting = meeting;
 				}
 		};

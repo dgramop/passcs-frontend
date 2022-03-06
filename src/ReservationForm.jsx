@@ -1,4 +1,4 @@
-import React, {useState, useEffect, forwardRef, useLayoutEffect} from "react";
+import React, {useState, useEffect, forwardRef, useLayoutEffect, useRef} from "react";
 import './ReservationForm.scss';
 import {get_logged_in_customer, Button, DAYS_OF_THE_WEEK, timezone_time_from_slot} from "./Components";
 import {useNavigate} from "react-router-dom";
@@ -310,7 +310,6 @@ const SlotSelectionScreen = React.forwardRef((props, ref) => {
 						let slots_by_day = [[], [], [], [], [], [], []];
 						for(let slot of slots) { //TODO: time conversions
 							let {weekday} = timezone_time_from_slot(slot.slot);
-							console.log(weekday)
 
 								slots_by_day[weekday].push(slot);
 						}
@@ -417,29 +416,40 @@ async function register_subscription(slot, prefs, offering, first_meeting) {
 
 
 const Payment = React.forwardRef((props, ref) => {
+		// if the submit button is disabled or not
 		let [disable, setDisabled] = useState(false);
+
+		// if the user is logged in or not
 		let [loggedIn, setLoggedIn] = useState(false);
+
+		// react router setup so we can later navigate the user to their dashboard
 		let navigate = useNavigate();
 
+		//for some browsers, autocomplete doesn't trigger onChange. We had a customer run into this issue and abandon a checkout because the payment button was disabled
 
+		// checks if a customer has a valid token
 		useEffect(() => {
 				get_logged_in_customer().then(() => setLoggedIn(true)).catch(()=> setLoggedIn(false))
 		}, []);
 
+		// if we just mounted and rendered the component, scroll to the top, if a scroll top function was provided
 		useLayoutEffect(() => {
 				if(props.scrollFn) props.scrollFn();
 		}, [props, loggedIn])
 
+		// form tracking state
 		let [form, setForm] = useState({
-				// angry tell us to higlight the input
+				// angry tells us to highlight the input
 				firstname: {value: "", invalid:true, angry: false},
 				lastname: {value: "", invalid: true, angry: false},
 				email: {value: "", invalid: true, angry: false},
 				phone: {value: "", invalid: true, angry: false}
 		});
 
+		// track form errors
 		let [error, setError] = useState(null);
 
+		// update parts of the forms state, with validation
 		function updateForm(name, value) {
 				if(name==='phone' && (!((new RegExp("^[0-9\-]*$")).test(value)) || value.length>12)){
 						return;
@@ -448,7 +458,7 @@ const Payment = React.forwardRef((props, ref) => {
 				} else if (name === 'phone' && value.length < 10) {
 						setForm({...form, phone: {...form[name], invalid:true, value}})
 				}
-				else if(name==='email' && (new RegExp("^[^@]+@[^@]+\.[^@]+$")).test(form.email.value)) {
+				else if(name==='email' && (new RegExp("^[^@]+@[^@]+\.[^@]+$")).test(value)) {
 						console.log("valid email");
 						setForm({...form, email: {...form[name], invalid:false, value}})
 				}
@@ -457,21 +467,28 @@ const Payment = React.forwardRef((props, ref) => {
 						console.log("name is valid, setting invalid to be false");
 						setForm({...form, [name]: {...form[name], invalid:false, value}})
 				}
-				else setForm({...form, [name]: {...form[name], value}})
+				else {
+					console.log("setting invalid field"+name);
+					setForm({...form, [name]: {...form[name], value}})
+				}
 		}
 
+		// makes an invalid input glow red
 		function setAngry(e) {
 				setForm({...form, [e.target.name]: {...form[e.target.name], angry:true}})
-				console.log("set angry", e.target.name, form[e.target.name].invalid);
 		}
 
+		// stripe setup
 		const stripe = useStripe();
 		const elements = useElements();
 
+		// see index.html, this cleverly sets the styles of the iframed-out stripe input
 		let font_size = window.getComputedStyle(document.getElementsByClassName("payment_form__input")[0], null).getPropertyValue('font-size');;
-		console.log(font_size);
 
+		// stores the stripe payment intent for the client secret
 		let [clientSecret, setClientSecret] = useState(null);
+
+		// This code submits the form
 		async function submit() {
 				setDisabled(true);
 				setError(""); //clear out the error so it won't be visible after succes
@@ -683,7 +700,7 @@ const Payment = React.forwardRef((props, ref) => {
 								<label for="email" className="payment_form__label" >
 										Email Address
 								</label>
-								<input onBlur={setAngry} value={form.email.value} onChange={(e) => {updateForm("email", e.target.value)}} name="email" autoComplete="off" id="email" type="email" className={"payment_form__input "+(form.email.angry && form.email.invalid ? "angry " :"")} disabled={disable} placeholder="rstallman@gmu.edu"/>
+								<input onBlur={setAngry} value={form.email.value} onChange={(e) => {updateForm("email", e.target.value)}} name="email" id="email" type="email" className={"payment_form__input "+(form.email.angry && form.email.invalid ? "angry " :"")} disabled={disable} placeholder="rstallman@gmu.edu"/>
 						</div>
 
 						<div className="input_group">
