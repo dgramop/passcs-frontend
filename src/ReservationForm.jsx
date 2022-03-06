@@ -670,6 +670,8 @@ const Payment = React.forwardRef((props, ref) => {
 				setDisabled(false);
 		}
 
+		let submitDisabled = disable || (!loggedIn && (form.firstname.invalid || form.lastname.invalid || form.email.invalid || form.phone.invalid))
+
 		return (
 		<div className="reservation_form" ref={ref}>
 				<Button extraClasses="reservation_form__backbutton" onClick={props.editSlot} secondary><span className="material-icons">arrow_back</span></Button>
@@ -679,7 +681,11 @@ const Payment = React.forwardRef((props, ref) => {
 				</div>
 				<Criteria class_size={props.prefs.class_size} payment_frequency={props.prefs.payment_frequency} capacity={props.prefs.capacity} class_number={props.slot.offering.class.course_number} price={"$"+props.price} class_style={{"online": "Online","in-person":"On campus"}[props.prefs.class_style]} edit={props.editPrefs} />
 				<Slot {...props.slot} onUnBook={()=>props.editSlot()} />
-				<div className="payment_form">
+				<form className="payment_form" onSubmit={(e) => {
+					e.preventDefault();
+					if(!submitDisabled) submit()
+					return false;
+				}}>
 						<h3 className="payment_form__title"> Book Meeting </h3>
 						{!loggedIn && <><div className="payment_form__line">
 								<div className="input_group">
@@ -731,11 +737,11 @@ const Payment = React.forwardRef((props, ref) => {
 										{error && <><div className="payment_form__error">{error}</div><br/></>}
 										{props.prefs.payment_frequency === "weekly" && <>Your payments will automatically stop at the end of the semester. ${props.price} now, then 24 hours before each session</>}
 								</div>
-								<Button disabled={disable || (!loggedIn && (form.firstname.invalid || form.lastname.invalid || form.email.invalid || form.phone.invalid))} onClick={submit} extraClasses="payment_form__submission_deck__submit">
+								<Button disabled={submitDisabled} onClick={submit} extraClasses="payment_form__submission_deck__submit">
 										Pay
 								</Button>
 						</div>
-				</div>
+				</form>
 		</div>
 		)
 })
