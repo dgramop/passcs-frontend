@@ -35,7 +35,14 @@ async function cancel_subscription(subscription_id) {
  * @param {props.title} Class name for the slotcard
  */
 function SlotCard(props) {
+		let [skipConfirmOpen, setSkipConfirmOpen] = useState(false);
+
 		let next_meeting = get_next_meeting(props.meeting_info);
+		if (next_meeting == null) {
+			// there is no next meeting; this slot should be skipped
+			// this is probably because it's a past meeting
+			return (<></>)
+		}
 
 		let color_index = 0;
 		let course_integer = next_meeting.course.course_number.match(/[0-9]+/g)
@@ -43,7 +50,6 @@ function SlotCard(props) {
 				color_index = parseInt(course_integer[0])%5;
 		}
 
-		let [skipConfirmOpen, setSkipConfirmOpen] = useState(false);
 
 
 		let {weekday, start_hour} = timezone_time_from_slot(props.slot);
