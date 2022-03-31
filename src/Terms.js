@@ -17,7 +17,6 @@ export default function Terms(props) {
 						<li>You made a concerted effort to pass, </li>
 						<li>You made no effort to fail</li>
 						<li>You didn’t violate your university’s honor code or receive any sanction (including but not limited to course failure) for cheating (includes “plea deals” with professors that don’t receive an official honor council hearing), and</li>
-						<li>You started your passCS tutoring before the class midterm (if there is a midterm), or before the midpoint of the semester, whichever comes first, and</li>
 						<li>You attended all your exams and submit all assignments, for example, you may not avail of this guarantee if you overslept your final and failed</li>
 						<li>At the time you contract our services, your grades must be high enough that a reasonable increase in performance would be sufficient to pass the class</li>
 						<li>You must be enrolled in the class</li>
@@ -57,6 +56,6 @@ export default function Terms(props) {
 					If you sign up for a weekly or recurring time slot, you authorize passCS to charge your card through our payment processor, Stripe, to pay for all meetings you attend with our tutors, including meetings not scheduled through our system. The rates provided during checkout assume 1 hour of instruction per week. If you meet more than this, additional meetings may be added to what you already pay
 				</p>
 			</section>
-		</div><br/>
+		</div><br/><small> Last updated March 31, 2022. Removed the midterm/semester midpoint requirement </small>
 	</>)
 }
