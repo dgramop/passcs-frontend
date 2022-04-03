@@ -1,6 +1,6 @@
 import React, {useState, useEffect, forwardRef, useLayoutEffect, useRef} from "react";
 import './ReservationForm.scss';
-import {get_logged_in_customer, Button, DAYS_OF_THE_WEEK, timezone_time_from_slot} from "./Components";
+import {get_logged_in_customer, Button, DAYS_OF_THE_WEEK, timezone_time_from_slot, sendLoginLink} from "./Components";
 import {useNavigate} from "react-router-dom";
 
 import {CardElement, useElements, useStripe, Elements} from '@stripe/react-stripe-js';
@@ -525,8 +525,13 @@ const Payment = React.forwardRef((props, ref) => {
 														setError("Failed to log you in. Please try contact dhruv@passcs.io, or try again with a new email address");
 														break;
 												case "AlreadyExists":
-														setError("You must log in to complete this transaction. We emailed you a quick login link to your email, you may return to this tab after logging in");
-														//TODO: dispatch a log-in link
+														try {
+															await sendLoginLink(form.email.value);
+															setError("You must log in to complete this transaction. We emailed you a quick login link to your email, you may return to this tab after logging in");
+														} catch(e) {
+															console.log("failed to automatically send login link");
+															setError("You must log in to complete this transaction.");
+														}
 														break;
 												default:
 														setError(resp.error.type)

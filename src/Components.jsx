@@ -1,7 +1,7 @@
 import {useState} from "react"
 import {Link} from "react-router-dom"
 
-async function sendLoginLink(email) {
+export async function sendLoginLink(email) {
 		try {
 				let r;
 				if(email.indexOf("@passcs.io") !== -1)
