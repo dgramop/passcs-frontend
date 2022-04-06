@@ -201,7 +201,7 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 
 						<Selector value={prefs.capacity} setValue={setPrefValue} name="capacity" title="Class Size" icon="people" options={[
 							{text: <>One-on-One <s className="reservation_form__originalprice">${prices_by_class_size[1].original}</s> ${prices_by_class_size[1].discounted}</>, value: 1, disabled: !enabledOptions.capacity.has(1), subtext: "Focused attention"}, {
-							text: <>One-on-Two <s className="reservation_form__originalprice">${prices_by_class_size[2].original}</s> ${prices_by_class_size[2].discounted}</>, value: 2, disabled: !enabledOptions.capacity.has(2), subtext: "Two students/session"}]} />
+							text: <>One-on-Two <s className="reservation_form__originalprice">${prices_by_class_size[2].original}</s> ${prices_by_class_size[2].discounted}</>, value: 2, disabled: !enabledOptions.capacity.has(2), subtext: "Price per student"}]} />
 
 						<Selector value={prefs.class_style} setValue={setPrefValue} name="class_style" title="Session Location" icon="place" options={[
 								{value: "in-person", text:"On-Campus", disabled: !enabledOptions.class_style.has("in-person")},
