@@ -119,7 +119,7 @@ function summarize(prefs, slots) {
 const PrefsScreen = React.forwardRef((props, ref) => {
 		let [prefs, setPrefs] = useState({university:"GMU", capacity: 1, class_style: "in-person", payment_frequency: "weekly"})
 		let [set, setSet] = useState(false);
-		let [classes, setClasses] = useState([]);
+		let [courses, setCourses] = useState([]);
 		let [slots, setSlots] = useState([]);
 		let [error, setError] = useState(null);
 		let [enabledOptions, setEnabledOptions] = useState({capacity:new Set(), payment_frequency:new Set(), class_style: new Set()});
@@ -130,8 +130,8 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 
 		useEffect(() => {
 				let action = async () => {
-						let classes = (await (await fetch("/api/classes")).json()).data
-						setClasses(classes);
+						let courses = (await (await fetch("/api/courses")).json()).data
+						setCourses(courses);
 				};
 				action();
 		},[])
@@ -192,7 +192,7 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 								<small className="reservation_form__heading__subtext"> You won't be charged yet </small>
 						</div>
 						<Selector value={prefs.university} setValue={setPrefValue} name="university" title="University" icon="school" options={[{text: "George Mason", value: "GMU"}]} > </Selector>
-						<Selector value={prefs.course} setValue={setPrefValue} name="course" longer={true} title="Class" icon="class" options={classes.length > 0 ? classes.map((course) => {
+						<Selector value={prefs.course} setValue={setPrefValue} name="course" longer={true} title="Class" icon="class" options={courses.length > 0 ? courses.map((course) => {
 								return {value: course.id, text: course.course_number+" - "+course.course_name };
 						}) : [{value:"-1", text:"No classes available to book", disabled:true}]}/>
 
