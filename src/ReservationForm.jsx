@@ -153,8 +153,8 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 								optionalQuery += "&capacity="+prefs.capacity;
 						}
 
-						let slots = (await (await fetch(`/api/slots?class=${prefs.course}&${optionalQuery}`)).json()).data
-					 	if(slots.length == 0) {
+						let slots = (await (await fetch(`/api/slots?course=${prefs.course}&${optionalQuery}`)).json()).data
+					 	if(slots.length === 0) {
 							setError("Sorry, no availability for selected class. Try again later");
 						}
 						setSlots(slots);
