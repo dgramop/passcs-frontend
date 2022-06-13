@@ -45,7 +45,7 @@ function TutorDashboardSlot(props) {
 				{next_meeting.meeting.reservations_taken > 0 && <hr/>}
 				{next_meeting.meeting.reservations_taken > 0 && <div className="slotcard__scheduleinfo">
 						<div className="slotcard__scheduleinfo__row"><span className="material-icons">class</span> <b>{next_meeting.course.course_number}</b> </div>
-						<div className="slotcard__scheduleinfo__row"><span className="material-icons">room</span> {({"in-person":"On Campus", "online":"Online"})[next_meeting.meeting.class_style]}</div>
+						<div className="slotcard__scheduleinfo__row"><span className="material-icons">room</span> {({"in-person":"On Campus", "online":"Online"})[next_meeting.meeting.course_style]}</div>
 						<div className="slotcard__scheduleinfo__row"><span className="material-icons">group</span> <span>{(["The tutor, all by themselves!!", "One-on-One", "One-on-Two"])[next_meeting.meeting.capacity] || "One-on-"+next_meeting.meeting.capacity}</span></div>
 				</div>}
 				{/*<div className="slotcard__buttontray">

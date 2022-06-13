@@ -66,7 +66,7 @@ function Selector(props) {
  */
 function check_prefs(prefs, meeting) {
 		return (prefs.capacity == null || meeting.capacity == null || prefs.capacity === meeting.capacity) 
-				&& (prefs.class_style == null || meeting.class_style == null || prefs.class_style === meeting.class_style)
+				&& (prefs.course_style == null || meeting.course_style == null || prefs.course_style === meeting.course_style)
 }
 
 /**
@@ -74,7 +74,7 @@ function check_prefs(prefs, meeting) {
  */
 function summarize(prefs, slots) {
 		let capacity = new Set()
-		let class_style = new Set();
+		let course_style = new Set();
 		let payment_frequency = new Set();
 		for (let slot of slots) {
 				//if it succeeds for the first meeting, one-time frequency is ok
@@ -99,12 +99,12 @@ function summarize(prefs, slots) {
 								capacity.add(1); //this is where we add the set of all real numbers... or at least all number for any valid capacity
 								capacity.add(2); 
 						}
-						if(slot.meetings[0].class_style!==null) {
-								class_style.add(slot.meetings[0].class_style)
+						if(slot.meetings[0].course_style!==null) {
+								course_style.add(slot.meetings[0].course_style)
 						} else {
 								//add all valid class styles
-								class_style.add("in-person");
-								class_style.add("online");
+								course_style.add("in-person");
+								course_style.add("online");
 						}
 
 						if(weekly_matches) payment_frequency.add("weekly");
@@ -112,17 +112,17 @@ function summarize(prefs, slots) {
 				}
 
 		}
-		return {capacity, class_style, payment_frequency}
+		return {capacity, course_style, payment_frequency}
 }
 
 
 const PrefsScreen = React.forwardRef((props, ref) => {
-		let [prefs, setPrefs] = useState({university:"GMU", capacity: 1, class_style: "in-person", payment_frequency: "weekly"})
+		let [prefs, setPrefs] = useState({university:"GMU", capacity: 1, course_style: "in-person", payment_frequency: "weekly"})
 		let [set, setSet] = useState(false);
 		let [courses, setCourses] = useState([]);
 		let [slots, setSlots] = useState([]);
 		let [error, setError] = useState(null);
-		let [enabledOptions, setEnabledOptions] = useState({capacity:new Set(), payment_frequency:new Set(), class_style: new Set()});
+		let [enabledOptions, setEnabledOptions] = useState({capacity:new Set(), payment_frequency:new Set(), course_style: new Set()});
 
 		let setPrefValue = (name, value) => {
 				setPrefs({...prefs, [name]: value});
@@ -145,8 +145,8 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 								optionalQuery += "subscription="+(prefs.payment_frequency === "weekly");
 						}
 						
-						if(prefs.class_style !== null) {
-								optionalQuery += "&class_style="+prefs.class_style;
+						if(prefs.course_style !== null) {
+								optionalQuery += "&course_style="+prefs.course_style;
 						}
 
 						if(prefs.capacity !== null) {
@@ -171,9 +171,9 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 				setEnabledOptions(summarize(prefs, slots));
 		}, [prefs, slots])
 
-		let submit_disabled = prefs.university == null || prefs.course == null || prefs.capacity == null || prefs.class_style == null || prefs.payment_frequency == null;
+		let submit_disabled = prefs.university == null || prefs.course == null || prefs.capacity == null || prefs.course_style == null || prefs.payment_frequency == null;
 
-		let prices_by_class_size = { 
+		let prices_by_course_size = { 
 			1: {
 				discounted: (prefs.payment_frequency === "onetime" ? 35 : 34),
 				original: 50 
@@ -200,12 +200,12 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 						{prefs.course == null && <div className="reservation_form__instructions"><span className="material-icons">info</span> <span>Please select a class to continue</span></div>}
 
 						<Selector value={prefs.capacity} setValue={setPrefValue} name="capacity" title="Class Size" icon="people" options={[
-							{text: <>One-on-One <s className="reservation_form__originalprice">${prices_by_class_size[1].original}</s> ${prices_by_class_size[1].discounted}</>, value: 1, disabled: !enabledOptions.capacity.has(1), subtext: "Focused attention"}, {
-							text: <>One-on-Two <s className="reservation_form__originalprice">${prices_by_class_size[2].original}</s> ${prices_by_class_size[2].discounted}</>, value: 2, disabled: !enabledOptions.capacity.has(2), subtext: "Price per student"}]} />
+							{text: <>One-on-One <s className="reservation_form__originalprice">${prices_by_course_size[1].original}</s> ${prices_by_course_size[1].discounted}</>, value: 1, disabled: !enabledOptions.capacity.has(1), subtext: "Focused attention"}, {
+							text: <>One-on-Two <s className="reservation_form__originalprice">${prices_by_course_size[2].original}</s> ${prices_by_course_size[2].discounted}</>, value: 2, disabled: !enabledOptions.capacity.has(2), subtext: "Price per student"}]} />
 
-						<Selector value={prefs.class_style} setValue={setPrefValue} name="class_style" title="Session Location" icon="place" options={[
-								{value: "in-person", text:"On-Campus", disabled: !enabledOptions.class_style.has("in-person")},
-								{value: "online", text:"Online", disabled: !enabledOptions.class_style.has("online") }]} />
+						<Selector value={prefs.course_style} setValue={setPrefValue} name="course_style" title="Session Location" icon="place" options={[
+								{value: "in-person", text:"On-Campus", disabled: !enabledOptions.course_style.has("in-person")},
+								{value: "online", text:"Online", disabled: !enabledOptions.course_style.has("online") }]} />
 						
 						<Selector value={prefs.payment_frequency} setValue={setPrefValue} name="payment_frequency" longer={true} title="Session Frequency" icon="autorenew" options={[
 								{value: "weekly", text:"Weekly", modifier: {type:"success", text:prefs.payment_frequency === "onetime" ? ("save $1/meeting") : ""}, disabled: !enabledOptions.payment_frequency.has("weekly")},
@@ -220,7 +220,7 @@ const PrefsScreen = React.forwardRef((props, ref) => {
 				</div>
 		)
 		else return (
-				<SlotSelectionScreen slots={slots} ref={ref} price={prices_by_class_size[prefs.capacity].discounted} prefs={prefs} back={() => { setSet(false); props.scrollFn() }} scrollFn={props.scrollFn}/>
+				<SlotSelectionScreen slots={slots} ref={ref} price={prices_by_course_size[prefs.capacity].discounted} prefs={prefs} back={() => { setSet(false); props.scrollFn() }} scrollFn={props.scrollFn}/>
 				
 		)
 })
@@ -279,8 +279,8 @@ function Criteria(props) {
 
 			<div className="criteria__bubble__container">
 				<div className="criteria__bubble">{(["Just the tutor in an empty room","One-on-One","One-on-Two"])[props.capacity]}</div>
-				<div className="criteria__bubble">{props.class_style}</div>
-				<div className="criteria__bubble">{props.class_number}</div>
+				<div className="criteria__bubble">{props.course_style}</div>
+				<div className="criteria__bubble">{props.course_number}</div>
 				<div className="criteria__bubble">{props.price}{props.payment_frequency === "weekly" ? "/wk" : ""}</div>
 			</div>
 		</div>)
@@ -304,8 +304,8 @@ const SlotSelectionScreen = React.forwardRef((props, ref) => {
 						let slots = props.slots.sort((sa,sb) => {
 							return new Date(sa.slot.anchor_epoch*1000).getHours() - new Date(sb.slot.anchor_epoch*1000).getHours();
 						})
-						if(prefs.course !== slots[0].offering["class"].id) throw new Error("first meeting doesn't match selected class ID");
-						setClassNumber(slots[0].offering["class"].course_number);
+						if(prefs.course !== slots[0].offering["course"].id) throw new Error("first meeting doesn't match selected class ID");
+						setClassNumber(slots[0].offering["course"].course_number);
 						
 						let slots_by_day = [[], [], [], [], [], [], []];
 						for(let slot of slots) { //TODO: time conversions
@@ -330,7 +330,7 @@ const SlotSelectionScreen = React.forwardRef((props, ref) => {
 								<small className="reservation_form__heading__subtext"> Confirm your payment after this step </small>
 						</div>
 						<div>
-								<Criteria class_size={prefs.class_size} payment_frequency={prefs.payment_frequency} capacity={prefs.capacity} class_number={classNumber} price={"$"+props.price} class_style={{"online": "Online","in-person":"On campus"}[prefs.class_style]} edit={props.back} />
+								<Criteria course_size={prefs.course_size} payment_frequency={prefs.payment_frequency} capacity={prefs.capacity} course_number={classNumber} price={"$"+props.price} course_style={{"online": "Online","in-person":"On campus"}[prefs.course_style]} edit={props.back} />
 								{ DAYS_OF_THE_WEEK.map((day_of_the_week, days_since_monday) => {
 										if(slots[days_since_monday].length > 0)  {
 												return (<>
@@ -390,7 +390,7 @@ async function register_payment(slot, prefs, offering, first_meeting) {
 		let form_data = new FormData();
 		form_data.append('meeting',first_meeting.id);
 		form_data.append('slot',slot.id);
-		form_data.append('class_style',prefs.class_style);
+		form_data.append('course_style',prefs.course_style);
 		form_data.append('capacity',prefs.capacity);
 		form_data.append('offering',offering.id);
 
@@ -404,7 +404,7 @@ async function register_subscription(slot, prefs, offering, first_meeting) {
 		let form_data = new FormData();
 		form_data.append('meeting',first_meeting.id);
 		form_data.append('slot',slot.id);
-		form_data.append('class_style',prefs.class_style);
+		form_data.append('course_style',prefs.course_style);
 		form_data.append('capacity',prefs.capacity);
 		form_data.append('offering',offering.id);
 
@@ -684,7 +684,7 @@ const Payment = React.forwardRef((props, ref) => {
 						<h2 className="reservation_form__heading__title">Confirm Booking</h2>
 						<small className="reservation_form__heading__subtext">Your card will be charged</small>
 				</div>
-				<Criteria class_size={props.prefs.class_size} payment_frequency={props.prefs.payment_frequency} capacity={props.prefs.capacity} class_number={props.slot.offering.class.course_number} price={"$"+props.price} class_style={{"online": "Online","in-person":"On campus"}[props.prefs.class_style]} edit={props.editPrefs} />
+				<Criteria course_size={props.prefs.course_size} payment_frequency={props.prefs.payment_frequency} capacity={props.prefs.capacity} course_number={props.slot.offering.course.course_number} price={"$"+props.price} course_style={{"online": "Online","in-person":"On campus"}[props.prefs.course_style]} edit={props.editPrefs} />
 				<Slot {...props.slot} onUnBook={()=>props.editSlot()} />
 				<form className="payment_form" onSubmit={(e) => {
 					e.preventDefault();
