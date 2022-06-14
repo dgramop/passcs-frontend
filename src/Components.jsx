@@ -22,7 +22,7 @@ export async function sendLoginLink(email) {
 }
 
 export async function get_logged_in_customer() {
-		let customer_resp = await fetch("/api/customers/0");
+		let customer_resp = await fetch("/api/customers/myself");
 		customer_resp = await customer_resp.json()
 		if(customer_resp.error) {
 				throw customer_resp;

@@ -124,7 +124,7 @@ export default function CustomerDashboard(props) {
 		let [error, setError] = useState(null);
 
 		let get_slots = async () => {
-						let slots = await fetch("/api/customers/0/slots");
+						let slots = await fetch("/api/customers/myself/slots");
 						let resp = await slots.json();
 						if(resp.error) {
 								switch(resp.error.type) {
