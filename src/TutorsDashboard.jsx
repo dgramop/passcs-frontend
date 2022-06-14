@@ -62,7 +62,7 @@ export default function TutorsDashboard(props) {
 
 	let refresh_dashboard = async () => {
 		try {
-			let resp = await fetch("/api/tutors/0/slots");
+			let resp = await fetch("/api/tutors/myself/slots");
 			let json = await resp.json();
 			if(json.error) {
 				setError(({})[json.error.type] || json.error.type)
