@@ -410,7 +410,6 @@ async function register_subscription(slot, prefs, offering, first_meeting) {
 
 		let fetch_res = await fetch("/api/subscriptions", {method: "POST", body: form_data});
 		let json_res = await fetch_res.json();
-		console.log(json_res);
 		return json_res;
 }
 
@@ -422,6 +421,9 @@ const Payment = React.forwardRef((props, ref) => {
 		// if the user is logged in or not
 		let [loggedIn, setLoggedIn] = useState(false);
 
+		// if the user already has a payment method enrolled with us
+		let [hasPaymentMethod, setHasPaymentMethod] = useState(false);
+
 		// react router setup so we can later navigate the user to their dashboard
 		let navigate = useNavigate();
 
@@ -429,7 +431,13 @@ const Payment = React.forwardRef((props, ref) => {
 
 		// checks if a customer has a valid token
 		useEffect(() => {
-				get_logged_in_customer().then(() => setLoggedIn(true)).catch(()=> setLoggedIn(false))
+				get_logged_in_customer().then((customer) => {
+					setLoggedIn(true)
+					setHasPaymentMethod(customer.payment_method != null)
+				}).catch((e)=>{
+					console.log("failed to get the currently logged in customer",e)
+					setLoggedIn(false)
+				})
 		}, []);
 
 		// if we just mounted and rendered the component, scroll to the top, if a scroll top function was provided
@@ -485,7 +493,9 @@ const Payment = React.forwardRef((props, ref) => {
 		// see index.html, this cleverly sets the styles of the iframed-out stripe input
 		let font_size = window.getComputedStyle(document.getElementsByClassName("payment_form__input")[0], null).getPropertyValue('font-size');;
 
-		// stores the stripe payment intent for the client secret
+		// stores the stripe payment intent for the client secret, 
+		// null if one needs to be generated, 
+		// the string "not needed" if one doesn't need to be generated because and one doesn't exist, for example because the payments were created succesfully and do not need be confirmed by the frontend (payment on file)
 		let [clientSecret, setClientSecret] = useState(null);
 
 		// This code submits the form
@@ -504,6 +514,9 @@ const Payment = React.forwardRef((props, ref) => {
 						}
 						customer = null;
 				}
+
+				if(customer?.payment_method) setHasPaymentMethod(true);
+				if(!customer?.payment_method) setHasPaymentMethod(false);
 
 				if(!customer) {
 						//customer isn't logged in, so we'll try to register the customer
@@ -543,7 +556,7 @@ const Payment = React.forwardRef((props, ref) => {
 								} else {
 										setDisabled(false)
 										setLoggedIn(true)
-										customer = resp?.data.customer;
+										customer = resp?.data;
 								}
 						} catch(e) {
 								console.log(e);
@@ -554,6 +567,7 @@ const Payment = React.forwardRef((props, ref) => {
 				} 
 
 				let client_secret = clientSecret;
+				// check if we need to create a payment/subscription
 				if(client_secret==null) {
 						if(props.prefs.payment_frequency === 'weekly') {
 								try {
@@ -594,8 +608,12 @@ const Payment = React.forwardRef((props, ref) => {
 												setDisabled(false);
 												return;
 										} else {
-												client_secret = resp.data.client_secret;
-												setClientSecret(client_secret);
+												if(client_secret == null && hasPaymentMethod) {
+													setClientSecret("not needed");
+												} else {
+													client_secret = resp.data.client_secret;
+													setClientSecret(client_secret);
+												}
 										}
 								} catch (e) {
 										console.log(e);
@@ -653,23 +671,28 @@ const Payment = React.forwardRef((props, ref) => {
 						}
 				}
 
-				const payload = await stripe.confirmCardPayment(client_secret, {
-						payment_method: {
-								card: elements.getElement(CardElement),
-								billing_details: {
-										name: props.prefs.firstname+" "+props.prefs.lastname
-								}
-						}
-				})						
+				// if the customer doesn't already have a payment method on file, we have to confirm the payment method from our end. otherwise the backend will handle it for us
+				console.log("before payment confirmation", customer)
+				if(!customer.payment_method) {
+					const payload = await stripe.confirmCardPayment(client_secret, {
+							payment_method: {
+									card: elements.getElement(CardElement),
+									billing_details: {
+											name: props.prefs.firstname+" "+props.prefs.lastname
+									}
+							}
+					})						
+					console.log(payload);
 
-				console.log(payload);
-
-				if(payload.error) {
-						setError(payload.error.message);
-						setDisabled(false);
-						return;
+					if(payload.error) {
+							setError(payload.error.message);
+							setDisabled(false);
+							return;
+					} else {
+						navigate("/dashboard");
+					}
 				} else {
-					navigate("/dashboard");
+						navigate("/dashboard");
 				}
 
 				setDisabled(false);
@@ -720,12 +743,12 @@ const Payment = React.forwardRef((props, ref) => {
 								</label>
 								<input onBlur={setAngry} value={form.phone.value} onChange={(e) => {updateForm("phone", e.target.value)}} name="phone" className={"payment_form__input "+(form.phone.angry && form.phone.invalid ? "payment_form__input--angry " :"")} disabled={disable} type="phone" placeholder="5555555555"/>
 						</div></>}
-						<div className="input_group">
+						{!hasPaymentMethod && <div className="input_group">
 								<label for="phone" className="payment_form__label" >
 										Card
 								</label>
-								<CardElement options={{style:{base:{fontSize:font_size}}, disabled: disable}} className="payment_form__input"/>
-						</div>
+								 <CardElement options={{style:{base:{fontSize:font_size}}, disabled: disable}} className="payment_form__input"/>
+						</div>}
 						<div className="assurances">
 								<Assurance icon="lock">
 										Your payment is secured by Stripe and SSL
@@ -735,6 +758,9 @@ const Payment = React.forwardRef((props, ref) => {
 								</Assurance>
 								{props.prefs.payment_frequency === 'weekly' && <Assurance icon="logout">
 										Easy cancellation
+								</Assurance>}
+								{hasPaymentMethod && <Assurance icon="payment">
+										We'll charge your card-on-file
 								</Assurance>}
 						</div>
 						<div className="payment_form__submission_deck">

@@ -177,11 +177,7 @@ function BillingInfo(props) {
 				);
 		};
 		let next_meeting = get_next_meeting(props.slots[params.slot_id].meeting_info)
-		let subscription_string = "disabled"
-		if(props.slots[params.slot_id].subscription) {
-			subscription_string = props.slots[params.slot_id].subscription?.payment_status.replace("_", " ") || "";
-			if(subscription_string==="trialing") subscription_string = "Active";
-		} 		
+		const subscription_string = props.slots[params.slot_id].subscription?.active ? "Active" : "Disabled"
 
 		let can_skip_next_meeting = next_meeting.payment.payment_status === "subscription_pending" 
 
