@@ -1,211 +1,88 @@
 @import "index.scss";
-.container {
-		padding: 2rem;
-		padding-top: 0;
-		padding-bottom: 2rem;
-		max-width: 1000px;
 
-		margin-left: auto;
-		margin-right: auto;
+.hero {
+	background-color: #1E293B;
+	height: 80vh;
+	color:white;
+	display: flex;
+	flex-direction: column;
 
-
-		@include sm {
-				padding: 4rem;
-				padding-top: 2rem;
-		}
-		
-}
-
-.home_hero {
-		background-color: #1E293B;
-		display: flex;
-		justify-content: space-between;
-
-		padding: 2rem;
-		padding-bottom: 2rem;
-		max-width: 1000px;
-
-		margin-left: auto;
-		margin-right: auto;
-
-		@include sm {
-				padding: 4rem;
-				padding-bottom: 2rem;
-		}
-
+	&__heading {
 		&__container {
-				background-color: #1E293B;
-				margin-bottom:2rem;
-				@include sm {
-						margin-bottom: 3rem;
-				}
-		}
-		
-		&__logo {
-				font-size: 4rem;
+			position: absolute;
+			width:100%;
 		}
 
-		&__main {
-				display: flex;
-				flex-direction: column;
-				align-items: flex-start;
-				gap: 0.5rem;
-				justify-content: flex-end;
-		}
+		width: 70rem;
+		margin-left: auto;
+		margin-right: auto;
 
-		&__distraction__reportcard {
-				background-color: #E2E8F0;
-				padding: 1rem;
-				transform-origin: bottom right;
-				box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-				transform: translateY(3rem) rotate(-19.5deg) ;
-				@include md {
-					transform: translateY(3rem) rotate(-19.5deg) scale(1.2);
-				}
-				//transform: rotate(-30deg);
-				width: 10rem;
-
-				display: none;
-				@include sm {
-						display: flex;
-				}
-				flex-direction: column;
-
-				&__title {
-						font-weight:700;
-						font-size: 1.2rem;
-						color:  #334155;
-				}
-
-				&__graderow {
-						display: flex;
-						justify-content: space-between;
-
-						&__grade {
-								font-weight: 600;
-								text-align: left;
-								width: 2rem;
-						}
-
-				}
-		}
-		
-		&__tagline {
-				font-weight: bold;
-				color: #CBD5E1;
-		}
-
-		&__tagpara {
-				color: #CBD5E1;
-				font-size: 0.8rem;
-				line-height: 1rem;
-				max-width: 16rem;
-		}
-
-		&__primary_button {
-				background-color: #065F46;
-				color: #ECFDF5;
-		}
-
-		&__secondary_button {
-				background-color: transparent;
-				color: #CBD5E1;
-		}
-}
-
-.pass {
-		color:white;
-		font-style: italic;
-		font-weight: bold;
-}
-
-.cs {
-		color: #28E13B;
-		font-style: italic;
-		font-weight: bold;
-}
-
-.cards {
-		display: flex;
-		gap: 2rem;
-		flex-direction: column ;
-}
-
-.card {
-		//get padding from reservation form
-		display: grid;
-		grid-template-columns: min-content 1fr;
-		background-color: #F8FAFC;
-		border-radius: 24px;
-		box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-		gap: 1rem;
-		padding: 2rem;
+		display:flex;
+		justify-content: space-between;
 		align-items: center;
-		
-
-		&__icon__container {
-				background-color: #E2E8F0;
-				color: #334155;
-				min-width: 3rem;
-				min-height: 3rem;
-				clip-path: circle(1.5rem);
-				text-align: center;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-
-				& > span {
-						font-size: 1.5rem;
-				}
-
-				& > img {
-						width: 3rem;
-						height: 3rem;
-				}
-		}
 
 		&__title {
-				color: #1E293B;
-				padding: 0;
-				margin: 0;
+			font-style: italic;
+			font-size: 2.5rem;
+			justify-self: flex-start;
 		}
+	}
 
+	&__content {
+		flex-grow: 1;
+		width: 70rem;
+		margin-left: auto;
+		margin-right: auto;
 
-		&__body {
-				line-height: 1.6rem;
-				font-size: 1.3rem;
-		}
+		display: flex;
 
-		&--testimonial {
+		&__quote {
+			max-width: 50%;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			gap: 1rem;
+
+			&__title {
+				font-size: 2.5rem;
+				line-height: 1rem;
+			}
+
+			&__text {
 				color: #F8FAFC;
-				.card__title {
-						line-height: 1em;
-						color: #F8FAFC;
-				}
+				font-size: 2rem;
+				font-weight: 600;
+				display: flex;
+				flex-direction: column;
+				gap: 0.5rem;
+			}
 
-				.card__tagline {
-						font-weight: 600;
-						color: #E2E8F0;
-						padding: 0;
-						margin:0;
-						line-height: 2em;
-				}
-
+			&__credit {
+				display:flex;
+				gap: 1rem;
 				align-items: center;
-				background-color: #1E293B;
+
+				&__image {
+					width: 4.75rem;
+					border-radius: 4.75rem;
+					opacity: 0.8;
+					border: 2px solid white;
+				}
+
+				&__details {
+					display: flex;
+					flex-direction: column;
+					&__name {
+						line-height: 1rem;
+						font-weight: 700;
+						font-size: 1.5rem;
+					}
+
+					&__desc {
+						font-size: 1.5rem;
+					}
+				}
+			}
 		}
+	}
 }
-
-
-
-#login__email {
-		width: calc(100% - 1.5rem);
-		@include sm {
-				width: 80%;
-		}
-}
-
-.login__error {
-				color: #d97706;
-				font-weight: bold;
-		}

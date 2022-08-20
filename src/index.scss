@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
-body {
+html, body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -48,18 +48,20 @@ $screen-xl-min: 1200px;
 }
 
 body, html {
-		font-size: 12px;
+
+		font-size: 16px;
+
 		@include sm {
 				font-size: 14px;
 		}
 
 		@include md {
-				font-size: 18px;
+				font-size: 16px;
 		}
 
-		@include lg {
+		/*@include lg 
 				font-size: 20px;
-		}
+		}*/
 }
 
 a {
@@ -71,22 +73,27 @@ a {
 .button {
 		cursor: pointer;
 		user-select: none;
-		background-color: #1E293B;
-		border-radius: 8px;
+		background-color: #0F172A;
+		border-radius: 6px;
 
 		text-align: center;
 		font-weight: bold;
 		color: #F8FAFC;
-		padding: 0.75rem;
-		padding-left: 1.5rem;
-		padding-right: 1.5rem;
+		height: 3rem;
+		padding-left: 2rem;
+		padding-right: 2rem;
 		display: inline-flex;
 		gap: 0.5rem;
 		align-items: center;
 
+		&--green {
+				background-color: #047857;
+		}
+
 		&--disabled {
 				background-color: #64748b;
 		}
+
 
 		&--secondary {
 				background: none;
@@ -210,4 +217,8 @@ a {
 .genericError {
 				color: #d97706;
 				font-weight: bold;
-		}
+}
+
+.green {
+	color: #28E13B;
+}

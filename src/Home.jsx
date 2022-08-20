@@ -3,136 +3,76 @@ import './Home.scss'
 import './index.scss'
 import {Button, Modal, get_token, LoginModal} from "./Components";
 import shakir from "./Shakir.jpg";
+import PaymentFlow from "./PaymentFlow.jsx";
 import React, {useState, useRef, useEffect, createRef}  from "react";
 import {Link} from "react-router-dom";
 
-/**
- * Makes a paper like card on the screen
- * @param {String} props.icon the google icon, as text
- * @param {String} props.title Card heading
- * @param {ReactChildren} props.children Body
- * @param {Boolean} props.dark If this card is dark themed
- */
-function Testimonial(props) {
-		return (
-				<section className="card card--testimonial">
-						<div className="card__icon__container"><img alt={props.title+"'s profile (head etc.)"} src={props.photo} /></div>
-						<div className="card__title__block"><h2 className="card__title">{props.title}</h2><div className="card__tagline">passCS Customer</div></div>
-						<div></div>
-						<div className="card__body">{props.children}</div>
-				</section>
-		);
-}
 
-/**
- * Makes a paper like card on the screen
- * @param {String} props.icon the google icon, as text
- * @param {String} props.title Card heading
- * @param {ReactChildren} props.children Body
- * @param {Boolean} props.dark If this card is dark themed
- */
-function Card(props) {
-		return (
-				<section className={"card "+(props.dark ? "card--dark" : "")}>
-						<div className="card__icon__container"><span className="material-icons">{props.icon}</span></div>
-						<h2 className="card__title">{props.title}</h2>
-						<div></div>
-						<div className="card__body">{props.children}</div>
-				</section>
-		);
-}
-
-
-
-export default function Home() {
-
-		console.log("environment",process.env.NODE_ENV);
-		const reservationRef = useRef();
-		const [showLogIn, setShowLogIn] = useState(false);
-
-		const [isLoggedIn, setIsLogggedIn] = useState(false);
-		let checkLogin = async () => {
-				try {
-						setIsLogggedIn((await get_token()).user_type);
-				} catch(e) {
-						setIsLogggedIn(false);
-				}
-		};
-
-	console.log(checkLogin)
-
-		useEffect(() => {
-				checkLogin()
-		}, [])
-
-		return (<> 
-				{showLogIn && <LoginModal close={()=>setShowLogIn(false)} />}
-				<div className="home_hero__container">
-						<div className="home_hero">
-								<div className="home_hero__main">
-										<div className="home_hero__logo">
-												<span className="pass">pass</span>
-												<span className="cs">CS</span>
-										</div>
-										<div className="home_hero__tagline">
-												pass class, guaranteed*
-										</div>
-										<div className="home_hero__tagpara">
-												founded by former teaching assistants and class toppers to get you through class. 
-										</div>
-										<div className="home_hero__buttontray">
-												{!isLoggedIn && <>
-														<Button onClick={() => {reservationRef.current.scrollIntoView()}} extraClasses="home_hero__primary_button">View Options</Button>
-														<Button extraClasses="home_hero__secondary_button" onClick={()=>setShowLogIn(true)}>Login</Button>
-												</> }
-												{isLoggedIn === "customer" && <>
-														<Link to="dashboard"><Button primary extraClasses="home_hero__primary_button">Your Classes</Button></Link>
-														<Button onClick={() => {reservationRef.current.scrollIntoView()}} extraClasses="home_hero__secondary_button">Add a Class</Button>
-												</> }
-												{isLoggedIn === "tutor" && <>
-														<Link to="tutors"><Button primary extraClasses="home_hero__primary_button">Tutor Dashboard</Button></Link>
-												</> }
-										</div>
+function Hero({...props}) {
+	return (
+		<div className="hero">
+			<div className="hero__heading__container">
+				<div className="hero__heading">
+					<h1 className="hero__heading__title">pass<span className="green">CS</span></h1>
+					<Button green>Login</Button>
+				</div>
+			</div>
+			<section className="hero__content">
+				<section className="hero__content__quote">
+					<h2 className="hero__content__quote__title">
+						Tutoring that <span className="green">works.</span>
+					</h2>
+					<div className="hero__content__quote__text">
+						“passCS helped me understand core programming, actually it is better than two hours lecture in class. Thanks passCS”
+						<div className="hero__content__quote__credit">
+							<img className="hero__content__quote__credit__image" src={shakir} alt="Headshot of Shakir, the student who took the testimonial" />
+							<div className="hero__content__quote__credit__details">
+								<div className="hero__content__quote__credit__details__name">
+									Shakir
 								</div>
-								<div className="home_hero__distraction">
-										<ReportCard />
+								<div className="hero__content__quote__credit__details__desc">
+									passCS Customer
 								</div>
+							</div>
 						</div>
-				</div>
-				<div className="container cards">
-						<Card title="Matches your learning style" icon="face">
-								Our tutors take the time to understand your learning style, and adapt your sessions to meet your needs. When it comes to learning, there is no “one size fits all” approach. For extra focus, select our “one-on-one” option
-						</Card>
-						<Card title="Builds understanding" icon="psychology">
-								You won't get confused. Explanations in clear english that tell you everything you need to know. Choose between in-person and online to fit your needs.
-						</Card>
-						<Card title="Pass or your money back" icon="check">
-								Get that extra peace of mind. If you don’t pass after taking at least 12 hours of one-on-one passCS Tutoring, we’ll refund the money you paid us. <a href="/terms">See additional terms</a>
-						</Card>
-						<Testimonial photo={shakir} title="Shakir" tagline="passCS Customer">
-								“passCS helped me understand core programming, actually it is better than two hours lecture in class. Thanks passCS”.
-						</Testimonial>
-						<ReservationForm ref={reservationRef} scrollFn={()=>reservationRef.current.scrollIntoView(true)}/>
-				</div>
-		</>)
+					</div>
+				</section>
+				<PaymentFlow />
+			</section>
+		</div>
+	)
 }
 
-function ClassGrade(props) {
-		return (<div className="home_hero__distraction__reportcard__graderow">
-				<div className="home_hero__distraction__reportcard__graderow__class">{props.course}</div>
-				<div className="home_hero__distraction__reportcard__graderow__grade">{props.grade}</div>
-				</div>)
+function TutorCard({tutor, ...props}) {
+	return (
+		<div className="home_card">
+		</div>
+	)
 }
 
-function ReportCard() {
-		return (<div className="home_hero__distraction__reportcard">
-						<div className="home_hero__distraction__reportcard__title"> transcript </div>
-						<ClassGrade course="CS112" grade="A+" />
-						<ClassGrade course="CS211" grade="A" />
-						<ClassGrade course="CS262" grade="A" />
-						<ClassGrade course="CS310" grade="A+" />
-						<ClassGrade course="MATH113" grade="A-" />
-						<ClassGrade course="MATH213" grade="A" />
+export default function Home({...props}) {
+	return (
+		<>
+			<Hero />
+			<section className="home_section">
+				<h2 className="home_section__title">Who we are</h2>
+				<div className="home_section__cards">
+					<TutorCard />
+					<TutorCard />
+					<TutorCard />
+					<TutorCard />
 				</div>
-		)
+			</section>
+			<section className="home_section">
+				<h2 className="home_section__title">Pass or your money back</h2>
+				<div className="home_section__card home_card">
+					<div className="home_card__header">
+						<div className="home_card__header__icon_container">
+
+						</div>
+					</div>
+				</div>
+			</section>
+		</>
+	)
 }
