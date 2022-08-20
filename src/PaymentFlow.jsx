@@ -16,11 +16,11 @@ export function RadioButton({children, name, value, onClick, selected, split, ..
 	);
 }
 
-export function RadioSelect({options, setOption, ...props}) {
+export function RadioSelect({options, onChange, value, ...props}) {
 	return (
 		<div className="rbtns">
 			{options && options.map((option) => {
-				return (<RadioButton split={Array.isArray(option.label)} onClick={() => setOption(option.value)} value={option.value}>{!Array.isArray(option.label) && option.label}{Array.isArray(option.label) && option.label.map((label) => <span className="rbtn__elem">{label}</span>)}</RadioButton>)
+				return (<RadioButton selected={option.value===value} split={Array.isArray(option.label)} onClick={() => onChange(option.value)} value={option.value}>{!Array.isArray(option.label) && option.label}{Array.isArray(option.label) && option.label.map((label) => <span className="rbtn__elem">{label}</span>)}</RadioButton>)
 			})}
 		</div>
 	)
@@ -28,14 +28,20 @@ export function RadioSelect({options, setOption, ...props}) {
 
 export default function PaymentFlow({embed, className, ...props}) {
 
+	// data loaded from the backend
 	const classOptions = useState(null)
+	const class_options = [{label:"Computer Science",options:[]}, {label:"Math",options:[]}, {label:"Other",options:[]}];
+
+	// form control
+	const [size, setSize] = useState(null);
+	const [frequency, setFrequency] = useState(null);
+	const [modality, setModality] = useState(null);
 
 	// CSS class computation
 	let flow_classes = ["payflow"]
 	if(embed) flow_classes.append("payflow--embed")
 	if(className) flow_classes = flow_classes.concat(className.split(" "))
 
-	const class_options = [{label:"Computer Science",options:[]}, {label:"Math",options:[]}, {label:"Other",options:[]}];
 
 	return (
 		<div className={flow_classes.join(" ")}>
@@ -56,21 +62,20 @@ export default function PaymentFlow({embed, className, ...props}) {
 
 				<section className="payflow__inputgroup">
 					<h3 className="payflow__inputgroup__title">Do you prefer a one-on-one meeting?</h3>
-					<RadioSelect options={[{label:["One-on-one", "$34"], value:1}, {label:["Group-of-Two", "$29"], value:2}]}/>
+					<RadioSelect onChange={setSize} value={size} options={[{label:["One-on-one", "$34"], value:1}, {label:["Group-of-Two", "$29"], value:2}]}/>
 				</section>
 
 				<section className="payflow__inputgroup">
 					<h3 className="payflow__inputgroup__title">How often would you like to meet?</h3>
-					<RadioSelect options={[{label:["Weekly"], value:1}, {label:["One Time", "+$1"], value:2}]}/>
+					<RadioSelect onChange={setFrequency} value={frequency} options={[{label:["Weekly"], value:1}, {label:["One Time", "+$1"], value:2}]}/>
 				</section>
 				
 				<section className="payflow__inputgroup">
 					<h3 className="payflow__inputgroup__title">Where would you like to meet?</h3>
-					<RadioSelect options={[{label:"On-Campus", value:1}, {label:"Online", value:2}]}/>
+					<RadioSelect onChange={setModality} value={modality} options={[{label:"On-Campus", value:1}, {label:"Online", value:2}]}/>
 				</section>
 
 				<section className="payflow__submit">
-
 					<div className="payflow__submit__assurances">You won’t be charged yet · All prices are per student for one hour sessions</div>
 					<Button full className="payflow__submit__button">Select Tutor, Time and Location</Button>
 				</section>
