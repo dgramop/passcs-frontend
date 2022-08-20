@@ -7,13 +7,34 @@
 	display: flex;
 	flex-direction: column;
 
+	background-image: url("/swoosh_bottom_left.svg");
+	background-repeat: no-repeat;
+	background-position: left bottom;
+	@include lg {
+		background-image: url("/swoosh_bottom_left.svg"), url("/swoosh_top_right.svg");
+		background-position: left bottom, right top;
+		background-repeat: no-repeat, no-repeat;
+	}
+
 	&__heading {
 		&__container {
 			position: absolute;
 			width:100%;
 		}
 
-		width: 70rem;
+		@include sm {
+			width: 30rem;
+		}
+		@include md {
+			width: 50rem;
+		}
+		@include lg {
+			width: 60rem;
+		}
+		@include xl {
+			width: 70rem;
+		}
+
 		margin-left: auto;
 		margin-right: auto;
 
@@ -30,12 +51,24 @@
 
 	&__content {
 		flex-grow: 1;
-		width: 70rem;
+		@include sm {
+			width: 30rem;
+		}
+		@include md {
+			width: 50rem;
+		}
+		@include lg {
+			width: 60rem;
+		}
+		@include xl {
+			width: 70rem;
+		}
 		margin-left: auto;
 		margin-right: auto;
 
 		display: inline-grid;
-		grid-template-columns: 50% 50%;
+		gap: 1.5rem;
+		grid-template-columns: calc(50% - 0.75rem) calc(50% - 0.75rem);
 
 		&__quote {
 			display: flex;

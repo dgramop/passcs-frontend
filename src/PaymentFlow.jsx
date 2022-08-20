@@ -2,10 +2,12 @@ import "./PaymentFlow.scss"
 import {ArrowBack} from '@mui/icons-material';
 import Select from 'react-select';
 import {useState} from "react";
+import {Button} from "./Components";
 
-export function RadioButton({children, name, value, onClick, selected, ...props}) {
+export function RadioButton({children, name, value, onClick, selected, split, ...props}) {
 	let computed_classes = ["rbtn"];
-	if(selected) computed_classes.append("rbtn--selected")
+	if(selected) computed_classes.push("rbtn--selected")
+	if(split) computed_classes.push("rbtn--split")
 
 	return (
 		<div className={computed_classes.join(" ")} onClick={()=>{onClick(name, value)}}>
@@ -17,7 +19,9 @@ export function RadioButton({children, name, value, onClick, selected, ...props}
 export function RadioSelect({options, setOption, ...props}) {
 	return (
 		<div className="rbtns">
-			{options && options.map((option) => <RadioButton onClick={() => setOption(option.value)} value={option.value}>{option.label}</RadioButton>)}
+			{options && options.map((option) => {
+				return (<RadioButton split={Array.isArray(option.label)} onClick={() => setOption(option.value)} value={option.value}>{!Array.isArray(option.label) && option.label}{Array.isArray(option.label) && option.label.map((label) => <span className="rbtn__elem">{label}</span>)}</RadioButton>)
+			})}
 		</div>
 	)
 }
@@ -47,13 +51,30 @@ export default function PaymentFlow({embed, className, ...props}) {
 			<section className="payflow__inputs">
 				<section className="payflow__inputgroup">
 					<h3 className="payflow__inputgroup__title">What class can we help you with?</h3>
-					<Select className="payflow__inputgroup__select" options={class_options} />
+					<Select placeholder="Select or type..." className="payflow__inputgroup__select" options={class_options} />
 				</section>
 
 				<section className="payflow__inputgroup">
-					<h3 className="payflow__inputgroup__title">What class can we help you with?</h3>
-					<RadioSelect options={[{label:"Test", value:"none"}, {label:"None", value:"none"}]}/>
+					<h3 className="payflow__inputgroup__title">Do you prefer a one-on-one meeting?</h3>
+					<RadioSelect options={[{label:["One-on-one", "$34"], value:1}, {label:["Group-of-Two", "$29"], value:2}]}/>
 				</section>
+
+				<section className="payflow__inputgroup">
+					<h3 className="payflow__inputgroup__title">How often would you like to meet?</h3>
+					<RadioSelect options={[{label:["Weekly"], value:1}, {label:["One Time", "+$1"], value:2}]}/>
+				</section>
+				
+				<section className="payflow__inputgroup">
+					<h3 className="payflow__inputgroup__title">Where would you like to meet?</h3>
+					<RadioSelect options={[{label:"On-Campus", value:1}, {label:"Online", value:2}]}/>
+				</section>
+
+				<section className="payflow__submit">
+
+					<div className="payflow__submit__assurances">You won’t be charged yet · All prices are per student for one hour sessions</div>
+					<Button full className="payflow__submit__button">Select Tutor, Time and Location</Button>
+				</section>
+
 			</section>
 		</div>
 	)
