@@ -75,7 +75,7 @@ a {
 		user-select: none;
 		background-color: #0F172A;
 		border-radius: 6px;
-
+		box-shadow: 0px 0px 4px 4px rgba(0, 0, 0, 0.25);
 
 		text-align: center;
 		font-weight: bold;
@@ -90,10 +90,12 @@ a {
 
 		&--green {
 				background-color: #047857;
+				box-shadow: 0px 0px 4px 4px #04785733; // the extra least significant byte represents transparency
 		}
 
 		&--disabled {
 				background-color: #64748b;
+				box-shadow: none;
 		}
 
 
@@ -258,4 +260,31 @@ a {
 	gap: 1rem;
 	grid-template-columns: 1fr 1fr;
 	width: 100%;
+}
+
+.chip {
+	display: flex;
+	background-color: #0F172A;
+	color: #F8FAFC;
+	border-radius: 8px;
+	width: min-content;
+	align-items: center;
+	padding: 0.5rem;
+	padding-left: 1rem;
+	padding-right: 1rem;
+	gap: 0.5rem;
+	&__icon {
+		color: #E2E8F0;
+		display:flex;
+		align-items: center;
+	}
+
+	&__contents {
+		vertical-align: middle;
+		font-weight: 700;
+	}
+}
+
+.fixicon {
+	font-size: 1em !important;
 }

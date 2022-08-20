@@ -6,14 +6,29 @@
 	padding: 1.5rem;
 
 	&__heading {
+		display: flex;
+		gap: 1rem;
+		align-items: center;
+
 		&__back {
-			@include sm {
-				display: none;
+			display: flex;
+			align-items: center;
+			cursor: pointer;
+			&--initial {
+				@include sm {
+					display: none;
+				}
 			}
 		}
 		&__title {
 			line-height: 1rem;
 			margin-top:0;
+
+			&--chips {
+				display: flex;
+				align-items: center;
+				gap: 0.25rem;
+			}
 		}
 	}
 

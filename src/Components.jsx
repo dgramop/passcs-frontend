@@ -159,3 +159,16 @@ export function Header(props) {
 		</header>
 		)
 }
+
+export function Chip({icon, children, ...props}) {
+	return (
+		<div className="chip">
+			<div className="chip__icon">
+				{icon}
+			</div>
+			<div className="chip__contents">
+				{children}
+			</div>
+		</div>
+	);
+}

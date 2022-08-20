@@ -20,7 +20,7 @@ function Hero({...props}) {
 			<section className="hero__content">
 				<section className="hero__content__quote">
 					<h2 className="hero__content__quote__title">
-						Tutoring that <span className="green">works.</span>
+						Tutoring that <span className="green"><i>works.</i></span>
 					</h2>
 					<div className="hero__content__quote__text">
 						“passCS helped me understand core programming, actually it is better than two hours lecture in class. Thanks passCS”
