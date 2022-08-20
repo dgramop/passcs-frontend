@@ -1,3 +1,38 @@
+@import './index.scss';
+
 .payflow {
+	color: black;
 	background-color: white;
+	padding: 1.5rem;
+
+	&__heading {
+		&__back {
+			@include sm {
+				display: none;
+			}
+		}
+		&__title {
+			line-height: 1rem;
+			margin-top:0;
+		}
+	}
+
+	&__inputs {
+		display:flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	&__inputgroup {
+		&__title {
+			line-height: 1rem;
+			margin:0;
+			margin-bottom: 0.5rem;
+		}
+		
+		&__select {
+			margin:0;
+		}
+	}
+
 }

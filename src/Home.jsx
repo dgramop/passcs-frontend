@@ -37,7 +37,9 @@ function Hero({...props}) {
 						</div>
 					</div>
 				</section>
-				<PaymentFlow />
+				<div className="hero__payflow_container">
+					<PaymentFlow className="hero__payflow"/>
+				</div>
 			</section>
 		</div>
 	)

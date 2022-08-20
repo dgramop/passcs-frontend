@@ -34,10 +34,10 @@
 		margin-left: auto;
 		margin-right: auto;
 
-		display: flex;
+		display: inline-grid;
+		grid-template-columns: 50% 50%;
 
 		&__quote {
-			max-width: 50%;
 			display: flex;
 			flex-direction: column;
 			justify-content: center;
@@ -80,9 +80,22 @@
 
 					&__desc {
 						font-size: 1.5rem;
+						font-weight: 400;
 					}
 				}
 			}
 		}
+	}
+
+	&__payflow_container {
+		display:flex;
+		flex-direction:column;
+		justify-content: center;
+	}
+
+	&__payflow {
+		border: 2px solid #000000;
+		box-shadow: inset 0px 0px 4px 4px rgba(0, 0, 0, 0.25);
+		border-radius: 6px;
 	}
 }
