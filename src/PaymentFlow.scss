@@ -4,6 +4,10 @@
 	color: black;
 	background-color: white;
 	padding: 1.5rem;
+	display: flex;
+	flex-direction: column;
+	height: 65%;
+	overflow: scroll;
 
 	&__heading {
 		display: flex;
@@ -54,7 +58,10 @@
 
 	&__submit {
 		display: flex;
+		flex-grow: 1;
+		justify-content: flex-end;
 		flex-direction: column;
+		margin-top: 0.5rem;
 
 		&__assurances {
 			font-size: 0.75rem;
@@ -63,4 +70,86 @@
 		}
 	}
 
+	&__appts {
+		padding-top: 1rem;
+	}
+
+	&__appt {
+		border-radius: 12px;
+		box-shadow: 0px 0px 4px 4px rgba(0, 0, 0, 0.25);
+		padding: 1.5rem;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+
+		&__header {
+			font-weight: 700;
+			font-size: 24px;
+			display: flex;
+			gap: 0.25em;
+			&__weekday {
+				color: black
+			}
+
+			&__time {
+				color: #393939;
+			}
+		}
+		&__chips {
+			display: flex;
+			gap: 0.5rem;
+			flex-wrap: wrap;
+			align-items: start;
+		}
+
+		&__tutor {
+			display: flex;
+			flex-direction: column;
+			gap: 1rem;
+
+			&__profile {
+				display: flex;
+				align-items: center;
+				gap: 1rem;
+				&__image {
+					width: 4.5rem;
+					clip-path: circle();
+				}
+
+				&__desc {
+					&__name {
+						font-weight: 700;
+						font-size: 1.25rem;
+						color: #0F172A;
+					}
+
+					&__qualifier {
+						font-size: 1.25rem;
+						color: #334155;
+					}
+				}
+			}
+
+			&__details {
+				&__desc {
+					padding-left: 5.5rem;
+					&__expand {
+						font-weight: 600;
+						cursor: pointer;
+					}
+				}
+			}
+
+		}
+
+		&__footer {
+			display: flex;
+			justify-content: space-between;
+			align-items: flex-end;
+			&__date {
+				font-weight: 700;
+				font-size: 1.25rem;
+			}
+		}
+	}
 }

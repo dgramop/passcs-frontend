@@ -31,7 +31,7 @@ function Hero({...props}) {
 									Shakir
 								</div>
 								<div className="hero__content__quote__credit__details__desc">
-									passCS Customer
+									GMU Student
 								</div>
 							</div>
 						</div>
