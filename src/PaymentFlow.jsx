@@ -173,6 +173,7 @@ export default function PaymentFlow({embed, className, ...props}) {
 	const [courseOptions, setCourseOptions] = useState([])
 	const [selectedCourse, setSelectedCourse] = useState(null);
 	const [slots, setSlots] = useState([])
+	const [prices, setPrices] = useState(null)
 
 	useEffect(() => {
 		let get_classes = async () => {
@@ -204,6 +205,12 @@ export default function PaymentFlow({embed, className, ...props}) {
 
 
 	useEffect(() => {
+		const load_prices = async () => {
+			let pricesresp = await fetch(`/api/prices`)
+			let pricesdata = await pricesresp.json()
+			setPrices(pricesdata.data)
+		}
+
 		const get_slots = async () => {
 			setClassError(null)
 			let slotsresp = await fetch(`/api/slots/?course=${encodeURIComponent(selectedCourse.value)}`)
@@ -214,6 +221,7 @@ export default function PaymentFlow({embed, className, ...props}) {
 			setSlots(slotsdata.data)
 		}
 		if(selectedCourse) get_slots()
+		load_prices()
 	}, [selectedCourse])
 
 
@@ -252,7 +260,6 @@ export default function PaymentFlow({embed, className, ...props}) {
 	}
 	*/
 
-
 	if(done) return (
 		<div className={flow_classes.join(" ")}>
 			<AppointmentSelection course_id={selectedCourse.value} size={size} modality={modality} frequency={frequency} close={() => setDone(false)} />
@@ -282,12 +289,12 @@ export default function PaymentFlow({embed, className, ...props}) {
 
 				<section className="payflow__inputgroup">
 					<h3 className="payflow__inputgroup__title">How much focus do you need?</h3>
-					<RadioSelect onChange={setSize} value={size} options={[{label:["One-on-one", "$34"], value:1}, {label:["Group-of-Two", "$29"], value:2}]}/>
+					<RadioSelect onChange={setSize} value={size} options={[{label:["One-on-one", prices == null ? "" : "$"+prices[(frequency==='weekly' || frequency==null) ? "subscription" : "onetime"][1]/100], value:1}, {label:["Group-of-Two", prices == null ? "" : "$"+prices[(frequency==='weekly' || frequency==null) ? "subscription" : "onetime"][2]/100], value:2}]}/>
 				</section>
 
 				<section className="payflow__inputgroup">
 					<h3 className="payflow__inputgroup__title">How often would you like to meet?</h3>
-					<RadioSelect onChange={setFrequency} value={frequency} options={[{label:["Weekly"], value:1}, {label:["One Time", (frequency !== "weekly" ? "+$1" : "")], value:2}]}/>
+					<RadioSelect onChange={setFrequency} value={frequency} options={[{label:["Weekly", (frequency === "onetime" ? "-$1" : "")], value:"weekly"}, {label:["One Time", (frequency === "weekly" || frequency==null ? "+$1" : "")], value:"onetime"}]}/>
 				</section>
 				
 				<section className="payflow__inputgroup">
