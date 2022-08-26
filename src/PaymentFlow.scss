@@ -1,13 +1,28 @@
 @import './index.scss';
 
+::-webkit-scrollbar {
+	// from stackoverflow (https://stackoverflow.com/questions/35663653/make-a-scrollbar-always-visible-in-a-div-chrome)
+  -webkit-appearance: none;
+  width: 10px;
+	background-color: #00000000;
+}
+
+::-webkit-scrollbar-thumb {
+	// from stackoverflow (https://stackoverflow.com/questions/35663653/make-a-scrollbar-always-visible-in-a-div-chrome)
+  border-radius: 5px;
+  background-color: rgba(0,0,0,.5);
+  -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+}
+
 .payflow {
 	color: black;
 	background-color: white;
 	padding: 1.5rem;
 	display: flex;
 	flex-direction: column;
-	height: 65%;
+	max-height: 65%;
 	overflow: scroll;
+	gap: 1rem;
 
 	&__heading {
 		display: flex;
@@ -27,6 +42,7 @@
 		&__title {
 			line-height: 1rem;
 			margin-top:0;
+			margin-bottom:0;
 
 			&--chips {
 				display: flex;
@@ -43,10 +59,12 @@
 	}
 
 	&__inputgroup {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
 		&__title {
 			line-height: 1rem;
 			margin:0;
-			margin-bottom: 0.5rem;
 			color: #1E293B;
 			font-weight: 600;
 		}
@@ -54,6 +72,11 @@
 		&__select {
 			margin:0;
 		}
+	}
+
+	&__assurances {
+		display: flex;
+		flex-direction: column;
 	}
 
 	&__submit {

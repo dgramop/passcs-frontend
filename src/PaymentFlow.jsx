@@ -2,7 +2,12 @@ import "./PaymentFlow.scss"
 import {ArrowBack, Group, LocationOn, School, Sell} from '@mui/icons-material';
 import Select from 'react-select';
 import {useEffect, useState} from "react";
-import {Button, Chip} from "./Components";
+import {Button, Chip, register_customer, register_payment, register_subscription, TextField} from "./Components";
+import {CardElement, useElements, useStripe, Elements} from '@stripe/react-stripe-js';
+import {loadStripe} from '@stripe/stripe-js';
+import {useNavigate} from "react-router-dom";
+
+const stripePromise = loadStripe(process.env["NODE_ENV"] === "development" ? 'pk_test_51JdnMmABGmiERRLGxLTG2jrTUkEzP1ySRI5ofnnm3QLKTqqClvCzoxBBiBa9rlYlsepjmeyMmo4ISTpUrMqkaYbu00QlZCW7H9' : 'pk_live_51JdnMmABGmiERRLGpQnemsRk0xpo06XnoPtwI3doKvNd1SQBMkOWTqNQmUsLCTsHDk1yawB83A2cuqUIBGU2NA5o00QOHX6xXi');
 
 export function RadioButton({children, name, value, onClick, selected, split, ...props}) {
 	let computed_classes = ["rbtn"];
@@ -26,9 +31,205 @@ export function RadioSelect({options, onChange, value, ...props}) {
 	)
 }
 
-function Pay({slot, meeting, standalone, ...props}) {
+function Assurance(props) {
+		return (
+		<div className="assurance">
+				<span className="assurance__icon material-icons">{props.icon}</span>
+				<span className="assurance__text">{props.children}</span>
+		</div>
+		)
+}
+
+function Pay({slot_etc, capacity, course_style, subscription, back, standalone, close, ...props}) {
 	//if the slot and meeting aren't defined, pull from the URL and render as a stand-alone page
+	
+	//TODO: add assurances 
+	let [loading, setLoading] = useState(false)
+	const [error, setError] = useState(null)
+	
+	// Fields that determine how we bill the user
+	let [clientSecret, setClientSecret] = useState(null)
+	let [customer, setCustomer] = useState(null)
+	
+	// New customer related fields
+	let [firstname, setFirstname] = useState("");
+	let [lastname, setLastname] = useState("");
+	let [phone, setPhone] = useState("");
+	let [email, setEmail] = useState("");
+
+	// other hooks
+	const stripe = useStripe();
+	const elements = useElements();
+	const navigate = useNavigate()
+
+	useEffect(() => {
+		let load_customer = async () => {
+			let customerresp = await fetch("/api/customers/myself");
+			let customerdata = await customerresp.json()
+
+			if(customerdata.status === "success") {
+				setError(null);
+				setCustomer(customerdata.data)
+				setLastname(customerdata.lastname)
+				setFirstname(customerdata.firstname)
+				setEmail(customerdata.email)
+				setPhone(customerdata.phone)
+				console.log(customerdata.data)
+			} else if(customerdata.error==="DBError") {
+				setError("Cannot contact server, please text or dial 571-524-3033 to reserve your spot")
+			} else {
+				//assume the customer doesn't exist
+				setCustomer(false)
+			}
+		}
+		load_customer()
+	}, [])
+
+	let submit = async () => {
+		setLoading(true)
+
+		// customer registration, if necessary
+		let customer_g = customer;
+		if(customer === false) {
+			// normalize the phone number by removing dashes, spaces, and parenthesis
+			let phone_g = phone.replace(/[\(\)\-\s]+/g, '')
+
+			if(firstname === "" || lastname==="" || phone==="" || email === "") {
+				setError("Please fill in all fields")
+				setLoading(false)
+				return;
+			}
+
+			// validate the normalized phone number
+			if(phone_g.length !== 10 || !(new RegExp("^[0-9]*$")).test(phone_g)) {
+				setError("Invalid phone number")
+				setLoading(false)
+				return;
+			}
+
+			// validate the email
+			if(!(new RegExp("^[^@]+@[^@]+\.[^@]+$")).test(email)) {
+				setError("Invalid email address")
+				setLoading(false)
+				return;
+			}
+
+			// register the customer
+			let customer = await register_customer(firstname, lastname, email, phone_g)
+
+			if(customer.status === "failure" && customer.error === "AlreadyExists") {
+				// TODO send the customer a log in link/text
+				// TODO ask the customer to check their email/phone
+				setError("You have an account with us already, please log in")
+			}
+
+			setCustomer(customer.data)
+			customer_g = customer.data;
+		} else if(customer === null) {
+			// we couldn't load the customer due to a DB Error
+			setError("Failed to load customer, please text or dial 571-524-3033 to reserve your spot")
+			return;
+		} 
+
+		// create the payment/subscription in the backend, if necessary
+		let clientSecret_g = clientSecret;
+		if(!clientSecret) {
+			if(subscription) {
+				let sub = await register_subscription(slot_etc.slot.id, course_style, capacity, slot_etc.offering.id, slot_etc.meetings[0].id)
+				if(sub.status==="failure") {
+					setError(sub.error.type)
+					setLoading(false)
+					return;
+				}
+				clientSecret_g = sub.data.client_secret;
+				setClientSecret(clientSecret_g)
+			} else {
+				let pymt = await register_payment(slot_etc.slot.id, course_style, capacity, slot_etc.offering.id, slot_etc.meetings[0].id)
+				if(pymt.status==="failure") {
+					setError(pymt.error.type)
+					setLoading(false)
+					return;
+				}
+				clientSecret_g = pymt.data.client_secret;
+				setClientSecret(clientSecret_g)
+			}
+		}
+
+		console.log(clientSecret_g)
+
+		// confirm the payment with our payment method if the customer doesn't already have one on file
+		if(customer_g.payment_method === null) {
+			let payload = await stripe.confirmCardPayment(clientSecret_g, { payment_method: { card: elements.getElement(CardElement), billing_details: { name: firstname+" "+lastname } } })
+			if(payload.error) {
+				setError(payload.error.message)
+				setLoading(false)
+				return;
+			}
+		}
+
+		//wait until the payment is paid
+		setTimeout(() => {
+			console.log("bye")
+			navigate("/dashboard")
+		}, 500)
+
+
+	}
+
+	let font_size = window.getComputedStyle(document.getElementsByClassName("payment_form__input")[0], null).getPropertyValue('font-size');;
 	return (<>
+		<div className="payflow__heading">
+				<div className="payflow__heading__back" onClick={close}><ArrowBack /></div>
+				<h2 className="payflow__heading__title">
+					Finalize Booking
+				</h2>
+		</div>
+		<Appointment finalize class_style={course_style} frequency={subscription ? "weekly" : "onetime"} size={capacity} slot_etc={slot_etc}/>
+		<section className="payflow__inputs">
+			{!customer && 
+			<>
+				<div className="payflow__inputgroup">
+					<h3 className="payflow__inputgroup__title">First name</h3>
+					<TextField placeholder="George" autoComplete="given-name" value={firstname} onChange={setFirstname}/>
+				</div>
+				<div className="payflow__inputgroup">
+					<h3 className="payflow__inputgroup__title">Last name</h3>
+					<TextField placeholder="Mason" autoComplete="family-name" value={lastname} onChange={setLastname}/>
+				</div>
+				<div className="payflow__inputgroup">
+					<h3 className="payflow__inputgroup__title">Phone number</h3>
+					<TextField placeholder="571-524-3033" autoComplete="tel-national" type="phone" value={phone} onChange={setPhone}/>
+				</div>
+				<div className="payflow__inputgroup">
+					<h3 className="payflow__inputgroup__title">Email</h3>
+					<TextField placeholder="dhruv@passcs.io" autoComplete="email" type="email" value={email} onChange={setEmail}/>
+				</div>
+			</>}
+			{!customer?.payment_method && 
+				<div className="payflow__inputgroup">
+					<h3 className="payflow__inputgroup__title">Payment</h3>
+					<CardElement options={{style:{base:{fontSize:font_size}}, disabled: loading}} className="payment_form__input"/>
+				</div>
+			}
+		</section>
+		<div className="payflow__assurances">
+			<Assurance icon="lock">
+					Your payment is secured by Stripe and SSL
+			</Assurance>
+			<Assurance icon="check">
+					Eligible for the passCS Guarantee, subject to <a href="TODO">terms</a>
+			</Assurance>
+			{subscription && <Assurance icon="logout">
+					Easy cancellation
+			</Assurance>}
+			{customer?.payment_method && <Assurance icon="payment">
+					We'll charge your card-on-file
+			</Assurance>}
+		</div>
+		<section className="payflow__submit">
+			{error && <span className="genericError">{error}</span>}
+			<Button full disabled={loading} onClick={submit} extraClasses="payflow__submit__button">Pay</Button>
+		</section>
 	</>)
 }
 
@@ -49,7 +250,7 @@ function get_date_info(date) {
 	}
 }
 
-function Appointment({slot_etc, class_style, frequency, size,  ...props}) {
+function Appointment({slot_etc, class_style, frequency, size, onBook, finalize,  ...props}) {
 
 	const [price, setPrice] = useState(null)
 	const [more, setMore] = useState(false);
@@ -98,16 +299,16 @@ function Appointment({slot_etc, class_style, frequency, size,  ...props}) {
 						<div className="payflow__appt__tutor__profile__desc__qualifier">{slot_etc.offering.qualification}</div>
 					</div>
 				</div>
-				<div className="payflow__appt__tutor__details">
+				{!finalize && <div className="payflow__appt__tutor__details">
 					<div className="payflow__appt__tutor__details__desc">
 						{more && slot_etc.offering.tutor.background}
 						<div onClick={() => setMore(!more)} className="payflow__appt__tutor__details__desc__expand">see {more && "less"}{!more && "more"}</div>
 					</div>
-				</div>
+				</div>}
 			</div>
 			<div className="payflow__appt__footer">
 				<div className="payflow__appt__footer__date">{frequency === 'weekly' ? "Starts" : "Meet"} {start_date.getMonth()+"/"+start_date.getDate()}</div>
-				<Button green>Book</Button>
+				{!finalize && <Button green onClick={() => { if(onBook) onBook(slot_etc) }}>Book</Button>}
 			</div>
 		</div>
 	)
@@ -118,6 +319,8 @@ function AppointmentSelection({course_id, modality, size, frequency, close, ...p
 
 	const [course, setCourse] = useState(null)
 	const [slots, setSlots] = useState(null)
+
+	const [selection, setSelection] = useState(null)
 
 	useEffect(()=>{
 		const load_course = async () => {
@@ -146,6 +349,13 @@ function AppointmentSelection({course_id, modality, size, frequency, close, ...p
 		//TODO: fetch courses with the appropriate query, or close with an error: out of stock
 
 	},[modality,size,frequency, course_id])
+	if(selection) 
+		return (
+				<Elements stripe={stripePromise}>
+					<Pay close={() => setSelection(null)} capacity={size} course_style={modality} subscription={frequency==='weekly'} slot_etc={selection} back={() => setSelection(null)} />
+				</Elements>
+		)
+	else
 	return (
 		<>
 			<section className="payflow__heading">
@@ -156,7 +366,7 @@ function AppointmentSelection({course_id, modality, size, frequency, close, ...p
 			</section>
 
 			<section className="payflow__appts">
-				{ slots && slots.map((slot) => <Appointment key={slot.slot.id} slot_etc={slot} class_style={modality} size={size} frequency={frequency}/>)}
+				{ slots && slots.map((slot) => <Appointment key={slot.slot.id} onBook={setSelection} slot_etc={slot} class_style={modality} size={size} frequency={frequency}/>)}
 			</section>
 		</>)
 }

@@ -172,3 +172,49 @@ export function Chip({icon, children, ...props}) {
 		</div>
 	);
 }
+
+export function TextField({onChange, value, className, disabled, placeholder, type, autoComplete, ...props}) {
+		return (
+			<input autoComplete={autoComplete || "off"} type={type || "text"} value={value} onChange={(e) => {if(onChange) onChange(e.target.value)}} className={className} disabled={disabled} placeholder={placeholder || ""}/>
+		)
+}
+
+export async function register_customer(firstname, lastname, email, phone) {
+		let form_data = new FormData();
+		form_data.append('email',email);
+		form_data.append('phone',phone);
+		form_data.append('firstname',firstname);
+		form_data.append('lastname',lastname);
+
+		let fetch_res = await fetch("/api/customers", {method: "POST", body: form_data});
+		let json_res = await fetch_res.json();
+		console.log(json_res);
+		return json_res;
+}
+
+export async function register_payment(slot, course_style, capacity, offering, first_meeting) {
+		let form_data = new FormData();
+		form_data.append('meeting',first_meeting);
+		form_data.append('slot',slot);
+		form_data.append('course_style',course_style);
+		form_data.append('capacity',capacity);
+		form_data.append('offering',offering);
+
+		let fetch_res = await fetch("/api/payments", {method: "POST", body: form_data});
+		let json_res = await fetch_res.json();
+		console.log(json_res);
+		return json_res;
+}
+
+export async function register_subscription(slot, course_style, capacity, offering, first_meeting) {
+		let form_data = new FormData();
+		form_data.append('meeting',first_meeting);
+		form_data.append('slot',slot);
+		form_data.append('course_style',course_style);
+		form_data.append('capacity',capacity);
+		form_data.append('offering',offering);
+
+		let fetch_res = await fetch("/api/subscriptions", {method: "POST", body: form_data});
+		let json_res = await fetch_res.json();
+		return json_res;
+}

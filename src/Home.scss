@@ -51,6 +51,8 @@
 
 	&__content {
 		flex-grow: 1;
+		height: 100%;
+
 		@include sm {
 			width: 30rem;
 		}
@@ -66,9 +68,10 @@
 		margin-left: auto;
 		margin-right: auto;
 
-		display: inline-grid;
+		display: grid;
 		gap: 1.5rem;
-		grid-template-columns: calc(50% - 0.75rem) calc(50% - 0.75rem);
+		grid-template-columns: 1fr 1fr; //calc(50% - 0.75rem) calc(50% - 0.75rem);
+		grid-template-rows: 100%;
 
 		&__quote {
 			display: flex;
