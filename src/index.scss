@@ -277,6 +277,7 @@ a {
 	gap: 0.5em;
 
 
+
 	&__icon {
 		color: #E2E8F0;
 		display:flex;
@@ -286,6 +287,17 @@ a {
 	&__contents {
 		vertical-align: middle;
 		font-weight: 700;
+	}
+
+	&--light {
+		background-color: white;
+
+		.chip {
+			&__icon {
+				color: #1E293B;
+			}
+			color: #0F172A;
+		}
 	}
 }
 

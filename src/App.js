@@ -2,6 +2,7 @@ import CustomerDashboard from './CustomerDashboard';
 import './App.scss';
 import Home from './Home';
 import TutorsDashboard from './TutorsDashboard';
+import StudentDashboard from './StudentDashboard';
 import ReservationFrom from './ReservationForm';
 import FromToken from './FromToken';
 import Terms from './Terms';
@@ -12,7 +13,8 @@ function App() {
 		  <Routes>
 				  <Route path="/">
 						  <Route index element={<Home/>} />
-						  <Route path="dashboard/*" element={<CustomerDashboard/>}/>
+						  <Route path="legacy-dashboard/*" element={<CustomerDashboard/>}/>
+						  <Route path="/student/dashboard/*" element={<StudentDashboard/>}/>
 							<Route path="login" element={<FromToken/>}/>
 							<Route path="tutors/*" element={<TutorsDashboard/>}/>
 							<Route path="book/*" element={<ReservationFrom/>}/>
