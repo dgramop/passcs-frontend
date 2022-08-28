@@ -1,7 +1,35 @@
 // supercedes CustomerDashboard
 import {Event, History} from "@mui/icons-material"
-import {useState} from "react"
+import {useEffect, useState} from "react"
+import {useNavigate} from "react-router-dom"
 import "./StudentDashboard.scss"
+
+function DashNavButton({active, icon, title, onClick, href, ...props}) {
+	let indicatorclasses = ["dash__nav__button__indicator"]
+	if(active) {
+		indicatorclasses.push("dash__nav__button__indicator--active")
+	}
+	const navigate = useNavigate()
+	return (
+		<div className="dash__nav__button" onClick={() => {
+			if(onClick) {
+				onClick()
+			}
+			if(href) {
+				navigate(href)
+			}
+		}}>
+			<div className={indicatorclasses.join(" ")}>
+			</div>
+			<div className="dash__nav__button__icon__container">
+				{icon}
+			</div>
+			<div className="dash__nav__button__title">
+				{title}
+			</div>
+		</div>	
+	)
+}
 
 export function DashNav({ id, page, ...props }) {
 
@@ -22,38 +50,21 @@ export function DashNav({ id, page, ...props }) {
 				</div>
 			</div>
 			 <div className="dash__nav__buttons">
-			{page === "upcoming" &&	<div className="dash__nav__button">
-					<div className="dash__nav__button__indicator">
-					</div>
-					<div className="dash__nav__button__icon__container">
-						<Event />
-					</div>
-					<div className="dash__nav__button__title">
-						Upcoming
-					</div>
-				</div>}
-
-				{page === "history" && <div className="dash__nav__button">
-					<div className="dash__nav__button__indicator">
-					</div>
-					<div className="dash__nav__button__icon__container">
-						<History />
-					</div>
-					<div className="dash__nav__button__title">
-						Booking History
-					</div>
-				</div> }
+				<DashNavButton href="/student/dashboard" active={page==="upcoming"} title="Upcoming" icon={<Event />} />
+				<DashNavButton href="/student/dashboard/history" active={page==="history"} title="Booking History" icon={<History />} />
 			</div>
 		</div>
 	)
 }
 
-export default function StudentDashboard({ children, ...props}) {
+export default function StudentDashboard({ page, ...props}) {
+	//Tech Debt: to correct, switch to using Outlet
 	return (
 		<div className="dash">
-			<DashNav />
+			<DashNav page={page} />
 			<div className="dash__content">
-				{props.children}
+				{page === "upcoming" && <Sessions />}
+				{page === "history" && <Sessions history />}
 			</div>
 		</div>
 	)
@@ -71,7 +82,7 @@ function Person({name, phone, email, imgsrc, imgletter, ...props}) {
 	)
 }
 
-export function Meeting({ ...props }) {
+export function Meeting({ payment, ...props }) {
 	return (
 		<div className="meeting">
 			<div className="meeting__header">
@@ -98,14 +109,39 @@ export function Meeting({ ...props }) {
 	)
 }
 
-export function PreviousSessions({...props}) {
-	const [meetings, setMeetings] = useState(null)
+export function Sessions({history, ...props}) {
+	const [payments, setPayments] = useState(null)
+	const [error, setError] = useState(null)
+
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		let load_payments = async () => {
+			let paymentsresp = await fetch("/api/customers/myself/payments"); 
+			let paymentsdata = await paymentsresp.json()
+			if(paymentsdata.status === "failure") {
+				if(paymentsdata.error === "NotAuthorized") {
+					navigate("/")
+					return;
+				}
+
+				setError(paymentsdata.error)
+				return;
+			}
+
+			setPayments(paymentsdata.data)
+		}
+		load_payments();
+	}, [navigate])
 
 	return (
 	<>
-		<div className="dash__content__title">
-		</div>
+		<h2 className="dash__content__title">
+			{history && "Previous Sessions"}
+			{!history && "Upcoming Sessions"}
+		</h2>
 		<div className="dash__content__meetings">
+			{payments && payments.map((payment) => <Meeting key={payment.id} payment={payment} />)}
 		</div>
 	</>
 	)

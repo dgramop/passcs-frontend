@@ -1,12 +1,26 @@
 .dash {
 	min-height: 100vh;
+	display: flex;
+
+	&__content {
+		padding-top: 3.75rem;
+		padding-left:3.75rem;
+
+		&__title {
+			color: #475569;
+			font-weight: 600;
+			font-size: 1.5rem;
+		}
+	}
 
 	&__nav {
-		width: 20%;
+		padding-top: 3.75rem;
+		width: 20rem;
 		min-height: 100vh;
 		background-color: #F8FAFC;
 		display: flex;
 		flex-direction: column;
+		gap: 2rem;
 
 		&__header {
 			display: flex;
@@ -22,30 +36,38 @@
 				display: flex;
 				flex-direction: column;
 				align-items: center;
+				color: #334155;
 			}
 		}
 
 		&__buttons {
 			display: flex;
 			flex-direction: column;
+			gap: 0.5rem;
 		}
 
 		&__button {
 			display: flex;
 			align-items: center;
 			height: 2.5rem;
-			gap: 0.5ch;
+			gap: 1.25rem;
+			color: #475569;
+			cursor:pointer;
 
 			&__indicator {
-				background-color: #94A3B8;
 				width: 1ch;
 				height: 100%;
 				border-radius: 0 0.5ch 0.5ch 0;
 			}
 
+			&__indicator--active {
+				background-color: #94A3B8;
+			}
+
 			&__icon__container {
 				display: flex;
 				align-items: center;
+				color: #64748B;
 			}
 		}
 	}
