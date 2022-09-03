@@ -1,5 +1,5 @@
 // supercedes CustomerDashboard
-import {Event, History} from "@mui/icons-material"
+import {Event, Face, History} from "@mui/icons-material"
 import {useEffect, useState} from "react"
 import {useNavigate} from "react-router-dom"
 import "./StudentDashboard.scss"
@@ -31,22 +31,22 @@ function DashNavButton({active, icon, title, onClick, href, ...props}) {
 	)
 }
 
-export function DashNav({ id, page, ...props }) {
-
+export function DashNav({ id, page, customer, ...props }) {
 	//sidebar on desktop, tray on mobile
+	//TODO: make position fixed
 	return (
 		<div className="dash__nav">
 			<div className="dash__nav__header">
 				<div className="dash__nav__header__name">
-					Stud Ent
+					Hi {customer && customer.firstname}!
 				</div>
 				<div className="dash__nav__header__details">
 					<div className="dash__nav__header__details__item">
-						ID{id}
+						ID {customer && customer.id}
 					</div>
-					<div className="dash__nav__header__details__item">
-						0 credits
-					</div>
+					{customer?.credits && <div className="dash__nav__header__details__item">
+						{customer.credits}  credits
+					</div>}
 				</div>
 			</div>
 			 <div className="dash__nav__buttons">
@@ -59,9 +59,21 @@ export function DashNav({ id, page, ...props }) {
 
 export default function StudentDashboard({ page, ...props}) {
 	//Tech Debt: to correct, switch to using Outlet
+	const [customer, setCustomer] = useState(null)
+
+	useEffect(() => {
+		const load_customer = async () => {
+			const customerresp = await fetch("/api/customers/myself");
+			const customerdata = await customerresp.json();
+
+			setCustomer(customerdata.data)
+		}
+		load_customer()
+	},[])
+
 	return (
 		<div className="dash">
-			<DashNav page={page} />
+			<DashNav page={page} customer={customer}/>
 			<div className="dash__content">
 				{page === "upcoming" && <Sessions />}
 				{page === "history" && <Sessions history />}

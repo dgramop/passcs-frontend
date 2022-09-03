@@ -5,16 +5,30 @@ import {Button, Modal, get_token, LoginModal} from "./Components";
 import shakir from "./Shakir.jpg";
 import PaymentFlow from "./PaymentFlow.jsx";
 import React, {useState, useRef, useEffect, createRef}  from "react";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 
 
 function Hero({...props}) {
+	const [loginModal, setLoginModal] = useState(false)
+	const [userType, setUserType] = useState(null)
+
+	useEffect(() => {
+		get_token().then((token) => {
+			setUserType(token.user_type)
+		})
+	}, [])
+
+	const navigate = useNavigate()
+
 	return (
 		<div className="hero">
+			{loginModal && <LoginModal close={() => setLoginModal(false)}/>}
 			<div className="hero__heading__container">
 				<div className="hero__heading">
 					<h1 className="hero__heading__title">pass<span className="green">CS</span></h1>
-					<Button green>Login</Button>
+					{userType == null && <Button onClick={()=>{setLoginModal(true)}} green>Login</Button>}
+					{userType == "tutor" && <Button onClick={()=> {navigate("/tutors")}} green>Tutor Dashboard</Button>}
+					{userType == "customer" && <Button onClick={()=> {navigate("/student/dashboard")}} green>Your Classes</Button>}
 				</div>
 			</div>
 			<section className="hero__content">
