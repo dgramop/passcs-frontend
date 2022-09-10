@@ -89,6 +89,7 @@ export default function Home({...props}) {
 					</div>
 				</div>
 			</section>
+			For support, call or text: 571-524-3033
 		</>
 	)
 }

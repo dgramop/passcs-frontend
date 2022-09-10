@@ -27,9 +27,9 @@ export default function FromToken(props) {
 				setLoginError(null)
 				if(json.data.token.user_type === "customer")
 				{
-					navigate("/dashboard")
+					navigate("/student/dashboard")
 				} else if(json.data.token.user_type === "tutor") {
-					navigate("/tutors")
+					navigate("/tutor/dashboard")
 				} else {
 					setLoginError("Unknown user type")
 				}

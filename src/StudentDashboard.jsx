@@ -1,7 +1,9 @@
 // supercedes CustomerDashboard
-import {Event, Face, History} from "@mui/icons-material"
+import {CreditCard, Event, Face, Group, History, LocationOn} from "@mui/icons-material"
+import {Card} from "@mui/material"
 import {useEffect, useState} from "react"
 import {useNavigate} from "react-router-dom"
+import {Chip, get_date_info} from "./Components"
 import "./StudentDashboard.scss"
 
 function DashNavButton({active, icon, title, onClick, href, ...props}) {
@@ -84,27 +86,47 @@ export default function StudentDashboard({ page, ...props}) {
 
 // a  person element
 function Person({name, phone, email, imgsrc, imgletter, ...props}) {
+	let phone_friendly = phone.toString();
+	// in case of leading ones/country codes, i'm indexing from the end of the string
+	phone_friendly = phone_friendly.substring(0, phone_friendly.length - 7)+"-"+phone_friendly.substring(phone_friendly.length-7, phone_friendly.length - 4)+"-"+phone_friendly.substring(phone_friendly.length - 4)
 	return (
 		<div className="person">
-			{name}
-			{phone}
-			{email}
-			<img src={imgsrc} alt={`${name} headshot`}/>
+			<img className="person__profile" src={imgsrc} alt={`${name} headshot`}/>
+			<div className="person__details">
+				<div className="person__details__item person__details__item--name">{name}</div>
+				<div className="person__details__item">{phone_friendly}</div>
+				<div className="person__details__item">{email}</div>
+			</div>
 		</div>
 	)
 }
 
 export function Meeting({ payment, ...props }) {
+	let date = new Date(payment.meeting.occurrence_epoch*1000);
+	let end = new Date(payment.meeting.occurrence_epoch*1000 + payment.meeting.slot.duration_mins*60*1000);
+	let dateinfo = get_date_info(date)
+	let endinfo = get_date_info(end)
 	return (
 		<div className="meeting">
 			<div className="meeting__header">
 				<div className="meeting__header__datetime">
 					<span className="meeting__header__date">
-						Tuesday March 13th
+						{`${dateinfo.weekday}, ${dateinfo.month} ${date.getDate()}`}
 					</span>
 					<span className="meeting__header__time">
-						12:00pm - 1pm
+						{dateinfo.hours}:{dateinfo.minutes}{dateinfo.am ? "am":"pm"} - {endinfo.hours}:{endinfo.minutes}{endinfo.am ? "am":"pm"}
 					</span>
+				</div>
+				<div className="meeting__header__chips">
+					<Chip	icon={<LocationOn />}>
+						{({"online":"Online", "in-person":"On Campus"})[payment.meeting.course_style] || payment.meeting.course_style}
+					</Chip>
+					<Chip	icon={<Group />}>
+						{(["Empty","One-on-One","Group-of-Two"])[payment.meeting.capacity] || "Group of "+payment.meeting.capacity}
+					</Chip>
+					<Chip	icon={<CreditCard />}>
+						{({"processing":"Processing", "succeeded":"Complete", "subscription_pending":"Scheduled", "requires_payment_method": "Failed", "canceled":"Canceled/Refunded"})[payment.payment_status] || payment.payment_status}
+					</Chip>
 				</div>
 			</div>
 			<div className="meeting__body">
@@ -113,7 +135,7 @@ export function Meeting({ payment, ...props }) {
 						Your tutor
 					</div>
 					<div className="meeting__body__section__people">
-						<Person imgsrc="" name="Dhruv" phone="5715243033" email="dhruv@passcs.io" />
+						<Person imgsrc={"/"+encodeURIComponent(payment.meeting.offering.tutor.id)+".jpg"} name={payment.meeting.offering.tutor.name} phone={payment.meeting.offering.tutor.phone} email={payment.meeting.offering.tutor.email} />
 					</div>
 				</div>
 			</div>
@@ -141,7 +163,11 @@ export function Sessions({history, ...props}) {
 				return;
 			}
 
-			setPayments(paymentsdata.data)
+			if(history) {
+				setPayments(paymentsdata.data.filter((pymt)=>{ return pymt.meeting.occurrence_epoch*1000 < Date.now()}))
+			} else {
+				setPayments(paymentsdata.data.filter((pymt)=>{ return pymt.meeting.occurrence_epoch*1000 > Date.now()}))
+			}
 		}
 		load_payments();
 	}, [navigate])

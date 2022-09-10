@@ -40,12 +40,30 @@ export async function get_token() {
 }
 
 /**
- * Gives time info for the given time zone for a given slot
+ * Deprecated, use get_date_info instead: Gives time info for the given time zone for a given slot
  */
 export function timezone_time_from_slot(slot) {
 	let date = new Date(slot.anchor_epoch*1000);
 	
 	return {start_hour: date.getHours(), weekday: (date.getDay() + 6)%7};
+}
+
+export function get_date_info(date) {
+	let hours = date.getHours();
+	let minutes = date.getMinutes();
+	if(minutes < 10) {
+		minutes = "0"+minutes;
+	} else {
+		minutes = minutes+""
+	}
+
+	return {
+		"weekday":(["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"])[date.getDay()],
+		"hours": hours === 0 ? "12" : (hours > 12 ? hours - 12 : hours),
+		"am": hours < 12,
+		"minutes":minutes,
+		"month":(["January","February","March","April","May","June","July","August","September","October","November","December"])[date.getMonth()]
+	}
 }
 
 export const DAYS_OF_THE_WEEK = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];

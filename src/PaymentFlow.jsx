@@ -2,7 +2,7 @@ import "./PaymentFlow.scss"
 import {ArrowBack, Group, LocationOn, School, Sell} from '@mui/icons-material';
 import Select from 'react-select';
 import {useEffect, useState} from "react";
-import {Button, Chip, register_customer, register_payment, register_subscription, TextField} from "./Components";
+import {Button, Chip, register_customer, register_payment, register_subscription, TextField, get_date_info} from "./Components";
 import {CardElement, useElements, useStripe, Elements} from '@stripe/react-stripe-js';
 import {loadStripe} from '@stripe/stripe-js';
 import {useNavigate} from "react-router-dom";
@@ -233,22 +233,7 @@ function Pay({slot_etc, capacity, course_style, subscription, back, standalone, 
 	</>)
 }
 
-function get_date_info(date) {
-	let hours = date.getHours();
-	let minutes = date.getMinutes();
-	if(minutes < 10) {
-		minutes = "0"+minutes;
-	} else {
-		minutes = minutes+""
-	}
 
-	return {
-		"weekday":(["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"])[date.getDay()],
-		"hours": hours === 0 ? "12" : (hours > 12 ? hours - 12 : hours),
-		"am": hours < 12,
-		"minutes":minutes
-	}
-}
 
 function Appointment({slot_etc, class_style, frequency, size, onBook, finalize,  ...props}) {
 
@@ -307,7 +292,7 @@ function Appointment({slot_etc, class_style, frequency, size, onBook, finalize, 
 				</div>}
 			</div>
 			<div className="payflow__appt__footer">
-				<div className="payflow__appt__footer__date">{frequency === 'weekly' ? "Starts" : "Meet"} {start_date.getMonth()+"/"+start_date.getDate()}</div>
+				<div className="payflow__appt__footer__date">{frequency === 'weekly' ? "Starts" : "Meet"} {(start_date.getMonth()+1)+"/"+start_date.getDate()}</div>
 				{!finalize && <Button green onClick={() => { if(onBook) onBook(slot_etc) }}>Book</Button>}
 			</div>
 		</div>
