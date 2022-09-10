@@ -170,7 +170,7 @@ function Pay({slot_etc, capacity, course_style, subscription, back, standalone, 
 		//wait until the payment is paid
 		setTimeout(() => {
 			console.log("bye")
-			navigate("/dashboard")
+			navigate("/student/dashboard")
 		}, 500)
 
 

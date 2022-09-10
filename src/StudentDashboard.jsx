@@ -43,11 +43,8 @@ export function DashNav({ id, page, customer, ...props }) {
 					Hi {customer && customer.firstname}!
 				</div>
 				<div className="dash__nav__header__details">
-					<div className="dash__nav__header__details__item">
-						ID {customer && customer.id}
-					</div>
-					{customer?.credits && <div className="dash__nav__header__details__item">
-						{customer.credits}  credits
+					{customer?.credits > 0 && <div className="dash__nav__header__details__item">
+						{customer.credits} credits
 					</div>}
 				</div>
 			</div>
