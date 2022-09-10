@@ -276,10 +276,20 @@ a {
 	padding-right: 1em;
 	gap: 0.5em;
 
+
 	&__icon {
 		color: #E2E8F0;
 		display:flex;
 		align-items: center;
+	}
+
+	&--white {
+		color: #0F172A;
+		background-color: white;
+
+		.chip__icon {
+			color: #1E293B;
+		}
 	}
 
 	&__contents {

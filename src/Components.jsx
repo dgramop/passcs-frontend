@@ -178,9 +178,13 @@ export function Header(props) {
 		)
 }
 
-export function Chip({icon, children, ...props}) {
+export function Chip({icon, white, children, ...props}) {
+	let chip_classes = ["chip"];
+	if(white) {
+		chip_classes.push("chip--white")
+	}
 	return (
-		<div className="chip">
+		<div className={chip_classes.join(" ")}>
 			<div className="chip__icon">
 				{icon}
 			</div>

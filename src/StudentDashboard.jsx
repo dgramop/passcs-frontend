@@ -118,13 +118,13 @@ export function Meeting({ payment, ...props }) {
 					</span>
 				</div>
 				<div className="meeting__header__chips">
-					<Chip	icon={<LocationOn />}>
+					<Chip	white icon={<LocationOn />}>
 						{({"online":"Online", "in-person":"On Campus"})[payment.meeting.course_style] || payment.meeting.course_style}
 					</Chip>
-					<Chip	icon={<Group />}>
+					<Chip	white icon={<Group />}>
 						{(["Empty","One-on-One","Group-of-Two"])[payment.meeting.capacity] || "Group of "+payment.meeting.capacity}
 					</Chip>
-					<Chip	icon={<CreditCard />}>
+					<Chip	white icon={<CreditCard />}>
 						{({"processing":"Processing", "succeeded":"Complete", "subscription_pending":"Scheduled", "requires_payment_method": "Failed", "canceled":"Canceled/Refunded"})[payment.payment_status] || payment.payment_status}
 					</Chip>
 				</div>
