@@ -148,7 +148,7 @@ export function LoginModal(props) {
 							return false;
 						}}>
 							<label htmlFor="login__email">Email Address</label><br/>
-							<input id="login__email" size="10" type="email" placeholder="jdoe@gmail.com" onChange={(e) => setEmail(e.target.value)}/>
+							<input id="login__email" type="email" placeholder="jdoe@gmail.com" onChange={(e) => setEmail(e.target.value)}/>
 							{loginError && <div className="login__error">{loginError && (({"UserNotFound": "We can't find your account"})[loginError] || loginError) }</div>}
 						</form>
 					</div>
