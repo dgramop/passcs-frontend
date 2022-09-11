@@ -339,3 +339,11 @@ a {
 		clip-path: circle();
 	}
 }
+
+.fake {
+	background-color: #334155;
+	color: #334155;
+	width: max-content;
+	user-select: none;
+	border-radius: 0.25em;
+}

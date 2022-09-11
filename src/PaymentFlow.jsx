@@ -2,7 +2,7 @@ import "./PaymentFlow.scss"
 import {ArrowBack, Group, LocationOn, School, Sell} from '@mui/icons-material';
 import Select from 'react-select';
 import {useEffect, useState} from "react";
-import {Button, Chip, register_customer, register_payment, register_subscription, TextField, get_date_info} from "./Components";
+import {Button, Chip, register_customer, register_payment, register_subscription, TextField, get_date_info, Fake} from "./Components";
 import {CardElement, useElements, useStripe, Elements} from '@stripe/react-stripe-js';
 import {loadStripe} from '@stripe/stripe-js';
 import {useNavigate} from "react-router-dom";
@@ -235,7 +235,7 @@ function Pay({slot_etc, capacity, course_style, subscription, back, standalone, 
 
 
 
-function Appointment({slot_etc, class_style, frequency, size, onBook, finalize,  ...props}) {
+function Appointment({slot_etc, class_style, frequency, size, onBook, finalize, fake,  ...props}) {
 
 	const [price, setPrice] = useState(null)
 	const [more, setMore] = useState(false);
@@ -265,16 +265,25 @@ function Appointment({slot_etc, class_style, frequency, size, onBook, finalize, 
 		<div className="payflow__appt">
 			<div className="payflow__appt__header">
 				<div className="payflow__appt__header__weekday">
-					{start.weekday}
+					{fake && <Fake />}
+					{!fake && start.weekday}
 				</div>
 				<div className="payflow__appt__header__time">
-					{start.hours}:{start.minutes}{`${start.am ? "am" : "pm"}`} - {end.hours}:{end.minutes}{`${end.am ? "am" : "pm"}`}
+					{fake && <Fake />}
+					{!fake && <>{start.hours}:{start.minutes}{`${start.am ? "am" : "pm"}`} - {end.hours}:{end.minutes}{`${end.am ? "am" : "pm"}`}</>}
 				</div>
 			</div>
 			<div className="payflow__appt__chips">
+				{!fake && <>
 					<Chip icon={<LocationOn className="fixicon"/>}>{({'in-person':"On Campus", 'online':"Online"})[class_style]}</Chip>
 					{size && <Chip icon={<Group className="fixicon"/>}>{(["", "One-on-One", "Group-to-Two"])[size]}</Chip>}
 					{price && <Chip icon={<Sell className="fixicon"/>}>{`$${price}${frequency==='weekly' ? "/wk" : ""}`}</Chip> }
+				</>}
+				{fake && <>
+					<Chip icon={<LocationOn className="fixicon"/>}>On Campus</Chip>
+					<Chip icon={<Group className="fixicon"/>}>One-on-One</Chip>
+					<Chip icon={<Sell className="fixicon"/>}>$34/hr</Chip>
+				</>}
 			</div>
 			<div className="payflow__appt__tutor">
 				<div className="payflow__appt__tutor__profile">
@@ -299,7 +308,7 @@ function Appointment({slot_etc, class_style, frequency, size, onBook, finalize, 
 	)
 }
 
-function AppointmentSelection({course_id, modality, size, frequency, close, ...props}) {
+function AppointmentSelection({course_id, modality, size, frequency, close, autoscroll, ...props}) {
 	const [error, setError] = useState(null);
 
 	const [course, setCourse] = useState(null)
@@ -326,6 +335,7 @@ function AppointmentSelection({course_id, modality, size, frequency, close, ...p
 
 			if(slotsdata.data.length === 0) setError("All tutors are busy for the given class configuration. Please try a different location/meeting size!")
 			setSlots(slotsdata.data)
+			if(autoscroll) window.scrollTo(0, document.body.scrollHeight);
 		}
 
 		load_course()
@@ -356,7 +366,8 @@ function AppointmentSelection({course_id, modality, size, frequency, close, ...p
 		</>)
 }
 
-export default function PaymentFlow({embed, className, ...props}) {
+// autoscroll tells the appointment selector to automatically scroll to the bottom of the page when the slots are loaded (because its height is briefly very low while slots are loading)
+export default function PaymentFlow({embed, className, autoscroll, ...props}) {
 
 	const [done, setDone] = useState(false);
 
@@ -457,7 +468,7 @@ export default function PaymentFlow({embed, className, ...props}) {
 
 	if(done) return (
 		<div className={flow_classes.join(" ")}>
-			<AppointmentSelection course_id={selectedCourse.value} size={size} modality={modality} frequency={frequency} close={() => setDone(false)} />
+			<AppointmentSelection autoscroll={autoscroll} course_id={selectedCourse.value} size={size} modality={modality} frequency={frequency} close={() => setDone(false)} />
 		</div>
 	)
 	else return (

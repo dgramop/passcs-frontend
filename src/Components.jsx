@@ -240,3 +240,17 @@ export async function register_subscription(slot, course_style, capacity, offeri
 		let json_res = await fetch_res.json();
 		return json_res;
 }
+
+export function Fake({width = 5, ...props}) {
+	let chars = [];
+
+	for(let i = 0; i<width; i++) {
+		chars.push("O");
+	}
+
+	return (
+		<div className="fake">
+			{chars.join()}
+		</div>
+	)
+}

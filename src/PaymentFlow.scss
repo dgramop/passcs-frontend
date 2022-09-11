@@ -20,8 +20,10 @@
 	padding: 1.5rem;
 	display: flex;
 	flex-direction: column;
-	max-height: 65%;
-	overflow: scroll;
+	// because for lg, this will be located in the hero
+	@include lg {
+		overflow: scroll;
+	}
 	gap: 1rem;
 
 	&__heading {
@@ -112,6 +114,10 @@
 			font-weight: 700;
 			font-size: 24px;
 			display: flex;
+			flex-direction: column;
+			@include md {
+				flex-direction: row;
+			}
 			gap: 0.25em;
 			&__weekday {
 				color: black

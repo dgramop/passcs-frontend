@@ -142,14 +142,20 @@ export default function Home({...props}) {
 					<h2 className="home_section__title">Tutoring that <i>works</i></h2>
 					<div className="home_section__cards">
 						<QuoteCard name="D.N." position="CS310 Student">
-							My fundamentals were strengthened and i was able to use my stronger fundamentals to build my skills!
+							My fundamentals were strengthened and I was able to use my stronger fundamentals to build my skills.
 						</QuoteCard>
-						<QuoteCard name="S.A." position="CS262 Student (Transfer)">
+						<QuoteCard name="S.A." position="CS262 Student">
 							I spent all weekend trying to learn recursion from YouTube videos. You took just one hour!
 						</QuoteCard>
 						<QuoteCard name="A.M." position="CS112 Student">
 							I had recently used the PassCS service myself and it was a great experience
 						</QuoteCard>
+					</div>
+				</section>
+				<section className="home_section home_section--payflow">
+					<h2 className="home_section__title">Book your tutor</h2>
+					<div className="home_section__card ">
+						<PaymentFlow autoscroll className="hero__payflow hero__payflow--nohero"/>
 					</div>
 				</section>
 			</div>
