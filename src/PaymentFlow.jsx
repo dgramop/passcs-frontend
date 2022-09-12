@@ -117,10 +117,11 @@ function Pay({slot_etc, capacity, course_style, subscription, back, standalone, 
 			// register the customer
 			let customer = await register_customer(firstname, lastname, email, phone_g)
 
-			if(customer.status === "failure" && customer.error === "AlreadyExists") {
-				// TODO send the customer a log in link/text
-				// TODO ask the customer to check their email/phone
-				setError("You have an account with us already, please log in")
+			if(customer.status === "failure" && customer.error.type === "AlreadyExists") {
+				// TODO send the customer a log in text message and ask them to enter the code via a popup
+				setError("You have an account with us already, please log in and retry")
+				setLoading(false)
+				return;
 			}
 
 			setCustomer(customer.data)

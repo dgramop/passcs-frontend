@@ -153,6 +153,23 @@
 				color: #334155;
 			}
 		}
+
+		&--middle {
+			border-radius: 0;
+		}
 	}
+
+	&__footer {
+		padding-left: 1.5rem;
+		padding-right: 1.5rem;
+		padding-top: 1rem;
+		padding-bottom: 1rem;
+		border-radius: 0 0 0.75rem 0.75rem;
+		background-color: #E2E8F0;
+		display: flex;
+		justify-content: flex-end;
+		gap: 1.5rem;
+	}
+
 }
 

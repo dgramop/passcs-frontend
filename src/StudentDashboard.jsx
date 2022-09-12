@@ -2,8 +2,8 @@
 import {CreditCard, Event, Face, Group, History, LocationOn} from "@mui/icons-material"
 import {Card} from "@mui/material"
 import {useEffect, useState} from "react"
-import {useNavigate} from "react-router-dom"
-import {Chip, get_date_info} from "./Components"
+import {Link, useNavigate} from "react-router-dom"
+import {Button, Chip, get_date_info, Modal} from "./Components"
 import "./StudentDashboard.scss"
 
 function DashNavButton({active, icon, title, onClick, href, ...props}) {
@@ -98,13 +98,65 @@ function Person({name, phone, email, imgsrc, imgletter, ...props}) {
 	)
 }
 
+function CancelModal({subscription, payment, isSubscription, close}) {
+	const [error, setError] = useState(null)
+	const [success, setSuccess] = useState(null)
+
+	let cancel_payment = async () => {
+		let cancelresp = await fetch(`/api/payments/${payment.id}/skip`, {method:"POST"});
+		let canceldata = await cancelresp.json();
+
+		if(canceldata.error) {
+			setError(canceldata.error.type)
+		} else {
+			setSuccess("Meeting")
+		}
+	 }
+
+	let cancel_subscription = async () => {
+		let cancelresp = await fetch(`/api/subscriptions/${subscription.id}/cancel`, {method:"POST"});
+		let canceldata = await cancelresp.json();
+
+		if(canceldata.error) {
+			setError(canceldata.error.type)
+		} else {
+			setSuccess("Subscription")
+		}
+	}
+
+	let secondaries = [{text:"Skip Meeting", onClick:cancel_payment}]
+
+	let guilttrip = <>Somebody else may register for this meeting if you cancel it. Additionally, if you take fewer tutoring sessions than required by our <Link to="/terms">terms</Link>, you may not qualify for the passCS Guarantee.</>
+
+	if(isSubscription) {
+		secondaries.push({text:"End Subscription", onClick: cancel_subscription})
+		guilttrip = <>By unsubscribing, you may lose your current pricing and another student may book your seat. If you didn't meet the minimum number of sessions as specified in our <Link to="/terms">terms</Link>, you may be ineligible for the passCS Guarantee </>
+	} 
+	if(!success) return (
+		<Modal close={close} title="Are you sure?" buttons={{primary:{text:"Nevermind", onClick:close}, secondaries:secondaries}}>
+			{guilttrip}
+			{error && <div className="genericError">{error}</div>}
+		</Modal>
+	)
+	else return (
+		<Modal close={close} title={success+" canceled"} buttons={{primary:{text:"Close", onClick:close}, secondaries:[]}}>
+		</Modal>
+	)
+}
+
 export function Meeting({ payment, ...props }) {
 	let date = new Date(payment.meeting.occurrence_epoch*1000);
 	let end = new Date(payment.meeting.occurrence_epoch*1000 + payment.meeting.slot.duration_mins*60*1000);
 	let dateinfo = get_date_info(date)
 	let endinfo = get_date_info(end)
+
+	let [confirmCancel, setConfirmCancel] = useState(null);
+
+	// TODO: get and calculate offset epoch from backend
+	let show_footer = payment.meeting.occurrence_epoch*1000 > Date.now()
 	return (
 		<div className="meeting">
+			{confirmCancel && <CancelModal close={()=>setConfirmCancel(null)} subscription={payment.subscription} payment={payment} isSubscription={confirmCancel==="subscription"} />}
 			<div className="meeting__header">
 				<div className="meeting__header__datetime">
 					<span className="meeting__header__date">
@@ -126,7 +178,7 @@ export function Meeting({ payment, ...props }) {
 					</Chip>
 				</div>
 			</div>
-			<div className="meeting__body">
+			<div className={["meeting__body", (show_footer ? "meeting__body--middle" : "")].join(" ")}>
 				<div className="meeting__body__section">
 					<div className="meeting__body__section__title">
 						Your tutor
@@ -136,6 +188,10 @@ export function Meeting({ payment, ...props }) {
 					</div>
 				</div>
 			</div>
+			{show_footer && <div className="meeting__footer">
+				{payment.subscription != null && <Button onClick={() => setConfirmCancel("subscription")} secondary>Cancel Subscription</Button>}
+				<Button onClick={() => setConfirmCancel("meeting")}>Skip Meeting</Button>
+			</div>}
 		</div>
 	)
 }
