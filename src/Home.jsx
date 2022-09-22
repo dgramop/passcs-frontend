@@ -114,30 +114,7 @@ export default function Home({...props}) {
 		<>
 			<Hero />
 			<div className="home_section_container">
-				<section className="home_section">
-					<h2 className="home_section__title">Who we are</h2>
-					<div className="home_section__cards">
-						{tutors && tutors.map((tutor) => (<TutorCard tutor={tutor}/>)) }
-					</div>
-				</section>
-				<section className="home_section">
-					<h2 className="home_section__title">Pass or your money back</h2>
-					<div className="home_section__card home_card">
-						<div className="home_card__header">
-							<div className="home_card__header__icon_container">
-								<Verified className="home_card__header__icon" />
-							</div>
-							<div className="home_card__header__title">
-								The passCS Guarantee
-							</div>
-						</div>
-						<div className="home_card__body">
-							<p>Get that extra peace of mind. If you don’t pass after taking at least 12 hours of one-on-one passCS Tutoring, we’ll refund the money you paid us. <Link to="/terms">See additional terms</Link></p>
-							<p>We hire the best tutors available - people that can relate to both our students and to the topic they’re tutoring. It shows: we had zero claims last semester (for approx. 30 students).</p>
-						</div>
-					</div>
-				</section>
-
+				
 				<section className="home_section">
 					<h2 className="home_section__title">Tutoring that <i>works</i></h2>
 					<div className="home_section__cards">
@@ -158,7 +135,31 @@ export default function Home({...props}) {
 						<PaymentFlow autoscroll className="hero__payflow hero__payflow--nohero"/>
 					</div>
 				</section>
-			</div>
+
+				<section className="home_section">
+					<h2 className="home_section__title">Pass or your money back</h2>
+					<div className="home_section__card home_card">
+						<div className="home_card__header">
+							<div className="home_card__header__icon_container">
+								<Verified className="home_card__header__icon" />
+							</div>
+							<div className="home_card__header__title">
+								The passCS Guarantee
+							</div>
+						</div>
+						<div className="home_card__body">
+							<p>Get that extra peace of mind. If you don’t pass after taking at least 12 hours of one-on-one passCS Tutoring, we’ll refund the money you paid us. <Link to="/terms">See additional terms</Link></p>
+							<p>We hire the best tutors available - people that can relate to both our students and to the topic they’re tutoring. It shows: we had zero claims last semester (for approx. 30 students).</p>
+						</div>
+					</div>
+				</section>
+				<section className="home_section">
+					<h2 className="home_section__title">Who we are</h2>
+					<div className="home_section__cards">
+						{tutors && tutors.map((tutor) => (<TutorCard tutor={tutor}/>)) }
+					</div>
+				</section>
+				</div>
 		</>
 	)
 }
