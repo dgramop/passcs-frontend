@@ -14,6 +14,7 @@ export default function Terms(props) {
 						<li>You failed the class (F or D final grade), and</li>
 						<li>You completed the course (withdrawals, incomplete do not count), and</li>
 						<li>You did not have receive a grade high enough to allow the course to fill any of your degree requirements, and</li>
+						<li>You notify your tutor of all upcoming major assesments, assignments, exams at least 2 class sessions before they are due/occur (or immediately during your first session you have not already had 2 sessions yet), and</li>
 						<li>You attended during the same semester you were enrolled, at least 12 classes of one-on-one tutoring in the class you failed for a minimum of 12 hours of total one-on-one passCS instruction for the class you failed. For passCS Guarantee computations only, one hour of one-on-two instruction shall be equivalent to 40 minutes of one-on-one instruction, and</li>
 						<li>You made a concerted effort to pass, </li>
 						<li>You made no effort to fail</li>
@@ -59,7 +60,8 @@ export default function Terms(props) {
 					If you sign up for a weekly or recurring time slot, you authorize passCS to charge your card through our payment processor, Stripe, to pay for all meetings you attend with our tutors, including meetings not scheduled through our system. The rates provided during checkout assume 1 hour of instruction per week. If you meet more than this, additional meetings may be added to what you already pay
 				</p>
 			</section>
-			<small> Last Updated September 22, 2022. Only allow refund of classes that were taken within the same semester</small><br/>
+			<small> Last Updated Oct 15, 2022. Add clause that requires you notify your tutor well in advance of an upcoming assingment or exam</small><br/>
+			<small> September 22, 2022. Only allow refund of classes that were taken within the same semester</small><br/>
 			<small> March 31, 2022: Removed the midterm/semester midpoint requirement </small>
 		</div><br/>
 	</>)
