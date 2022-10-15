@@ -362,7 +362,7 @@ function AppointmentSelection({course_id, modality, size, frequency, close, auto
 			</section>
 
 			<section className="payflow__appts">
-				{ slots && slots.map((slot) => <Appointment key={slot.slot.id} onBook={setSelection} slot_etc={slot} class_style={modality} size={size} frequency={frequency}/>)}
+				{ slots && slots.sort((a,b) => a.meetings[0].occurrence_epoch > b.meetings[0].occurrence_epoch).map((slot) => <Appointment key={slot.slot.id} onBook={setSelection} slot_etc={slot} class_style={modality} size={size} frequency={frequency}/>)}
 			</section>
 		</>)
 }
