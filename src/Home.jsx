@@ -129,13 +129,7 @@ export default function Home({...props}) {
 						</QuoteCard>
 					</div>
 				</section>
-				<section className="home_section home_section--payflow">
-					<h2 className="home_section__title">Book your tutor</h2>
-					<div className="home_section__card ">
-						<PaymentFlow autoscroll className="hero__payflow hero__payflow--nohero"/>
-					</div>
-				</section>
-
+				
 				<section className="home_section">
 					<h2 className="home_section__title">Pass or your money back</h2>
 					<div className="home_section__card home_card">
@@ -159,6 +153,13 @@ export default function Home({...props}) {
 						{tutors && tutors.map((tutor) => (<TutorCard tutor={tutor}/>)) }
 					</div>
 				</section>
+				<section className="home_section home_section--payflow">
+					<h2 className="home_section__title">Book your tutor</h2>
+					<div className="home_section__card ">
+						<PaymentFlow autoscroll className="hero__payflow hero__payflow--nohero"/>
+					</div>
+				</section>
+
 				</div>
 		</>
 	)
