@@ -1,9 +1,10 @@
-import {Header} from "./Components"
+import {Link} from "react-router-dom";
+import "./Terms.scss";
 
 export default function Terms(props) {
 	return (<>
-		<Header title="passCS Terms"/><br/>
 		<div className="container">
+			<Link to="/">Back to Home</Link>
 			<section>
 				<h2> The passCS Guarantee </h2>
 				<p>
@@ -58,8 +59,8 @@ export default function Terms(props) {
 					If you sign up for a weekly or recurring time slot, you authorize passCS to charge your card through our payment processor, Stripe, to pay for all meetings you attend with our tutors, including meetings not scheduled through our system. The rates provided during checkout assume 1 hour of instruction per week. If you meet more than this, additional meetings may be added to what you already pay
 				</p>
 			</section>
+			<small> Last Updated September 22, 2022. Only allow refund of classes that were taken within the same semester</small><br/>
+			<small> March 31, 2022: Removed the midterm/semester midpoint requirement </small>
 		</div><br/>
-		<small> Last Updated September 22, 2022. Only allow refund of classes that were taken within the same semester</small><br/>
-		<small> March 31, 2022: Removed the midterm/semester midpoint requirement </small>
 	</>)
 }
