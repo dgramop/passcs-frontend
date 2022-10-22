@@ -4,6 +4,12 @@ import {Link} from "react-router-dom";
 
 function TutorDashboardSlot(props) {
 	let next_meeting = get_next_meeting(props.meeting_info);
+	if(next_meeting == null) {
+		console.log(props.meeting_info);
+		return (
+			<> </>
+		);
+	}
 
 	let {weekday, start_hour} = timezone_time_from_slot(props.slot);
 	let start_hour_str = start_hour%12 === 0 ? "12" : start_hour%12;
