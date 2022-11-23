@@ -501,7 +501,7 @@ export default function PaymentFlow({embed, className, autoscroll, ...props}) {
 
 				<section className="payflow__inputgroup">
 					<h3 className="payflow__inputgroup__title">How often would you like to meet?</h3>
-					<RadioSelect onChange={setFrequency} value={frequency} options={[{label:["Weekly", (frequency === "onetime" ? "-$1" : "")], value:"weekly"}, {label:["One Time", (frequency === "weekly" || frequency==null ? "+$1" : "")], value:"onetime"}]}/>
+					<RadioSelect onChange={setFrequency} value={frequency} options={[{label:["Weekly", (frequency === "onetime" && prices != null ? "-$"+(prices["onetime"][size || 1]/100 - prices["subscription"][size || 1]/100) : "")], value:"weekly"}, {label:["One Time", ((frequency === "weekly" || frequency==null) && prices != null ? "+$"+(prices["onetime"][size || 1]/100 - prices["subscription"][size || 1]/100) : "")], value:"onetime"}]}/>
 				</section>
 				
 				<section className="payflow__inputgroup">
