@@ -2,6 +2,7 @@ import CustomerDashboard from './CustomerDashboard';
 import './App.scss';
 import Home from './Home';
 import TutorsDashboard from './TutorsDashboard';
+import TutorPanel from './TutorPanel';
 import StudentDashboard, {Sessions} from './StudentDashboard';
 import ReservationFrom from './ReservationForm';
 import FromToken from './FromToken';
@@ -17,7 +18,8 @@ function App() {
 						  <Route path="/student/dashboard" element={<StudentDashboard page="upcoming"/> }/>
 						  <Route path="/student/dashboard/history" element={ <StudentDashboard page="history"/> }/>
 							<Route path="login" element={<FromToken/>}/>
-							<Route path="tutors/*" element={<TutorsDashboard/>}/>
+						{/*<Route path="tutors/*" element={<TutorsDashboard/>}/>*/}
+							<Route path="tutors/*" element={<TutorPanel />}/>
 							<Route path="book/*" element={<ReservationFrom/>}/>
 							<Route path="terms" element={<Terms/>}/>
 				  </Route>
