@@ -3,6 +3,9 @@ import {useEffect, useState} from "react";
 import "./TutorPanel.scss";
 import {Link, Outlet, useNavigate, useOutletContext} from "react-router-dom"
 import {Meeting} from "./StudentDashboard";
+import {Modal} from "./Components";
+
+import DateTimePicker from "react-datetime-picker";
 
 // TODO: DUPLICATION! consolidate Sidebar with DashNav from StudentDashboard.
 // Work on more direct features to actually making the critical worflows possible
@@ -91,9 +94,37 @@ export function Schedule(props) {
 		</div>)
 }
 
+export function CreateSlotPopup(props) {
+	const [startDate, setStartDate] = useState(new Date());
+	let submit = async () => {
+		// TODO
+		// also reload the page data
+
+		console.log("test");
+		let form_data = new FormData();
+		form_data.append("duration_mins", 60);
+		form_data.append("anchor_epoch", Date.parse(startDate)/1000);
+		form_data.append("tutor", "myself");
+		let slotresp = await fetch("/api/slots", {method:"POST", body:form_data});
+		let slotdata = await slotresp.json();
+		console.log(slotdata);
+		props.reload()
+		props.close()
+	}
+	return (
+		<Modal close={props.close} buttons={{primary:{text:"Create Availability", onClick:submit}, secondaries:[{text:"Cancel", onClick:props.close}]}} title="Add availability">
+			When would you like to start weekly meetings?<br/>
+			<DateTimePicker minDate={new Date()} value={startDate} onChange={(date) => setStartDate(date)}/><br/>
+			Each session will be one hour, and will repeat weekly until the last reading day of the semester
+
+		</Modal>
+		)
+}
+
 export function Availability(props) {
 	const [selected, setSelected] = useOutletContext();
 	const [meetings, setMeetings] = useState(null);
+	const [createSlots, setCreateSlots] = useState(true);
 
 	const tutor_id = props.tutor_id || "myself";
 
@@ -101,20 +132,21 @@ export function Availability(props) {
 		setSelected("availability")
 	}, [setSelected]);
 
-	useEffect(() => {
-		let load_meetings = async () => {
-			let meetingsresp = await fetch(`/api/tutors/${tutor_id}/meetings`);
-			let meetingsdata = await meetingsresp.json();
-			setMeetings(meetingsdata.data)
-		}
+	let load_meetings = async () => {
+		let meetingsresp = await fetch(`/api/tutors/${tutor_id}/meetings`);
+		let meetingsdata = await meetingsresp.json();
+		setMeetings(meetingsdata.data)
+	}
 
+	useEffect(() => {
 		load_meetings();
 	}, [tutor_id]);
 	console.log(meetings);
 
 	// fetch all future meetings that have a connected payment
 
-	return (
+	return ( <>
+		{createSlots && <CreateSlotPopup reload={load_meetings} close={() => setCreateSlots(false)}/>}
 		<div className="booking_container">
 			<div className="booking_container__title">
 				Manage Availability
@@ -122,7 +154,8 @@ export function Availability(props) {
 			<div className="booking_container__bookings">
 				{meetings && meetings.filter((meeting) => {return meeting.meeting.occurrence_epoch > Date.now()/1000} ).map((meeting) => <Meeting key={meeting.meeting.id} meeting={meeting.meeting} payments={meeting.payments} />)}
 			</div>
-		</div>)
+		</div>
+		</>)
 }
 
 export function WorkHistory(props) {

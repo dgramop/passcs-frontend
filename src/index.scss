@@ -197,7 +197,7 @@ a {
 		}
 }
 
-.payment_form__input, input:not([type=submit]):not([type=file]) {
+.payment_form__input, input:not([type=submit]):not([type=file]):not(.react-datetime-picker__inputGroup__input) {
 		background: #F1F5F9;
 		border: 3px solid #334155;
 		border-radius: 8px;
@@ -332,11 +332,32 @@ a {
 				font-weight: 700;
 			}
 		}
+
+		&__subicon {
+			float:right;
+			color: hsla(217, 33%, 17%, 1);
+			visibility: hidden;
+			&--active {
+				visibility: visible;
+			}
+		}
 	}
 
 	&__profile {
 		height: 3rem;
 		clip-path: circle();
+
+		&--text {
+			height: 3rem;
+			width: 3rem;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size:2rem;
+			background: hsla(214, 32%, 91%, 1);
+			clip-path: circle();
+			text-align: center;
+		}
 	}
 }
 

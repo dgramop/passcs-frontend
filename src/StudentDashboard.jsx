@@ -1,5 +1,5 @@
 // supercedes CustomerDashboard
-import {CreditCard, Event, Face, Group, History, LocationOn} from "@mui/icons-material"
+import {CreditCard, Event, EventRepeat, Face, Group, History, LocationOn, Pending} from "@mui/icons-material"
 import {Card} from "@mui/material"
 import {useEffect, useState} from "react"
 import {Link, useNavigate} from "react-router-dom"
@@ -82,17 +82,24 @@ export default function StudentDashboard({ page, ...props}) {
 }
 
 // a  person element
-function Person({name, phone, email, imgsrc, imgletter, ...props}) {
-	let phone_friendly = phone.toString();
+function Person({name, phone, email, imgsrc, imgletter, empty, ...props}) {
+	let phone_friendly = empty ? "This slot is unbooked" : phone.toString();
 	// in case of leading ones/country codes, i'm indexing from the end of the string
-	phone_friendly = phone_friendly.substring(0, phone_friendly.length - 7)+"-"+phone_friendly.substring(phone_friendly.length-7, phone_friendly.length - 4)+"-"+phone_friendly.substring(phone_friendly.length - 4)
+	if(!empty) {
+		phone_friendly = phone_friendly.substring(0, phone_friendly.length - 7)+"-"+phone_friendly.substring(phone_friendly.length-7, phone_friendly.length - 4)+"-"+phone_friendly.substring(phone_friendly.length - 4)
+	}
+
 	return (
 		<div className="person">
 			{imgsrc && <img className="person__profile" src={imgsrc} alt={`${name} headshot`}/>}
+			{!imgsrc && <div className="person__profile--text">{name && name.charAt(0)}{empty && <Pending/>}</div>}
 			<div className="person__details">
-				<div className="person__details__item person__details__item--name">{name}</div>
+				<div className="person__details__item person__details__item--name">
+					{!empty && name}
+					{!empty && <EventRepeat className={["fixicon person__details__subicon", (props.subicon ? "person__details__subicon--active" :"")].join(" ")}/>}
+				</div>
 				<div className="person__details__item">{phone_friendly}</div>
-				<div className="person__details__item">{email}</div>
+				<div className="person__details__item">{!empty && email}</div>
 			</div>
 		</div>
 	)
@@ -191,13 +198,15 @@ export function Meeting({ payment, payments, meeting, ...props }) {
 					</div>
 					<div className="meeting__body__section__people">
 						{payment && <Person imgsrc={"/"+encodeURIComponent(meeting.offering.tutor.id)+".jpg"} name={meeting.offering.tutor.name} phone={meeting.offering.tutor.phone} email={meeting.offering.tutor.email} />}
-						{payments && payments.map((pymt) => <Person name={pymt.customer.firstname} phone={pymt.customer.phone} email={pymt.customer.email} />)}
+						{payments && payments.map((pymt) => <Person name={pymt.customer.firstname} phone={pymt.customer.phone} email={pymt.customer.email} subicon={pymt.subscription} />)}
+						{payments && payments.length === 0 && <Person empty />}
 					</div>
 				</div>
 			</div>
 			{show_footer && <div className="meeting__footer">
 				{payment?.subscription != null && <Button onClick={() => setConfirmCancel("subscription")} secondary>Cancel Subscription</Button>}
-				<Button onClick={() => setConfirmCancel("meeting")}>Skip Meeting</Button>
+				{/* currently canceling not implemented for tutors on frontend, will change very soon*/}
+				{payment && <Button onClick={() => setConfirmCancel("meeting")}>Skip Meeting</Button>}
 			</div>}
 		</div>
 	)
