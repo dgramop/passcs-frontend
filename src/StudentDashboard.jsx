@@ -88,7 +88,7 @@ function Person({name, phone, email, imgsrc, imgletter, ...props}) {
 	phone_friendly = phone_friendly.substring(0, phone_friendly.length - 7)+"-"+phone_friendly.substring(phone_friendly.length-7, phone_friendly.length - 4)+"-"+phone_friendly.substring(phone_friendly.length - 4)
 	return (
 		<div className="person">
-			<img className="person__profile" src={imgsrc} alt={`${name} headshot`}/>
+			{imgsrc && <img className="person__profile" src={imgsrc} alt={`${name} headshot`}/>}
 			<div className="person__details">
 				<div className="person__details__item person__details__item--name">{name}</div>
 				<div className="person__details__item">{phone_friendly}</div>
@@ -144,16 +144,20 @@ function CancelModal({subscription, payment, isSubscription, close}) {
 	)
 }
 
-export function Meeting({ payment, ...props }) {
-	let date = new Date(payment.meeting.occurrence_epoch*1000);
-	let end = new Date(payment.meeting.occurrence_epoch*1000 + payment.meeting.slot.duration_mins*60*1000);
+/**
+ * Only define payment if this is being displayed to a student
+ * Only define payments if this is being displayed to a tutor
+ */
+export function Meeting({ payment, payments, meeting, ...props }) {
+	let date = new Date(meeting.occurrence_epoch*1000);
+	let end = new Date(meeting.occurrence_epoch*1000 + meeting.slot.duration_mins*60*1000);
 	let dateinfo = get_date_info(date)
 	let endinfo = get_date_info(end)
 
 	let [confirmCancel, setConfirmCancel] = useState(null);
 
 	// TODO: get and calculate offset epoch from backend
-	let show_footer = payment.meeting.occurrence_epoch*1000 > Date.now()
+	let show_footer = meeting.occurrence_epoch*1000 > Date.now()
 	return (
 		<div className="meeting">
 			{confirmCancel && <CancelModal close={()=>setConfirmCancel(null)} subscription={payment.subscription} payment={payment} isSubscription={confirmCancel==="subscription"} />}
@@ -167,29 +171,32 @@ export function Meeting({ payment, ...props }) {
 					</span>
 				</div>
 				<div className="meeting__header__chips">
-					<Chip	white icon={<LocationOn />}>
-						{({"online":"Online", "in-person":"On Campus"})[payment.meeting.course_style] || payment.meeting.course_style}
-					</Chip>
-					<Chip	white icon={<Group />}>
-						{(["Empty","One-on-One","Group-of-Two"])[payment.meeting.capacity] || "Group of "+payment.meeting.capacity}
-					</Chip>
-					<Chip	white icon={<CreditCard />}>
+					{meeting.course_style && <Chip	white icon={<LocationOn />}>
+						{({"online":"Online", "in-person":"On Campus"})[meeting.course_style] || meeting.course_style}
+					</Chip>}
+					{meeting.capacity && <Chip	white icon={<Group />}>
+						{(["Empty","One-on-One","Group-of-Two"])[meeting.capacity] || "Group of "+meeting.capacity}
+					</Chip>}
+					{/* if we're displaying a particular payment (i.e. to a customer, then display the details up here*/}
+					{payment && <Chip	white icon={<CreditCard />}>
 						{({"processing":"Processing", "succeeded":"Complete", "subscription_pending":"Scheduled", "requires_payment_method": "Failed", "canceled":"Canceled/Refunded"})[payment.payment_status] || payment.payment_status}
-					</Chip>
+					</Chip>}
 				</div>
 			</div>
 			<div className={["meeting__body", (show_footer ? "meeting__body--middle" : "")].join(" ")}>
 				<div className="meeting__body__section">
 					<div className="meeting__body__section__title">
-						Your tutor
+						{payment && "Your tutor"}
+						{!payment && "Your customers"}
 					</div>
 					<div className="meeting__body__section__people">
-						<Person imgsrc={"/"+encodeURIComponent(payment.meeting.offering.tutor.id)+".jpg"} name={payment.meeting.offering.tutor.name} phone={payment.meeting.offering.tutor.phone} email={payment.meeting.offering.tutor.email} />
+						{payment && <Person imgsrc={"/"+encodeURIComponent(meeting.offering.tutor.id)+".jpg"} name={meeting.offering.tutor.name} phone={meeting.offering.tutor.phone} email={meeting.offering.tutor.email} />}
+						{payments && payments.map((pymt) => <Person name={pymt.customer.firstname} phone={pymt.customer.phone} email={pymt.customer.email} />)}
 					</div>
 				</div>
 			</div>
 			{show_footer && <div className="meeting__footer">
-				{payment.subscription != null && <Button onClick={() => setConfirmCancel("subscription")} secondary>Cancel Subscription</Button>}
+				{payment?.subscription != null && <Button onClick={() => setConfirmCancel("subscription")} secondary>Cancel Subscription</Button>}
 				<Button onClick={() => setConfirmCancel("meeting")}>Skip Meeting</Button>
 			</div>}
 		</div>
@@ -232,7 +239,7 @@ export function Sessions({history, ...props}) {
 			{!history && "Upcoming Sessions"}
 		</h2>
 		<div className="dash__content__meetings">
-			{payments && payments.map((payment) => <Meeting key={payment.id} payment={payment} />)}
+			{payments && payments.map((payment) => <Meeting key={payment.id} payment={payment} meeting={payment.meeting} />)}
 		</div>
 	</>
 	)

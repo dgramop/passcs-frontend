@@ -1,0 +1,91 @@
+@import "./index.scss";
+
+.meeting {
+	width: 20rem;
+	@include sm {
+		width: 25rem;
+	}
+
+	@include md {
+		width: 35rem;
+	}
+
+	@include lg {
+		width: 35rem;
+	}
+	@include xl {
+		width: 50rem;
+	}
+
+	&__header {
+		padding-left: 1.5rem;
+		padding-right: 1.5rem;
+		padding-top: 0.75rem;
+		padding-bottom: 1rem;
+
+		font-size: 24px;
+		background-color: #E2E8F0;
+		border-radius: 0.75rem 0.75rem 0 0;
+
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		&__datetime {
+			font-weight: 700;
+			display: flex;
+			flex-direction:column;
+			@include lg {
+				flex-direction:row;
+				gap: 1ch;
+			}
+		}
+
+		&__date {
+			color: black;
+		}
+
+		&__time {
+			color: #393939;
+		}
+
+		&__chips {
+			display: flex;
+			gap: 1ch;
+		}
+	}
+
+	&__body {
+		padding-left: 1.5rem;
+		padding-right: 1.5rem;
+		padding-top: 1rem;
+		padding-bottom: 1rem;
+
+		background-color: #F8FAFC;
+		border-radius: 0 0 0.75rem 0.75rem;
+
+		&__section {
+			&__title {
+				font-weight: 600;
+				color: #334155;
+			}
+		}
+
+		&--middle {
+			border-radius: 0;
+		}
+	}
+
+	&__footer {
+		padding-left: 1.5rem;
+		padding-right: 1.5rem;
+		padding-top: 1rem;
+		padding-bottom: 1rem;
+		border-radius: 0 0 0.75rem 0.75rem;
+		background-color: #E2E8F0;
+		display: flex;
+		justify-content: flex-end;
+		gap: 1.5rem;
+	}
+
+}
+

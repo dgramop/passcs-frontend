@@ -2,6 +2,7 @@ import {Event, EventNote, EventSharp, History} from "@mui/icons-material";
 import {useEffect, useState} from "react";
 import "./TutorPanel.scss";
 import {Link, Outlet, useNavigate, useOutletContext} from "react-router-dom"
+import {Meeting} from "./StudentDashboard";
 
 // TODO: DUPLICATION! consolidate Sidebar with DashNav from StudentDashboard.
 // Work on more direct features to actually making the critical worflows possible
@@ -58,12 +59,36 @@ export function TutorPanelSidebar(props) {
 
 export function Bookings(props) {
 	const [selected, setSelected] = useOutletContext();
+	const [meetings, setMeetings] = useState(null);
+
+	const tutor_id = props.tutor_id || "myself";
+
 	useEffect(() => {
 		setSelected("bookings")
 	}, [setSelected]);
 
-	return (<>
-		</>)
+	useEffect(() => {
+		let load_meetings = async () => {
+			let meetingsresp = await fetch(`/api/tutors/${tutor_id}/meetings`);
+			let meetingsdata = await meetingsresp.json();
+			setMeetings(meetingsdata.data)
+		}
+
+		load_meetings();
+	}, [tutor_id]);
+	console.log(meetings);
+
+	// fetch all future meetings that have a connected payment
+
+	return (
+		<div className="booking_container">
+			<div className="booking_container__title">
+				Upcoming Booked Sessions
+			</div>
+			<div className="booking_container__bookings">
+				{meetings && meetings.filter((meeting) => {return meeting.payments.length > 0 && meeting.meeting.occurrence_epoch > Date.now()/1000} ).map((meeting) => <Meeting key={meeting.meeting.id} meeting={meeting.meeting} payments={meeting.payments} />)}
+			</div>
+		</div>)
 }
 
 export function Schedule(props) {
@@ -72,8 +97,17 @@ export function Schedule(props) {
 		setSelected("schedule")
 	}, [setSelected]);
 
-	return (<>
-		</>)
+	// fetch all future meetings regardless of if there's a payment linked. 
+
+	return (<div className="booking_container">
+			<div className="booking_container__title">
+				Your Availability
+			</div>
+			<div className="booking_container__bookings">
+				{/*payments && payments.map((payment) => <Meeting key={payment.id} payment={payment} />)*/}
+			</div>
+		</div>
+		)
 }
 
 export function WorkHistory(props) {
@@ -82,16 +116,27 @@ export function WorkHistory(props) {
 		setSelected("history")
 	}, [setSelected]);
 
-	return (<>
-		</>)
+
+
+	// fetch all past paid-for meetings
+
+	return (<div className="booking_container">
+			<div className="booking_container__title">
+				Previous Sessions
+			</div>
+			<div className="booking_container__bookings">
+				{/*payments && payments.map((payment) => <Meeting key={payment.id} payment={payment} />)*/}
+			</div>
+		</div>
+	)
 }
 
 export default function TutorPanel(props) {
 	let [selected, setSelected] = useState("bookings");
 	return (
-		<>
+		<div className="tutorpanel">
 			<TutorPanelSidebar selected={selected} />
 			<Outlet context={[selected, setSelected]} />
-		</>
+		</div>
 	)
 }
