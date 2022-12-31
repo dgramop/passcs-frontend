@@ -1,4 +1,4 @@
-import {Event, EventNote, EventSharp, History} from "@mui/icons-material";
+import {Add, Event, EventNote, EventSharp, History, PlusOne} from "@mui/icons-material";
 import {useEffect, useState} from "react";
 import "./TutorPanel.scss";
 import {Link, Outlet, useNavigate, useOutletContext} from "react-router-dom"
@@ -74,7 +74,7 @@ export function Schedule(props) {
 		let load_meetings = async () => {
 			let meetingsresp = await fetch(`/api/tutors/${tutor_id}/meetings`);
 			let meetingsdata = await meetingsresp.json();
-			setMeetings(meetingsdata.data)
+			setMeetings(meetingsdata.data.filter((meeting) => {return meeting.payments.length > 0 && meeting.meeting.occurrence_epoch > Date.now()/1000} ))
 		}
 
 		load_meetings();
@@ -89,7 +89,8 @@ export function Schedule(props) {
 				Upcoming Booked Sessions
 			</div>
 			<div className="booking_container__bookings">
-				{meetings && meetings.filter((meeting) => {return meeting.payments.length > 0 && meeting.meeting.occurrence_epoch > Date.now()/1000} ).map((meeting) => <Meeting key={meeting.meeting.id} meeting={meeting.meeting} payments={meeting.payments} />)}
+				{meetings && meetings.map((meeting) => <Meeting key={meeting.meeting.id} meeting={meeting.meeting} payments={meeting.payments} />)}
+				{meetings && meetings.length === 0 && <span>You have no booked sessions. Please make sure you have availability listed in the Availability tab</span>}
 			</div>
 		</div>)
 }
@@ -124,7 +125,7 @@ export function CreateSlotPopup(props) {
 export function Availability(props) {
 	const [selected, setSelected] = useOutletContext();
 	const [meetings, setMeetings] = useState(null);
-	const [createSlots, setCreateSlots] = useState(true);
+	const [createSlots, setCreateSlots] = useState(false);
 
 	const tutor_id = props.tutor_id || "myself";
 
@@ -149,10 +150,11 @@ export function Availability(props) {
 		{createSlots && <CreateSlotPopup reload={load_meetings} close={() => setCreateSlots(false)}/>}
 		<div className="booking_container">
 			<div className="booking_container__title">
-				Manage Availability
+				Manage Availability <div className="booking_container__title__addbutton" onClick={()=>{setCreateSlots(true)}} ><Add /></div>
 			</div>
 			<div className="booking_container__bookings">
 				{meetings && meetings.filter((meeting) => {return meeting.meeting.occurrence_epoch > Date.now()/1000} ).map((meeting) => <Meeting key={meeting.meeting.id} meeting={meeting.meeting} payments={meeting.payments} />)}
+				{meetings && meetings.length === 0 && <span>Use the + button above to add availability</span>} 
 			</div>
 		</div>
 		</>)
@@ -172,7 +174,7 @@ export function WorkHistory(props) {
 		let load_meetings = async () => {
 			let meetingsresp = await fetch(`/api/tutors/${tutor_id}/meetings`);
 			let meetingsdata = await meetingsresp.json();
-			setMeetings(meetingsdata.data)
+			setMeetings(meetingsdata.data.filter((meeting) => {return meeting.meeting.occurrence_epoch < Date.now()/1000 && meeting.payments > 0} ))
 		}
 
 		load_meetings();
@@ -187,7 +189,8 @@ export function WorkHistory(props) {
 				Previous Sessions
 			</div>
 			<div className="booking_container__bookings">
-				{meetings && meetings.filter((meeting) => {return meeting.meeting.occurrence_epoch < Date.now()/1000 && meeting.payments > 0} ).map((meeting) => <Meeting key={meeting.meeting.id} meeting={meeting.meeting} payments={meeting.payments} />)}
+				{meetings && meetings.map((meeting) => <Meeting key={meeting.meeting.id} meeting={meeting.meeting} payments={meeting.payments} />)}
+				{meetings && meetings.length === 0 && "You have no work history, please check back after working some sessions"}
 			</div>
 		</div>)
 }

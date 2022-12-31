@@ -16,6 +16,20 @@
 		font-weight: 600;
 		font-size: 1.5rem;
 		padding-top: 5rem;
+		display: flex;
+		justify-content: space-between;
+		gap: 1rem;
+
+		&__addbutton {
+			display: flex;
+			cursor: pointer;
+			justify-content: center;
+			align-items: center;
+			background-color: #E2E8F0;
+			width: 2rem;
+			height: 2rem;
+			clip-path: circle();
+		}
 	}
 
 	&__bookings {
