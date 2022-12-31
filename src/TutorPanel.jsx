@@ -49,22 +49,22 @@ export function TutorPanelSidebar(props) {
 				</div>
 			</div>
 			<div className="sidebar__buttons">
-				<SidebarButton name="bookings" selected={props.selected} icon={<Event className="fixicon"/>} text="Bookings"/>
-				<SidebarButton name="schedule" selected={props.selected} icon={<EventNote className="fixicon"/>} text="Schedule"/>
+				<SidebarButton name="schedule" selected={props.selected} icon={<Event className="fixicon"/>} text="Schedule"/>
+				<SidebarButton name="availability" selected={props.selected} icon={<EventNote className="fixicon"/>} text="Availability"/>
 				<SidebarButton name="history" selected={props.selected} icon={<History className="fixicon"/>} text="Work History"/>
 			</div>
 		</div>
 	)
 }
 
-export function Bookings(props) {
+export function Schedule(props) {
 	const [selected, setSelected] = useOutletContext();
 	const [meetings, setMeetings] = useState(null);
 
 	const tutor_id = props.tutor_id || "myself";
 
 	useEffect(() => {
-		setSelected("bookings")
+		setSelected("schedule")
 	}, [setSelected]);
 
 	useEffect(() => {
@@ -91,45 +91,74 @@ export function Bookings(props) {
 		</div>)
 }
 
-export function Schedule(props) {
+export function Availability(props) {
 	const [selected, setSelected] = useOutletContext();
+	const [meetings, setMeetings] = useState(null);
+
+	const tutor_id = props.tutor_id || "myself";
+
 	useEffect(() => {
-		setSelected("schedule")
+		setSelected("availability")
 	}, [setSelected]);
 
-	// fetch all future meetings regardless of if there's a payment linked. 
+	useEffect(() => {
+		let load_meetings = async () => {
+			let meetingsresp = await fetch(`/api/tutors/${tutor_id}/meetings`);
+			let meetingsdata = await meetingsresp.json();
+			setMeetings(meetingsdata.data)
+		}
 
-	return (<div className="booking_container">
+		load_meetings();
+	}, [tutor_id]);
+	console.log(meetings);
+
+	// fetch all future meetings that have a connected payment
+
+	return (
+		<div className="booking_container">
 			<div className="booking_container__title">
-				Your Availability
+				Manage Availability
 			</div>
 			<div className="booking_container__bookings">
-				{/*payments && payments.map((payment) => <Meeting key={payment.id} payment={payment} />)*/}
+				{meetings && meetings.filter((meeting) => {return meeting.meeting.occurrence_epoch > Date.now()/1000} ).map((meeting) => <Meeting key={meeting.meeting.id} meeting={meeting.meeting} payments={meeting.payments} />)}
 			</div>
-		</div>
-		)
+		</div>)
 }
 
 export function WorkHistory(props) {
 	const [selected, setSelected] = useOutletContext();
+	const [meetings, setMeetings] = useState(null);
+
+	const tutor_id = props.tutor_id || "myself";
+
 	useEffect(() => {
 		setSelected("history")
 	}, [setSelected]);
 
+	useEffect(() => {
+		let load_meetings = async () => {
+			let meetingsresp = await fetch(`/api/tutors/${tutor_id}/meetings`);
+			let meetingsdata = await meetingsresp.json();
+			setMeetings(meetingsdata.data)
+		}
 
+		load_meetings();
+	}, [tutor_id]);
+	console.log(meetings);
 
-	// fetch all past paid-for meetings
+	// fetch all future meetings that have a connected payment
 
-	return (<div className="booking_container">
+	return (
+		<div className="booking_container">
 			<div className="booking_container__title">
 				Previous Sessions
 			</div>
 			<div className="booking_container__bookings">
-				{/*payments && payments.map((payment) => <Meeting key={payment.id} payment={payment} />)*/}
+				{meetings && meetings.filter((meeting) => {return meeting.meeting.occurrence_epoch < Date.now()/1000 && meeting.payments > 0} ).map((meeting) => <Meeting key={meeting.meeting.id} meeting={meeting.meeting} payments={meeting.payments} />)}
 			</div>
-		</div>
-	)
+		</div>)
 }
+
 
 export default function TutorPanel(props) {
 	let [selected, setSelected] = useState("bookings");
