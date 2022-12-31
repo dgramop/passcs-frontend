@@ -1,8 +1,9 @@
-import {EventSharp} from "@mui/icons-material";
+import {Event, EventNote, EventSharp, History} from "@mui/icons-material";
 import {useEffect, useState} from "react";
 import "./TutorPanel.scss";
+import {Link, Outlet, useNavigate, useOutletContext} from "react-router-dom"
 
-// TODO: eliminate all of this, consolidate it with DashNav from StudentDashboard.
+// TODO: DUPLICATION! consolidate Sidebar with DashNav from StudentDashboard.
 // Work on more direct features to actually making the critical worflows possible
 // 1) entering your own availability 
 // 2) removing availability
@@ -10,9 +11,10 @@ import "./TutorPanel.scss";
 // 4) canceling meetings
 
 function SidebarButton(props) {
+	const navigate = useNavigate();
 	return (
-		<div className="sidebar__button">
-			<div className="sidebar__button__indicator"></div>
+		<div onClick={() => navigate(props.name)} className="sidebar__button">
+			<div className={["sidebar__button__indicator", (props.name === props.selected ? "sidebar__button__indicator--active" : "")].join(" ")}></div>
 			<div className="sidebar__button__icon">{props.icon}</div>
 			<div className="sidebar__button__text">{props.text}</div>
 		</div>
@@ -46,17 +48,50 @@ export function TutorPanelSidebar(props) {
 				</div>
 			</div>
 			<div className="sidebar__buttons">
-				<SidebarButton icon={<EventSharp className="fixicon"/>} text="Bookings"/>
-				<SidebarButton icon={<EventSharp className="fixicon"/>} text="Bookings"/>
+				<SidebarButton name="bookings" selected={props.selected} icon={<Event className="fixicon"/>} text="Bookings"/>
+				<SidebarButton name="schedule" selected={props.selected} icon={<EventNote className="fixicon"/>} text="Schedule"/>
+				<SidebarButton name="history" selected={props.selected} icon={<History className="fixicon"/>} text="Work History"/>
 			</div>
 		</div>
 	)
 }
 
+export function Bookings(props) {
+	const [selected, setSelected] = useOutletContext();
+	useEffect(() => {
+		setSelected("bookings")
+	}, [setSelected]);
+
+	return (<>
+		</>)
+}
+
+export function Schedule(props) {
+	const [selected, setSelected] = useOutletContext();
+	useEffect(() => {
+		setSelected("schedule")
+	}, [setSelected]);
+
+	return (<>
+		</>)
+}
+
+export function WorkHistory(props) {
+	const [selected, setSelected] = useOutletContext();
+	useEffect(() => {
+		setSelected("history")
+	}, [setSelected]);
+
+	return (<>
+		</>)
+}
+
 export default function TutorPanel(props) {
+	let [selected, setSelected] = useState("bookings");
 	return (
 		<>
-			<TutorPanelSidebar />
+			<TutorPanelSidebar selected={selected} />
+			<Outlet context={[selected, setSelected]} />
 		</>
 	)
 }
