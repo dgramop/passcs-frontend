@@ -271,6 +271,10 @@ function Tutor({tutor, start_date, end_date, ...props}) {
 		load_offerings()
 	}
 
+	let phone_friendly = tutor.phone.toString();
+
+	phone_friendly = phone_friendly.substring(0, phone_friendly.length - 7)+"-"+phone_friendly.substring(phone_friendly.length-7, phone_friendly.length - 4)+"-"+phone_friendly.substring(phone_friendly.length - 4)
+
 	return (
 			<div className="tutor" >
 				<div className="tutor__section tutor__section--top">
@@ -282,6 +286,11 @@ function Tutor({tutor, start_date, end_date, ...props}) {
 							return meeting.meeting.notes !== "" && meeting.meeting.notes != null
 						}).length} confirmed meetings</div>
 					</div>
+				</div>
+				<div className="tutor__section">
+					<div className="tutor__section__title">Contact</div>
+					<div className="tutor__details__meetings">{phone_friendly}</div>
+					<div className="tutor__details__meetings">{tutor.email}</div>
 				</div>
 				<div className="tutor__section">
 					<div className="tutor__section__title">Qualifications</div>

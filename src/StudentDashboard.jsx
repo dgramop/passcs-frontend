@@ -1,5 +1,5 @@
 // supercedes CustomerDashboard
-import {Check, CreditCard, Event, EventRepeat, Face, Group, History, LocationOn, Pending} from "@mui/icons-material"
+import {Check, Class, CreditCard, Event, EventRepeat, Face, Group, History, LocationOn, Pending, School} from "@mui/icons-material"
 import {Card} from "@mui/material"
 import {useEffect, useState} from "react"
 import {Link, useNavigate} from "react-router-dom"
@@ -207,6 +207,7 @@ export function Meeting({ payment, payments, meeting, display_notes, reload, ...
 	let endinfo = get_date_info(end)
 
 	let [confirmCancel, setConfirmCancel] = useState(null);
+	console.log(meeting);
 
 	// TODO: get and calculate offset epoch from backend
 	let show_footer = props.show_footer || meeting.occurrence_epoch*1000 > Date.now()
@@ -224,7 +225,10 @@ export function Meeting({ payment, payments, meeting, display_notes, reload, ...
 					</span>
 				</div>
 				<div className="meeting__header__chips">
-					{meeting.course_style && <Chip	white icon={<LocationOn />}>
+					{meeting?.offering?.course?.course_name && <Chip	white icon={<Class />}>
+						{meeting?.offering?.course?.course_name}
+					</Chip>}
+						{meeting.course_style && <Chip	white icon={<LocationOn />}>
 						{({"online":"Online", "in-person":"On Campus"})[meeting.course_style] || meeting.course_style}
 					</Chip>}
 					{meeting.capacity && <Chip	white icon={<Group />}>
