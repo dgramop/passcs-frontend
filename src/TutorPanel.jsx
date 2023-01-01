@@ -77,13 +77,12 @@ export function Schedule(props) {
 		setSelected("schedule")
 	}, [setSelected]);
 
+	let load_meetings = async () => {
+		let meetingsresp = await fetch(`/api/tutors/${tutor_id}/meetings`);
+		let meetingsdata = await meetingsresp.json();
+		setMeetings(meetingsdata.data.filter((meeting) => {return meeting.payments.length > 0 && meeting.meeting.occurrence_epoch > Date.now()/1000} ))
+	}
 	useEffect(() => {
-		let load_meetings = async () => {
-			let meetingsresp = await fetch(`/api/tutors/${tutor_id}/meetings`);
-			let meetingsdata = await meetingsresp.json();
-			setMeetings(meetingsdata.data.filter((meeting) => {return meeting.payments.length > 0 && meeting.meeting.occurrence_epoch > Date.now()/1000} ))
-		}
-
 		load_meetings();
 	}, [tutor_id]);
 	console.log(meetings);
@@ -96,7 +95,7 @@ export function Schedule(props) {
 				Upcoming Booked Sessions
 			</div>
 			<div className="booking_container__bookings">
-				{meetings && meetings.map((meeting) => <Meeting key={meeting.meeting.id} meeting={meeting.meeting} payments={meeting.payments} />)}
+				{meetings && meetings.map((meeting) => <Meeting reload={load_meetings} key={meeting.meeting.id} meeting={meeting.meeting} payments={meeting.payments} />)}
 				{meetings && meetings.length === 0 && <span>You have no booked sessions. Please make sure you have availability listed in the Availability tab</span>}
 			</div>
 		</div>)
@@ -160,7 +159,7 @@ export function Availability(props) {
 				Manage Availability <div className="booking_container__title__addbutton" onClick={()=>{setCreateSlots(true)}} ><Add /></div>
 			</div>
 			<div className="booking_container__bookings">
-				{meetings && meetings.filter((meeting) => {return meeting.meeting.occurrence_epoch > Date.now()/1000} ).map((meeting) => <Meeting key={meeting.meeting.id} meeting={meeting.meeting} payments={meeting.payments} />)}
+				{meetings && meetings.filter((meeting) => {return meeting.meeting.occurrence_epoch > Date.now()/1000} ).map((meeting) => <Meeting reload={load_meetings} key={meeting.meeting.id} meeting={meeting.meeting} payments={meeting.payments} />)}
 				{meetings && meetings.length === 0 && <span>Use the + button above to add availability</span>} 
 			</div>
 		</div>
@@ -197,7 +196,7 @@ export function WorkHistory(props) {
 				Previous Sessions
 			</div>
 			<div className="booking_container__bookings">
-				{meetings && meetings.map((meeting) => <Meeting key={meeting.meeting.id} meeting={meeting.meeting} payments={meeting.payments} display_notes reload={load_meetings}/>)}
+				{meetings && meetings.map((meeting) => <Meeting show_footer key={meeting.meeting.id} meeting={meeting.meeting} payments={meeting.payments} display_notes reload={load_meetings}/>)}
 				{meetings && meetings.length === 0 && "You have no work history, please check back after working some sessions"}
 			</div>
 		</div>)

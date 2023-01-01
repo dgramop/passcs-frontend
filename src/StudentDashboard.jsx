@@ -108,7 +108,7 @@ function Person({name, phone, email, imgsrc, imgletter, empty, payment_status, .
 	)
 }
 
-function CancelModal({subscription, payment, isSubscription, close}) {
+function CancelModal({subscription, payment, isSubscription, isTutor, meeting, close, reload}) {
 	const [error, setError] = useState(null)
 	const [success, setSuccess] = useState(null)
 
@@ -121,6 +121,7 @@ function CancelModal({subscription, payment, isSubscription, close}) {
 		} else {
 			setSuccess("Meeting")
 		}
+		reload()
 	 }
 
 	let cancel_subscription = async () => {
@@ -132,6 +133,19 @@ function CancelModal({subscription, payment, isSubscription, close}) {
 		} else {
 			setSuccess("Subscription")
 		}
+		reload()
+	}
+
+	let cancel_tutor_meeting = async () => {
+		let cancelresp = await fetch(`/api/meetings/${meeting.id}/cancel`, {method:"POST"});
+		let canceldata = await cancelresp.json();
+
+		if(canceldata.error) {
+			setError(canceldata.error.type)
+		} else {
+			setSuccess("Tutor Meeting")
+		}
+		reload()
 	}
 
 	let secondaries = [{text:"Skip Meeting", onClick:cancel_payment}]
@@ -142,6 +156,11 @@ function CancelModal({subscription, payment, isSubscription, close}) {
 		secondaries.push({text:"End Subscription", onClick: cancel_subscription})
 		guilttrip = <>By unsubscribing, you may lose your current pricing and another student may book your seat. If you didn't meet the minimum number of sessions as specified in our <Link to="/terms">terms</Link>, you may be ineligible for the passCS Guarantee </>
 	} 
+	if(isTutor) {
+		secondaries = [{text:"Cancel Meeting", onClick:cancel_tutor_meeting}]
+		guilttrip = <>Do you really want to cancel this meeting? If there are any customers, they will be notified and refunded (pending payments will be canceled). Future customers that sign up for the slot will never be billed for this meeting.</>
+	}
+
 	if(!success) return (
 		<Modal close={close} title="Are you sure?" buttons={{primary:{text:"Nevermind", onClick:close}, secondaries:secondaries}}>
 			{guilttrip}
@@ -181,7 +200,7 @@ export function MeetingNotesForm({meeting, reload, ...props}) {
  * Only define payments if this is being displayed to a tutor
  * @param props.display_notes Whether to display notes form
  */
-export function Meeting({ payment, payments, meeting, display_notes, ...props }) {
+export function Meeting({ payment, payments, meeting, display_notes, reload, ...props }) {
 	let date = new Date(meeting.occurrence_epoch*1000);
 	let end = new Date(meeting.occurrence_epoch*1000 + meeting.slot.duration_mins*60*1000);
 	let dateinfo = get_date_info(date)
@@ -190,10 +209,10 @@ export function Meeting({ payment, payments, meeting, display_notes, ...props })
 	let [confirmCancel, setConfirmCancel] = useState(null);
 
 	// TODO: get and calculate offset epoch from backend
-	let show_footer = meeting.occurrence_epoch*1000 > Date.now()
+	let show_footer = props.show_footer || meeting.occurrence_epoch*1000 > Date.now()
 	return (
 		<div title={meeting.id} className="meeting">
-			{confirmCancel && <CancelModal close={()=>setConfirmCancel(null)} subscription={payment.subscription} payment={payment} isSubscription={confirmCancel==="subscription"} />}
+			{confirmCancel && <CancelModal reload={reload} close={()=>setConfirmCancel(null)} subscription={payment?.subscription} payment={payment} meeting={meeting} isTutor={confirmCancel==="tutor_meeting"} isSubscription={confirmCancel==="subscription"} />}
 			<div className="meeting__header">
 				<div className="meeting__header__datetime">
 					<span className="meeting__header__date">
@@ -229,11 +248,11 @@ export function Meeting({ payment, payments, meeting, display_notes, ...props })
 						{payments && payments.length === 0 && <Person empty />}
 					</div>
 				</div>
-				{display_notes && <><hr/><MeetingNotesForm meeting={meeting} reload={props.reload}/></>}
+				{display_notes && <><hr/><MeetingNotesForm meeting={meeting} reload={reload}/></>}
 			</div>
 			{show_footer && <div className="meeting__footer">
+				{payments != null && <Button onClick={() => setConfirmCancel("tutor_meeting")} secondary>Cancel Meeting</Button>}
 				{payment?.subscription != null && <Button onClick={() => setConfirmCancel("subscription")} secondary>Cancel Subscription</Button>}
-				{/* currently canceling not implemented for tutors on frontend, will change very soon*/}
 				{payment && <Button onClick={() => setConfirmCancel("meeting")}>Skip Meeting</Button>}
 			</div>}
 		</div>
@@ -245,27 +264,28 @@ export function Sessions({history, ...props}) {
 	const [error, setError] = useState(null)
 
 	const navigate = useNavigate();
-
-	useEffect(() => {
-		let load_payments = async () => {
-			let paymentsresp = await fetch("/api/customers/myself/payments"); 
-			let paymentsdata = await paymentsresp.json()
-			if(paymentsdata.status === "failure") {
-				if(paymentsdata.error === "NotAuthorized") {
-					navigate("/")
-					return;
-				}
-
-				setError(paymentsdata.error)
+	
+	let load_payments = async () => {
+		let paymentsresp = await fetch("/api/customers/myself/payments"); 
+		let paymentsdata = await paymentsresp.json()
+		if(paymentsdata.status === "failure") {
+			if(paymentsdata.error === "NotAuthorized") {
+				navigate("/")
 				return;
 			}
 
-			if(history) {
-				setPayments(paymentsdata.data.filter((pymt)=>{ return pymt.meeting.occurrence_epoch*1000 < Date.now()}))
-			} else {
-				setPayments(paymentsdata.data.filter((pymt)=>{ return pymt.meeting.occurrence_epoch*1000 > Date.now()}))
-			}
+			setError(paymentsdata.error)
+			return;
 		}
+
+		if(history) {
+			setPayments(paymentsdata.data.filter((pymt)=>{ return pymt.meeting.occurrence_epoch*1000 < Date.now()}))
+		} else {
+			setPayments(paymentsdata.data.filter((pymt)=>{ return pymt.meeting.occurrence_epoch*1000 > Date.now()}))
+		}
+	}
+
+	useEffect(() => {
 		load_payments();
 	}, [navigate])
 
@@ -276,7 +296,7 @@ export function Sessions({history, ...props}) {
 			{!history && "Upcoming Sessions"}
 		</h2>
 		<div className="dash__content__meetings">
-			{payments && payments.map((payment) => <Meeting key={payment.id} payment={payment} meeting={payment.meeting} />)}
+			{payments && payments.map((payment) => <Meeting reload={load_payments} key={payment.id} payment={payment} meeting={payment.meeting} />)}
 		</div>
 	</>
 	)
