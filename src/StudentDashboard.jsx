@@ -222,7 +222,7 @@ export function Meeting({ payment, payments, meeting, display_notes, ...props })
 					</div>
 					<div className="meeting__body__section__people">
 						{payment && <Person imgsrc={"/"+encodeURIComponent(meeting.offering.tutor.id)+".jpg"} name={meeting.offering.tutor.name} phone={meeting.offering.tutor.phone} email={meeting.offering.tutor.email} />}
-						{payments && payments.map((pymt) => <Person name={pymt.customer.firstname} phone={pymt.customer.phone} email={pymt.customer.email} subicon={pymt.subscription} />)}
+						{payments && payments.map((pymt) => <Person name={pymt.customer.firstname+" ("+pymt.payment_status+")"} phone={pymt.customer.phone} email={pymt.customer.email} subicon={pymt.subscription} />)}
 						{payments && payments.length === 0 && <Person empty />}
 					</div>
 				</div>

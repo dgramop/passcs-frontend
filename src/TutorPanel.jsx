@@ -276,10 +276,10 @@ function Tutor({tutor, start_date, end_date, ...props}) {
 					<img className="tutor__profile" alt={tutor.name} src={`/${tutor.id}.jpg`} />
 					<div className="tutor__details">
 						<div className="tutor__details__name">{tutor.name} {tutor.role === 'Supervisor' && <AdminPanelSettings className="fixicon"/>}</div>
-						<div className="tutor__details__meetings">{meetings && customer_meetings.length} meetings paid for</div>
+						<div className="tutor__details__meetings">{meetings && customer_meetings.length} scheduled meetings</div>
 						<div className="tutor__details__meetings">{meetings && customer_meetings.filter((meeting) => {
 							return meeting.meeting.notes !== "" && meeting.meeting.notes != null
-						}).length} meetings billed</div>
+						}).length} confirmed meetings</div>
 					</div>
 				</div>
 				<div className="tutor__section">
@@ -287,7 +287,7 @@ function Tutor({tutor, start_date, end_date, ...props}) {
 					{offerings && offerings.map((offering) => <>{offering.course.course_name} ({offering.qualification})<br/></>)} 
 				</div>
 				<div className="tutor__section">
-					<div className="tutor__section__title">Add qualification</div>
+					<div className="tutor__section__title">Add/Modify qualification</div>
 					Class
 					<Select autoFocus value={selectedCourse} onChange={(val) => setSelectedCourse(val)} placeholder="Select or type..." className="payflow__inputgroup__select" options={courseOptions} />
 					Qualification
