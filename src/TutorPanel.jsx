@@ -1,4 +1,4 @@
-import {Add, AdminPanelSettings, Event, EventNote, EventSharp, History, PlusOne} from "@mui/icons-material";
+import {Add, AdminPanelSettings, ArrowBack, Event, EventNote, EventSharp, History, PlusOne} from "@mui/icons-material";
 import {useEffect, useState} from "react";
 import "./TutorPanel.scss";
 import {Link, Outlet, useNavigate, useOutletContext, useParams} from "react-router-dom"
@@ -16,13 +16,13 @@ import {Button} from "./Components";
 // 3) rescheduling meetings
 // 4) canceling meetings
 
-function SidebarButton(props) {
+function SidebarButton({onClick, selected, name, icon, text, ...props}) {
 	const navigate = useNavigate();
 	return (
-		<div onClick={() => navigate(props.name)} className="sidebar__button">
-			<div className={["sidebar__button__indicator", (props.name === props.selected ? "sidebar__button__indicator--active" : "")].join(" ")}></div>
-			<div className="sidebar__button__icon">{props.icon}</div>
-			<div className="sidebar__button__text">{props.text}</div>
+		<div onClick={() => {if(onClick) { onClick() } else { navigate(name)}}} className="sidebar__button">
+			<div className={["sidebar__button__indicator", (name === selected ? "sidebar__button__indicator--active" : "")].join(" ")}></div>
+			<div className="sidebar__button__icon">{icon}</div>
+			<div className="sidebar__button__text">{text}</div>
 		</div>
 	)
 }
@@ -30,6 +30,7 @@ function SidebarButton(props) {
 export function TutorPanelSidebar(props) {
 	let {tutor_id} = useParams();
 	let [tutor, setTutor] = useState(null);
+	const navigate = useNavigate();
 	useEffect(() => {
 		let loadTutor = async () => {
 			let tutorresp = await fetch(`/api/tutors/${tutor_id}`);
@@ -39,7 +40,7 @@ export function TutorPanelSidebar(props) {
 		}
 
 		loadTutor()
-	}, [])
+	}, [tutor_id])
 
 	console.log(tutor);
 	return (
@@ -59,7 +60,8 @@ export function TutorPanelSidebar(props) {
 				<SidebarButton name="schedule" selected={props.selected} icon={<Event className="fixicon"/>} text="Schedule"/>
 				<SidebarButton name="availability" selected={props.selected} icon={<EventNote className="fixicon"/>} text="Availability"/>
 				<SidebarButton name="history" selected={props.selected} icon={<History className="fixicon"/>} text="Work History"/>
-				{tutor && tutor.role === 'Supervisor' && <SidebarButton name="supervisor" selected={props.selected} icon={<AdminPanelSettings className="fixicon"/>} text="Supervisor"/>}
+				{tutor && tutor.role === 'Supervisor' && tutor_id === "myself" && <SidebarButton name="supervisor" selected={props.selected} icon={<AdminPanelSettings className="fixicon"/>} text="Supervisor"/>}
+				{tutor_id !== "myself" && <SidebarButton name="back" onClick={() => {navigate("/tutors/myself/dashboard/supervisor")}} icon={<ArrowBack className="fixicon"/>} text="Back"/>}
 			</div>
 		</div>
 	)
