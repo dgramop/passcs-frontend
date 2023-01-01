@@ -1,7 +1,7 @@
-import {Add, Event, EventNote, EventSharp, History, PlusOne} from "@mui/icons-material";
+import {Add, AdminPanelSettings, Event, EventNote, EventSharp, History, PlusOne} from "@mui/icons-material";
 import {useEffect, useState} from "react";
 import "./TutorPanel.scss";
-import {Link, Outlet, useNavigate, useOutletContext} from "react-router-dom"
+import {Link, Outlet, useNavigate, useOutletContext, useParams} from "react-router-dom"
 import {Meeting} from "./StudentDashboard";
 import {Modal} from "./Components";
 
@@ -26,10 +26,11 @@ function SidebarButton(props) {
 }
 
 export function TutorPanelSidebar(props) {
+	let {tutor_id} = useParams();
 	let [tutor, setTutor] = useState(null);
 	useEffect(() => {
 		let loadTutor = async () => {
-			let tutorresp = await fetch("/api/tutors/myself");
+			let tutorresp = await fetch(`/api/tutors/${tutor_id}`);
 			let tutorjson = await tutorresp.json();
 			console.log(tutorjson);
 			setTutor(tutorjson.data);
@@ -38,6 +39,7 @@ export function TutorPanelSidebar(props) {
 		loadTutor()
 	}, [])
 
+	console.log(tutor);
 	return (
 		<div className="sidebar">
 			<div className="sidebar__profilecard">
@@ -47,7 +49,7 @@ export function TutorPanelSidebar(props) {
 						{tutor && tutor.name.split(" ")[0]}
 					</div>
 					<div className="sidebar__profilecard__role">
-						{tutor && tutor.role === 'supervisor' ? "Supervisor" : "Tutor"}
+						{tutor && tutor.role === 'Supervisor' ? "Supervisor" : "Tutor"}
 					</div>
 				</div>
 			</div>
@@ -55,6 +57,7 @@ export function TutorPanelSidebar(props) {
 				<SidebarButton name="schedule" selected={props.selected} icon={<Event className="fixicon"/>} text="Schedule"/>
 				<SidebarButton name="availability" selected={props.selected} icon={<EventNote className="fixicon"/>} text="Availability"/>
 				<SidebarButton name="history" selected={props.selected} icon={<History className="fixicon"/>} text="Work History"/>
+				{tutor && tutor.role === 'Supervisor' && <SidebarButton name="supervisor" selected={props.selected} icon={<AdminPanelSettings className="fixicon"/>} text="Supervisor"/>}
 			</div>
 		</div>
 	)
@@ -196,6 +199,69 @@ export function WorkHistory(props) {
 		</div>)
 }
 
+function Tutor({tutor, start_date, end_date, ...props}) {
+	const [meetings, setMeetings] = useState(null);
+	// fetch tutor's meetings
+	useEffect(() => {
+		let load_meetings = async () => {
+			let meetingsresp = await fetch(`/api/tutors/${tutor.id}/meetings`);
+			let meetingsdata = await meetingsresp.json();
+			setMeetings(meetingsdata.data);
+		}
+		load_meetings()
+	}, [tutor.id])
+
+	let customer_meetings = meetings != null ? meetings.filter((meeting) => {
+			return meeting.meeting.occurrence_epoch > Date.parse(start_date)/1000 
+				&& meeting.meeting.occurrence_epoch < Date.parse(end_date)/1000 
+				&& meeting.payments.length > 0;
+	}) : null;
+
+	return (<div className="tutor">
+		<img className="tutor__profile" alt={tutor.name} src={`/${tutor.id}.jpg`} />
+		<div className="tutor__details">
+			<div className="tutor__details__name">{tutor.name} {tutor.role === 'Supervisor' && <AdminPanelSettings className="fixicon"/>}</div>
+			<div className="tutor__details__meetings">{meetings && customer_meetings.length} meetings paid for</div>
+			<div className="tutor__details__meetings">{meetings && customer_meetings.filter((meeting) => {
+				return meeting.meeting.notes !== "" && meeting.meeting.notes != null
+			}).length} meetings billed</div>
+		</div>
+		</div>)
+}
+
+export function Supervisor(props) {
+	const [selected, setSelected] = useOutletContext();
+	const [tutors, setTutors] = useState(null);
+	const [startDate, setStartDate] = useState(new Date(0));
+	const [endDate, setEndDate] = useState(new Date());
+
+	useEffect(() => {
+		setSelected("supervisor")
+	}, [setSelected]);
+
+	useEffect(() => {
+		let load_tutors = async () => {
+			let tutorsresp = await fetch("/api/tutors");
+			let tutorsdata = await tutorsresp.json();
+			setTutors(tutorsdata.data);
+		}
+		load_tutors()
+	}, [])
+
+	return (
+		<div className="booking_container">
+			<div className="booking_container__title">
+				Your Team
+			</div>
+			<div className="booking_container__bookings">
+				<DateTimePicker value={startDate} onChange={(date) => setStartDate(date)}/>
+				<DateTimePicker value={endDate} onChange={(date) => setEndDate(date)}/>
+				{tutors && tutors.map((tutor) => <Tutor start_date={startDate} end_date={endDate} tutor={tutor} />)}
+			</div>
+		</div>
+	)
+
+}
 
 export default function TutorPanel(props) {
 	let [selected, setSelected] = useState("bookings");

@@ -1,6 +1,29 @@
 @import "./index.scss";
 @import "./Meeting.scss";
 
+.tutor {
+	display: flex;
+	background-color: #E2E8F0;
+	padding: 1.5rem;
+	border-radius: 0.5rem;
+	gap: 1rem;
+	&__profile {
+		width: 5rem;
+		height: 5rem;
+		clip-path: circle();
+	}
+
+	&__details {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+
+		&__name {
+			font-weight: 600;
+		}
+	}
+}
+
 .tutorpanel {
 	display: flex;
 	gap: 4rem;
@@ -8,6 +31,7 @@
 }
 
 .booking_container {
+	min-width: 20rem;
 	display:flex;
 	flex-direction: column;
 	gap: 1rem;
