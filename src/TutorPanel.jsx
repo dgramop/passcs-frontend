@@ -6,6 +6,8 @@ import {Meeting} from "./StudentDashboard";
 import {Modal} from "./Components";
 
 import DateTimePicker from "react-datetime-picker";
+import Select from 'react-select';
+import {Button} from "./Components";
 
 // TODO: DUPLICATION! consolidate Sidebar with DashNav from StudentDashboard.
 // Work on more direct features to actually making the critical worflows possible
@@ -67,7 +69,7 @@ export function Schedule(props) {
 	const [selected, setSelected] = useOutletContext();
 	const [meetings, setMeetings] = useState(null);
 
-	const tutor_id = props.tutor_id || "myself";
+	let {tutor_id} = useParams();
 
 	useEffect(() => {
 		setSelected("schedule")
@@ -100,15 +102,15 @@ export function Schedule(props) {
 
 export function CreateSlotPopup(props) {
 	const [startDate, setStartDate] = useState(new Date());
+	let {tutor_id} = useParams();
 	let submit = async () => {
 		// TODO
 		// also reload the page data
 
-		console.log("test");
 		let form_data = new FormData();
 		form_data.append("duration_mins", 60);
 		form_data.append("anchor_epoch", Date.parse(startDate)/1000);
-		form_data.append("tutor", "myself");
+		form_data.append("tutor", tutor_id);
 		let slotresp = await fetch("/api/slots", {method:"POST", body:form_data});
 		let slotdata = await slotresp.json();
 		console.log(slotdata);
@@ -130,7 +132,7 @@ export function Availability(props) {
 	const [meetings, setMeetings] = useState(null);
 	const [createSlots, setCreateSlots] = useState(false);
 
-	const tutor_id = props.tutor_id || "myself";
+	let {tutor_id} = useParams();
 
 	useEffect(() => {
 		setSelected("availability")
@@ -167,7 +169,7 @@ export function WorkHistory(props) {
 	const [selected, setSelected] = useOutletContext();
 	const [meetings, setMeetings] = useState(null);
 
-	const tutor_id = props.tutor_id || "myself";
+	let {tutor_id} = useParams();
 
 	useEffect(() => {
 		setSelected("history")
@@ -201,14 +203,52 @@ export function WorkHistory(props) {
 
 function Tutor({tutor, start_date, end_date, ...props}) {
 	const [meetings, setMeetings] = useState(null);
+	const [offerings, setOfferings] = useState(null);
+	const [courseOptions, setCourseOptions] = useState(null);
+	const [selectedCourse, setSelectedCourse] = useState(null);
+	const [qualification, setQualification] = useState("");
+
+	let load_offerings = async () => {
+		let offeringsresp = await fetch(`/api/tutors/${tutor.id}/offerings`);
+		let offeringsdata = await offeringsresp.json();
+		setOfferings(offeringsdata.data);
+	}
+
 	// fetch tutor's meetings
 	useEffect(() => {
+
+		let get_classes = async () => {
+			let coursesresp = await fetch("/api/courses/")
+			let coursesdata = await coursesresp.json()
+
+			let compsci = []
+			let math = []
+			let other = []
+			for(let course of coursesdata.data) {
+				let subj = course.course_number.match(/[A-Za-z]+/g)[0]
+				let num = parseInt(course.course_number.match(/[0-9]+/g)[0])
+
+				if(subj.toLowerCase() === "cs") {
+					compsci.push({label: `${course.course_number} (${course.course_name})`, value: course.id, num:num})
+				} else if(subj.toLowerCase() === "math") {
+					math.push({label: `${course.course_number} (${course.course_name})`, value: course.id, num:num})
+				} else {
+					other.push({label: `${course.course_number} (${course.course_name})`, value: course.id, num:num})
+				}
+			}
+
+			const course_options = [{label:"Computer Science",options:compsci.sort((a,b) => a.num - b.num)}, {label:"Math",options:math.sort((a,b) => a.num - b.num)}, {label:"Other",options:other.sort((a,b) => a.num - b.num)}];
+			setCourseOptions(course_options)
+		}
+
 		let load_meetings = async () => {
 			let meetingsresp = await fetch(`/api/tutors/${tutor.id}/meetings`);
 			let meetingsdata = await meetingsresp.json();
 			setMeetings(meetingsdata.data);
 		}
 		load_meetings()
+		load_offerings()
+		get_classes()
 	}, [tutor.id])
 
 	let customer_meetings = meetings != null ? meetings.filter((meeting) => {
@@ -217,15 +257,48 @@ function Tutor({tutor, start_date, end_date, ...props}) {
 				&& meeting.payments.length > 0;
 	}) : null;
 
-	return (<div className="tutor">
-		<img className="tutor__profile" alt={tutor.name} src={`/${tutor.id}.jpg`} />
-		<div className="tutor__details">
-			<div className="tutor__details__name">{tutor.name} {tutor.role === 'Supervisor' && <AdminPanelSettings className="fixicon"/>}</div>
-			<div className="tutor__details__meetings">{meetings && customer_meetings.length} meetings paid for</div>
-			<div className="tutor__details__meetings">{meetings && customer_meetings.filter((meeting) => {
-				return meeting.meeting.notes !== "" && meeting.meeting.notes != null
-			}).length} meetings billed</div>
-		</div>
+	const navigate = useNavigate();
+
+	let submitQualification = async () => {
+		// TODO: if it's an existing qualification just edit it
+		let form_data = new FormData();
+		form_data.append("tutor", tutor.id);
+		form_data.append("course", selectedCourse.value);
+		form_data.append("qualification", qualification);
+		let slotresp = await fetch("/api/offerings", {method:"POST", body:form_data});
+		let slotdata = await slotresp.json();
+		load_offerings()
+	}
+
+	return (
+			<div className="tutor" >
+				<div className="tutor__section tutor__section--top">
+					<img className="tutor__profile" alt={tutor.name} src={`/${tutor.id}.jpg`} />
+					<div className="tutor__details">
+						<div className="tutor__details__name">{tutor.name} {tutor.role === 'Supervisor' && <AdminPanelSettings className="fixicon"/>}</div>
+						<div className="tutor__details__meetings">{meetings && customer_meetings.length} meetings paid for</div>
+						<div className="tutor__details__meetings">{meetings && customer_meetings.filter((meeting) => {
+							return meeting.meeting.notes !== "" && meeting.meeting.notes != null
+						}).length} meetings billed</div>
+					</div>
+				</div>
+				<div className="tutor__section">
+					<div className="tutor__section__title">Qualifications</div>
+					{offerings && offerings.map((offering) => <>{offering.course.course_name} ({offering.qualification})<br/></>)} 
+				</div>
+				<div className="tutor__section">
+					<div className="tutor__section__title">Add qualification</div>
+					Class
+					<Select autoFocus value={selectedCourse} onChange={(val) => setSelectedCourse(val)} placeholder="Select or type..." className="payflow__inputgroup__select" options={courseOptions} />
+					Qualification
+					<input type="text" onChange={(e) => setQualification(e.target.value)} value={qualification}/>
+					<Button secondary onClick={submitQualification}>Submit</Button>
+				</div>
+
+				<div className="tutor__section">
+					<div className="tutor__section__title">Manage</div>
+					<Button onClick={() => {navigate(`/tutors/${tutor.id}/dashboard/history`)}}>View Dashboard</Button>
+				</div>
 		</div>)
 }
 
@@ -239,12 +312,14 @@ export function Supervisor(props) {
 		setSelected("supervisor")
 	}, [setSelected]);
 
+	let load_tutors = async () => {
+		let tutorsresp = await fetch("/api/tutors");
+		let tutorsdata = await tutorsresp.json();
+		setTutors(tutorsdata.data);
+	}
+
 	useEffect(() => {
-		let load_tutors = async () => {
-			let tutorsresp = await fetch("/api/tutors");
-			let tutorsdata = await tutorsresp.json();
-			setTutors(tutorsdata.data);
-		}
+		
 		load_tutors()
 	}, [])
 

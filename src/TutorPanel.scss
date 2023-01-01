@@ -3,15 +3,30 @@
 
 .tutor {
 	display: flex;
+	flex-direction: column;
 	background-color: #E2E8F0;
 	padding: 1.5rem;
 	border-radius: 0.5rem;
 	gap: 1rem;
+	cursor: pointer;
+
+	&__section {
+		display: flex;
+		flex-direction: column;
+		&--top {
+			flex-direction: row;
+			gap: 1rem;
+		}
+		&__title {
+				font-weight: 600;
+		}
+	}
 	&__profile {
 		width: 5rem;
 		height: 5rem;
 		clip-path: circle();
 	}
+
 
 	&__details {
 		display: flex;
