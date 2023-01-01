@@ -89,3 +89,21 @@
 
 }
 
+
+.meeting_notes {
+	display: flex;
+	flex-direction: column;
+
+	&__oneline {
+		display: flex;
+		align-items: stretch;
+		justify-content: stretch;
+		gap: 1rem;
+	}
+
+	&__input {
+		height: 1.75rem;
+		flex-grow: 1;
+		width: 100%;
+	}
+}

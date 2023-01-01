@@ -170,15 +170,16 @@ export function WorkHistory(props) {
 		setSelected("history")
 	}, [setSelected]);
 
-	useEffect(() => {
-		let load_meetings = async () => {
-			let meetingsresp = await fetch(`/api/tutors/${tutor_id}/meetings`);
-			let meetingsdata = await meetingsresp.json();
-			setMeetings(meetingsdata.data.filter((meeting) => {return meeting.meeting.occurrence_epoch < Date.now()/1000 && meeting.payments > 0} ))
-		}
+	let load_meetings = async () => {
+		let meetingsresp = await fetch(`/api/tutors/${tutor_id}/meetings`);
+		let meetingsdata = await meetingsresp.json();
+		setMeetings(meetingsdata.data.filter((meeting) => {return meeting.meeting.occurrence_epoch < Date.now()/1000 && meeting.payments.length > 0} ))
+	}
 
+	useEffect(() => {
 		load_meetings();
 	}, [tutor_id]);
+
 	console.log(meetings);
 
 	// fetch all future meetings that have a connected payment
@@ -189,7 +190,7 @@ export function WorkHistory(props) {
 				Previous Sessions
 			</div>
 			<div className="booking_container__bookings">
-				{meetings && meetings.map((meeting) => <Meeting key={meeting.meeting.id} meeting={meeting.meeting} payments={meeting.payments} />)}
+				{meetings && meetings.map((meeting) => <Meeting key={meeting.meeting.id} meeting={meeting.meeting} payments={meeting.payments} display_notes reload={load_meetings}/>)}
 				{meetings && meetings.length === 0 && "You have no work history, please check back after working some sessions"}
 			</div>
 		</div>)

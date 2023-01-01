@@ -1,5 +1,5 @@
 // supercedes CustomerDashboard
-import {CreditCard, Event, EventRepeat, Face, Group, History, LocationOn, Pending} from "@mui/icons-material"
+import {Check, CreditCard, Event, EventRepeat, Face, Group, History, LocationOn, Pending} from "@mui/icons-material"
 import {Card} from "@mui/material"
 import {useEffect, useState} from "react"
 import {Link, useNavigate} from "react-router-dom"
@@ -151,11 +151,34 @@ function CancelModal({subscription, payment, isSubscription, close}) {
 	)
 }
 
+export function MeetingNotesForm({meeting, reload, ...props}) {
+	let [notes, setNotes] = useState(meeting.notes || "");
+
+	let submit = async () => {
+		let form_data = new FormData();
+		form_data.append("notes", notes);
+		let notesresp = await fetch(`/api/meetings/${meeting.id}/notes`, {method:"POST", body:form_data});
+		let notesdata = await notesresp.json();
+		reload()
+	};
+
+	return (<div className="meeting_notes">
+		<label htmlFor="meeting_notes__input" className="meeting__body__section__title">One-Line Meeting Summary:</label>
+		<div className="meeting_notes__oneline">
+			<input value={notes} onChange={(e) => setNotes(e.target.value)} type="text" className={["meeting_notes__input", (meeting.notes === null || meeting.notes === "" ? "angry" : "")].join(" ")}></input>
+			<Button onClick={submit}><Check/></Button>
+		</div>
+		{(meeting.notes === null || meeting.notes === "") && "Please enter a summary to get paid for this session. "}
+		{(!(meeting.notes == null && notes === "") && meeting.notes !== notes) && "Remember to submit!"}
+	</div>)
+}
+
 /**
  * Only define payment if this is being displayed to a student
  * Only define payments if this is being displayed to a tutor
+ * @param props.display_notes Whether to display notes form
  */
-export function Meeting({ payment, payments, meeting, ...props }) {
+export function Meeting({ payment, payments, meeting, display_notes, ...props }) {
 	let date = new Date(meeting.occurrence_epoch*1000);
 	let end = new Date(meeting.occurrence_epoch*1000 + meeting.slot.duration_mins*60*1000);
 	let dateinfo = get_date_info(date)
@@ -166,11 +189,12 @@ export function Meeting({ payment, payments, meeting, ...props }) {
 	// TODO: get and calculate offset epoch from backend
 	let show_footer = meeting.occurrence_epoch*1000 > Date.now()
 	return (
-		<div className="meeting">
+		<div title={meeting.id} className="meeting">
 			{confirmCancel && <CancelModal close={()=>setConfirmCancel(null)} subscription={payment.subscription} payment={payment} isSubscription={confirmCancel==="subscription"} />}
 			<div className="meeting__header">
 				<div className="meeting__header__datetime">
 					<span className="meeting__header__date">
+						{display_notes && (meeting.notes == "" || meeting.notes == null) && "• "}
 						{`${dateinfo.weekday}, ${dateinfo.month} ${date.getDate()}`}
 					</span>
 					<span className="meeting__header__time">
@@ -202,6 +226,7 @@ export function Meeting({ payment, payments, meeting, ...props }) {
 						{payments && payments.length === 0 && <Person empty />}
 					</div>
 				</div>
+				{display_notes && <><hr/><MeetingNotesForm meeting={meeting} reload={props.reload}/></>}
 			</div>
 			{show_footer && <div className="meeting__footer">
 				{payment?.subscription != null && <Button onClick={() => setConfirmCancel("subscription")} secondary>Cancel Subscription</Button>}
