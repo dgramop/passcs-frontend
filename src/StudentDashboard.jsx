@@ -82,7 +82,7 @@ export default function StudentDashboard({ page, ...props}) {
 }
 
 // a  person element
-function Person({name, phone, email, imgsrc, imgletter, empty, ...props}) {
+function Person({name, phone, email, imgsrc, imgletter, empty, payment_status, ...props}) {
 	let phone_friendly = empty ? "This slot is unbooked" : phone.toString();
 	// in case of leading ones/country codes, i'm indexing from the end of the string
 	if(!empty) {
@@ -98,6 +98,9 @@ function Person({name, phone, email, imgsrc, imgletter, empty, ...props}) {
 					{!empty && name}
 					{!empty && <EventRepeat className={["fixicon person__details__subicon", (props.subicon ? "person__details__subicon--active" :"")].join(" ")}/>}
 				</div>
+				{payment_status && <div className="person__details__item person__details__item--payment">
+					Payment {({"processing":"Processing", "succeeded":"Complete", "subscription_pending":"Scheduled", "requires_payment_method": "Failed", "canceled":"Canceled/Refunded"})[payment_status] || payment_status}
+				</div>}
 				<div className="person__details__item">{phone_friendly}</div>
 				<div className="person__details__item">{!empty && email}</div>
 			</div>
@@ -222,7 +225,7 @@ export function Meeting({ payment, payments, meeting, display_notes, ...props })
 					</div>
 					<div className="meeting__body__section__people">
 						{payment && <Person imgsrc={"/"+encodeURIComponent(meeting.offering.tutor.id)+".jpg"} name={meeting.offering.tutor.name} phone={meeting.offering.tutor.phone} email={meeting.offering.tutor.email} />}
-						{payments && payments.map((pymt) => <Person name={pymt.customer.firstname+" ("+pymt.payment_status+")"} phone={pymt.customer.phone} email={pymt.customer.email} subicon={pymt.subscription} />)}
+						{payments && payments.map((pymt) => <Person name={pymt.customer.firstname} payment_status={pymt.payment_status} phone={pymt.customer.phone} email={pymt.customer.email} subicon={pymt.subscription} />)}
 						{payments && payments.length === 0 && <Person empty />}
 					</div>
 				</div>
