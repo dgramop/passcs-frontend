@@ -3,8 +3,8 @@ import {Check, Class, CreditCard, Edit, Event, EventRepeat, Face, Group, History
 import {Card} from "@mui/material"
 import {useEffect, useState} from "react"
 import DateTimePicker from "react-datetime-picker"
-import {Link, useNavigate} from "react-router-dom"
-import {Button, Chip, get_date_info, Modal} from "./Components"
+import {Link, Outlet, useNavigate, useOutletContext} from "react-router-dom"
+import {Button, Chip, get_date_info, Modal, SidebarButton} from "./Components"
 import PaymentFlow from "./PaymentFlow"
 import "./StudentDashboard.scss"
 
@@ -39,28 +39,30 @@ export function DashNav({ id, page, customer, ...props }) {
 	//sidebar on desktop, tray on mobile
 	//TODO: make position fixed
 	return (
-		<div className="dash__nav">
-			<div className="dash__nav__header">
-				<div className="dash__nav__header__name">
-					Hi {customer && customer.firstname}!
-				</div>
-				<div className="dash__nav__header__details">
-					{customer?.credits > 0 && <div className="dash__nav__header__details__item">
-						{customer.credits} credits
-					</div>}
+		<div className="sidebar">
+			<div className="sidebar__profilecard">
+				<div className="sidebar__profilecard__info">
+					<div className="sidebar__profilecard__name">
+						Hi {customer && customer.firstname}!
+					</div>
+					<div className="sidebar__profilecard__role">
+						{customer?.credits > 0 && <div className="dash__nav__header__details__item">
+							{customer.credits} credits
+						</div>}
+					</div>
 				</div>
 			</div>
-			 <div className="dash__nav__buttons">
-				<DashNavButton href="/student/dashboard" active={page==="upcoming"} title="Upcoming" icon={<Event />} />
-				<DashNavButton href="/student/dashboard/history" active={page==="history"} title="Booking History" icon={<History />} />
+			<div className="sidebar__buttons">
+				<SidebarButton name="upcoming" selected={page} text="Upcoming" icon={<Event className="fixicon"/>} />
+				<SidebarButton name="history" selected={page} text="Booking History" icon={<History className="fixicon"/>} />
 			</div>
 		</div>
 	)
 }
 
-export default function StudentDashboard({ page, ...props}) {
-	//Tech Debt: to correct, switch to using Outlet
+export default function StudentDashboard({ ...props}) {
 	const [customer, setCustomer] = useState(null)
+	const [page, setPage] = useState("upcoming");
 
 	useEffect(() => {
 		const load_customer = async () => {
@@ -73,11 +75,10 @@ export default function StudentDashboard({ page, ...props}) {
 	},[])
 
 	return (
-		<div className="dash">
+		<div className="tutorpanel">
 			<DashNav page={page} customer={customer}/>
-			<div className="dash__content">
-				{page === "upcoming" && <Sessions />}
-				{page === "history" && <Sessions history />}
+			<div className="booking_container">
+				<Outlet context={[page, setPage]}/>
 			</div>
 		</div>
 	)
@@ -341,6 +342,12 @@ export function Sessions({history, ...props}) {
 	const [payments, setPayments] = useState(null)
 	const [error, setError] = useState(null)
 	const [empty, setEmpty] = useState(true);
+
+	const [page, setPage] = useOutletContext();
+
+	useEffect(() => {
+		setPage(history ? "history" : "upcoming");
+	}, [setPage, history])
 
 	const navigate = useNavigate();
 	

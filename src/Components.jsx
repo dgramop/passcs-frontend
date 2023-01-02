@@ -1,5 +1,16 @@
 import {useState} from "react"
-import {Link} from "react-router-dom"
+import {Link, useNavigate} from "react-router-dom"
+
+export function SidebarButton({onClick, selected, name, icon, text, ...props}) {
+	const navigate = useNavigate();
+	return (
+		<div onClick={() => {if(onClick) { onClick() } else { navigate(name)}}} className="sidebar__button">
+			<div className={["sidebar__button__indicator", (name === selected ? "sidebar__button__indicator--active" : "")].join(" ")}></div>
+			<div className="sidebar__button__icon">{icon}</div>
+			<div className="sidebar__button__text">{text}</div>
+		</div>
+	)
+}
 
 export async function sendLoginLink(email) {
 		try {

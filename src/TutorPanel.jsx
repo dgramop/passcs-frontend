@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 import "./TutorPanel.scss";
 import {Link, Outlet, useNavigate, useOutletContext, useParams} from "react-router-dom"
 import {Meeting} from "./StudentDashboard";
-import {Modal} from "./Components";
+import {Modal, SidebarButton} from "./Components";
 
 import DateTimePicker from "react-datetime-picker";
 import Select from 'react-select';
@@ -15,17 +15,6 @@ import {Button} from "./Components";
 // 2) removing availability
 // 3) rescheduling meetings
 // 4) canceling meetings
-
-function SidebarButton({onClick, selected, name, icon, text, ...props}) {
-	const navigate = useNavigate();
-	return (
-		<div onClick={() => {if(onClick) { onClick() } else { navigate(name)}}} className="sidebar__button">
-			<div className={["sidebar__button__indicator", (name === selected ? "sidebar__button__indicator--active" : "")].join(" ")}></div>
-			<div className="sidebar__button__icon">{icon}</div>
-			<div className="sidebar__button__text">{text}</div>
-		</div>
-	)
-}
 
 export function TutorPanelSidebar(props) {
 	let {tutor_id} = useParams();

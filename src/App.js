@@ -15,8 +15,11 @@ function App() {
 				  <Route path="/">
 						  <Route index element={<Home/>} />
 						  <Route path="legacy-dashboard/*" element={<CustomerDashboard/>}/>
-						  <Route path="/student/dashboard" element={<StudentDashboard page="upcoming"/> }/>
-						  <Route path="/student/dashboard/history" element={ <StudentDashboard page="history"/> }/>
+							<Route path="student/dashboard/" element={<StudentDashboard />}>
+								<Route index element={<Sessions /> }/>
+								<Route path="upcoming" element={<Sessions /> }/>
+								<Route path="history" element={ <Sessions history/> }/>
+							</Route>
 							<Route path="login" element={<FromToken/>}/>
 						{/*<Route path="tutors/*" element={<TutorsDashboard/>}/>*/}
 							<Route path="tutors/:tutor_id/dashboard/" element={<TutorPanel />}>
