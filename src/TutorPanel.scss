@@ -54,11 +54,16 @@
 	@include md {
 		gap: 2rem;
 	}
-	
+
+	@include lg {
+		gap: 3rem;
+	}
+
 	@include xl {
 		gap: 4rem;
 	}
-
+	
+	
 }
 
 .booking_container {
@@ -70,10 +75,9 @@
 	overflow: scroll;
 	padding: 2rem;
 	@include sm {
-		height: default;
 		padding: 0rem;
 	}
-
+	
 
 	&__title {
 		color: hsla(215, 19%, 35%, 1);
@@ -83,6 +87,22 @@
 			padding-top: 5rem;
 			font-size: 1.5rem;
 		}
+
+		@include sm {
+			width: 30rem;
+		}
+
+		@include md {
+			width: 36rem;
+		}
+
+		@include lg {
+			width: 42rem;
+		}
+		@include xl {
+			width: 50rem;
+		}
+
 		display: flex;
 		justify-content: space-between;
 		gap: 1rem;
@@ -152,7 +172,7 @@
 
 		&__photo {
 			width: 4rem;
-			@include sm {
+			@include md {
 				width: 5rem;
 			}
 			clip-path: circle();
