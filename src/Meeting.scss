@@ -69,11 +69,17 @@
 				font-weight: 600;
 				color: #334155;
 			}
+
+			&__people {
+				display: flex;
+				gap: 1rem;
+			}
 		}
 
 		&--middle {
 			border-radius: 0;
 		}
+
 	}
 
 	&__footer {

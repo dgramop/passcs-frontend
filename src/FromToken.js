@@ -29,7 +29,7 @@ export default function FromToken(props) {
 				{
 					navigate("/student/dashboard")
 				} else if(json.data.token.user_type === "tutor") {
-					navigate("/tutors/dashboard")
+					navigate("/tutors/myself/dashboard")
 				} else {
 					setLoginError("Unknown user type")
 				}

@@ -82,8 +82,27 @@ export default function StudentDashboard({ page, ...props}) {
 	)
 }
 
+function StudentPayments({payments, ...props}) {
+
+	return (
+		<Person 
+			name={payments[0].customer.firstname+" "+payments[0].customer.lastname}
+			phone={payments[0].customer.phone}
+			email={payments[0].customer.email}
+			addl_items={payments.map((payment) => {
+				let overtime = "Payment ";
+				if(payment.is_incremental) {
+					overtime = "Overtime payment ("+payment.minutes_paid+" mins extra) ";
+				}
+				return overtime+({"processing":"processing", "succeeded":"complete", "subscription_pending":"scheduled", "requires_payment_method": "failed", "canceled":"canceled/refunded"})[payment.payment_status] || payment.payment_status;
+			})}
+			subicon={payments[0].subscription} 
+		/>
+	);
+}
+
 // a  person element
-function Person({name, phone, email, imgsrc, imgletter, empty, payment_status, ...props}) {
+function Person({name, phone, email, imgsrc, empty, addl_items, ...props}) {
 	let phone_friendly = empty ? "This slot is unbooked" : phone.toString();
 	// in case of leading ones/country codes, i'm indexing from the end of the string
 	if(!empty) {
@@ -99,9 +118,9 @@ function Person({name, phone, email, imgsrc, imgletter, empty, payment_status, .
 					{!empty && name}
 					{!empty && <EventRepeat className={["fixicon person__details__subicon", (props.subicon ? "person__details__subicon--active" :"")].join(" ")}/>}
 				</div>
-				{payment_status && <div className="person__details__item person__details__item--payment">
-					Payment {({"processing":"Processing", "succeeded":"Complete", "subscription_pending":"Scheduled", "requires_payment_method": "Failed", "canceled":"Canceled/Refunded"})[payment_status] || payment_status}
-				</div>}
+				{addl_items && addl_items.map((item) => <div className="person__details__item person__details__item--payment">
+					{item}
+				</div>)}
 				<div className="person__details__item">{phone_friendly}</div>
 				<div className="person__details__item">{!empty && email}</div>
 			</div>
@@ -286,7 +305,14 @@ export function Meeting({ payment, payments, meeting, display_notes, reload, ...
 					</div>
 					<div className="meeting__body__section__people">
 						{payment && <Person imgsrc={"/"+encodeURIComponent(meeting.offering.tutor.id)+".jpg"} name={meeting.offering.tutor.name} phone={meeting.offering.tutor.phone} email={meeting.offering.tutor.email} />}
-						{payments && payments.map((pymt) => <Person name={pymt.customer.firstname} payment_status={pymt.payment_status} phone={pymt.customer.phone} email={pymt.customer.email} subicon={pymt.subscription} />)}
+						{payments && Object.values(payments.reduce((map, payment) => {
+							if(map[payment.customer.id]) {
+								map[payment.customer.id].push(payment);
+							} else {
+								map[payment.customer.id] = [payment];
+							}
+							return map;
+						},{})).map((pymts) => <StudentPayments payments={pymts}/>)}
 						{payments && payments.length === 0 && <Person empty />}
 					</div>
 				</div>

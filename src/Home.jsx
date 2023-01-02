@@ -28,7 +28,7 @@ function Hero({...props}) {
 				<div className="hero__heading">
 					<h1 className="hero__heading__title">pass<span className="green">CS</span></h1>
 					{userType == null && <Button onClick={()=>{setLoginModal(true)}} green>Login</Button>}
-					{userType === "tutor" && <Button onClick={()=> {navigate("/tutors/dashboard")}} green>Tutor Dashboard</Button>}
+					{userType === "tutor" && <Button onClick={()=> {navigate("/tutors/myself/dashboard")}} green>Tutor Dashboard</Button>}
 					{userType === "customer" && <Button onClick={()=> {navigate("/student/dashboard")}} green>Your Classes</Button>}
 				</div>
 			</div>
