@@ -1,7 +1,8 @@
 // supercedes CustomerDashboard
-import {Check, Class, CreditCard, Event, EventRepeat, Face, Group, History, LocationOn, Pending, School} from "@mui/icons-material"
+import {Check, Class, CreditCard, Edit, Event, EventRepeat, Face, Group, History, LocationOn, Pending, School} from "@mui/icons-material"
 import {Card} from "@mui/material"
 import {useEffect, useState} from "react"
+import DateTimePicker from "react-datetime-picker"
 import {Link, useNavigate} from "react-router-dom"
 import {Button, Chip, get_date_info, Modal} from "./Components"
 import "./StudentDashboard.scss"
@@ -195,6 +196,36 @@ export function MeetingNotesForm({meeting, reload, ...props}) {
 	</div>)
 }
 
+function EditScheduleModal({meeting, close, reload, ...props}) {
+	let [occurrenceEpoch, setOccurrenceEpoch] = useState(new Date(meeting.occurrence_epoch*1000));
+	let [duration, setDuration] = useState(meeting.duration_mins);
+
+	let submit = async () => {
+		// first update the occurrence
+
+		// then update the duration
+		let form_data = new FormData();
+		form_data.append("duration_mins", duration);
+		let durationresp = await fetch(`/api/meetings/${meeting.id}/duration_mins`, {method:"POST", body:form_data});
+		let durationdata = await durationresp.json();
+
+		reload()
+		close()
+	}
+
+	return (
+		<Modal close={close} title="Edit Meeting Time + Duration" buttons={{secondaries:[{text:"Close", onClick:close}], primary:{text:"Update", onClick: submit}}} >
+			Start time:<br/>
+			<DateTimePicker value={occurrenceEpoch} onChange={(date)=>{setOccurrenceEpoch(date)}}/><br/><br/>
+			Duration:<br/>
+			<input type="number" value={duration} onChange={(e)=>{setDuration(parseInt(e.target.value))}} disabled={Date.parse(occurrenceEpoch)/1000 >= Date.now()/1000}/> minutes<br/>
+			{duration > 60 + 15 && <>The customer will be charged by rounding to the nearest 30 minutes. <br/></>}
+			{occurrenceEpoch >= Date.now()/1000 && <>Meeting duration may only be changed after the meeting starts. <br/></>}
+			{duration < meeting.duration_mins && <>Decreasing a meeting's duration will not result in any refund to the customer</>}
+		</Modal>
+	)
+}
+
 /**
  * Only define payment if this is being displayed to a student
  * Only define payments if this is being displayed to a tutor
@@ -202,9 +233,12 @@ export function MeetingNotesForm({meeting, reload, ...props}) {
  */
 export function Meeting({ payment, payments, meeting, display_notes, reload, ...props }) {
 	let date = new Date(meeting.occurrence_epoch*1000);
-	let end = new Date(meeting.occurrence_epoch*1000 + meeting.slot.duration_mins*60*1000);
+	let end = new Date(meeting.occurrence_epoch*1000 + meeting.duration_mins*60*1000);
 	let dateinfo = get_date_info(date)
 	let endinfo = get_date_info(end)
+
+	// modal to let tutors change the occurrence_epoch and duration of the meeting
+	const [editScheduleModal, setEditScheduleModal] = useState(false);
 
 	let [confirmCancel, setConfirmCancel] = useState(null);
 	console.log(meeting);
@@ -214,6 +248,7 @@ export function Meeting({ payment, payments, meeting, display_notes, reload, ...
 	return (
 		<div title={meeting.id} className="meeting">
 			{confirmCancel && <CancelModal reload={reload} close={()=>setConfirmCancel(null)} subscription={payment?.subscription} payment={payment} meeting={meeting} isTutor={confirmCancel==="tutor_meeting"} isSubscription={confirmCancel==="subscription"} />}
+			{editScheduleModal && <EditScheduleModal reload={reload} close={()=>setEditScheduleModal(false)} meeting={meeting} />}
 			<div className="meeting__header">
 				<div className="meeting__header__datetime">
 					<span className="meeting__header__date">
@@ -223,6 +258,9 @@ export function Meeting({ payment, payments, meeting, display_notes, reload, ...
 					<span className="meeting__header__time">
 						{dateinfo.hours}:{dateinfo.minutes}{dateinfo.am ? "am":"pm"} - {endinfo.hours}:{endinfo.minutes}{endinfo.am ? "am":"pm"}
 					</span>
+					{payments != null && <span className="meeting__header__edit">
+						<Edit onClick={() => setEditScheduleModal(true)}/>
+					</span>}
 				</div>
 				<div className="meeting__header__chips">
 					{meeting?.offering?.course?.course_name && <Chip	white icon={<Class />}>

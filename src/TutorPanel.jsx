@@ -281,10 +281,10 @@ function Tutor({tutor, start_date, end_date, ...props}) {
 					<img className="tutor__profile" alt={tutor.name} src={`/${tutor.id}.jpg`} />
 					<div className="tutor__details">
 						<div className="tutor__details__name">{tutor.name} {tutor.role === 'Supervisor' && <AdminPanelSettings className="fixicon"/>}</div>
-						<div className="tutor__details__meetings">{meetings && customer_meetings.length} scheduled meetings</div>
-						<div className="tutor__details__meetings">{meetings && customer_meetings.filter((meeting) => {
+						<div className="tutor__details__meetings">{meetings && Math.round(customer_meetings.reduce((minutes, meeting) => {return minutes + meeting.meeting.duration_mins}, 0)*100/60)/100} scheduled hours</div>
+						<div className="tutor__details__meetings">{meetings && Math.round(customer_meetings.filter((meeting) => {
 							return meeting.meeting.notes !== "" && meeting.meeting.notes != null
-						}).length} confirmed meetings</div>
+						}).reduce((minutes, meeting) => {return minutes + meeting.meeting.duration_mins}, 0)*100/60)/100} confirmed hours</div>
 					</div>
 				</div>
 				<div className="tutor__section">
@@ -338,9 +338,12 @@ export function Supervisor(props) {
 			<div className="booking_container__title">
 				Your Team
 			</div>
-			<div className="booking_container__bookings">
-				<DateTimePicker value={startDate} onChange={(date) => setStartDate(date)}/>
+			<div>
+				<b>View summary by time period:</b><br/>
+				<DateTimePicker value={startDate} onChange={(date) => setStartDate(date)}/> - 
 				<DateTimePicker value={endDate} onChange={(date) => setEndDate(date)}/>
+			</div>
+			<div className="booking_container__tutors">
 				{tutors && tutors.map((tutor) => <Tutor start_date={startDate} end_date={endDate} tutor={tutor} />)}
 			</div>
 		</div>
