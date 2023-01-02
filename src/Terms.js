@@ -43,14 +43,10 @@ export default function Terms(props) {
 			<section>
 				<h2> Cancellation Policy </h2>
 				<p>
-					You must arrive on time for your meeting. If you arrive late, no time extension will be provided. If you arrive more than 15 minutes late, your meeting will be considered a no-show and will be canceled (you will still incur full liability)<br/><br/>
-
-					As a courtesy, you may receive a 50% refund of the meeting no-showed, for your first two no-shows each semester. To claim this courtesy, you must email dhruv@passcs.io within 7 days of your first no-show.<br/><br/>
-
-					As an additional courtesy, you may receive a full refund for the first meeting that you cancel fewer than 25 hours in advance, so long as you notify your tutor at least 2 hours in advance of the meeting. To claim this courtesy, you must email dhruv@passcs.io within 7 days.<br/><br/>
-
-					The no-show and full-refund courtesies may automatically be applied, without your request; they will decrement the number of courtesies you have left. <br/><br/>
-					If you paid as part of a bulk purchase, instead of recieving a refund you will recieve credit towards your account for one meeting.
+					You must arrive on time for your meeting. If you arrive late, no time extension will be provided. If you arrive more than 15 minutes late, your meeting will be considered a no-show and will be canceled (you will still incur full liability, i.e. no refund will be provided)<br/><br/>
+					Customer-requested cancellation must be done 12 hours before the meeting's start time, though facilities may be provided through the website that allow customers to cancel later (with full refund). Customer-requested cancellations that happen after this time are considered no-shows, and will not be refunded.<br/><br/>
+					At the passCS's discretion, exceptions to this policy may be made on a case-by-case basis. You may also contact your tutor to request that they reschedule your meeting (at their discretion).<br/><br/>
+					Your tutor may cancel the meeting at any time for any reason, in the event a tutor cancels the meeting you will recieve a refund for that meeting, either as a credit to your account if you paid in bulk or back to your original payment method. In some instances, a substitute tutor may be offered. If you choose to attend the meeting with the substitute tutor, you will not recieve any refund.
 				</p>
 			</section>
 
@@ -60,7 +56,17 @@ export default function Terms(props) {
 					If you sign up for a weekly or recurring time slot, you authorize passCS to charge your card through our payment processor, Stripe, to pay for all meetings you attend with our tutors, including meetings not scheduled through our system. The rates provided during checkout assume 1 hour of instruction per week. If you meet more than this, additional meetings may be added to what you already pay
 				</p>
 			</section>
-			<small> Last Updated Oct 15, 2022. Add clause that requires you notify your tutor well in advance of an upcoming assingment or exam</small><br/>
+
+			<section>
+				<h2> Overtime Agreement </h2>
+				<p>
+					If you sign up for any passCS meeting, you authorize passCS to charge your card through our payment processor, Stripe, to pay for the meeting you signed up for. If the meeting lasts more than one hour, the additional time will be rounded to the nearest half-hour and billed to you based on the current onetime rate for one-off payments, or your originally agreed to subscription rate for meetings part of a subscription. You agree to be responsible for all overtime-related charges.<br/><br/>
+					If you pay in bulk for meetings (credit system), we will round overtime to the whole-hour.  
+				</p>
+			</section>
+
+			<small> Last Updated Jan 9, 2023. Removed "one-time" courtesies for no-shows, changes to the cancellation policy that permit tutors to reschedule. Clarified tutor's ability to cancel sessions. Created overtime policy section</small><br/>
+			<small> Oct 15, 2022. Add clause that requires you notify your tutor well in advance of an upcoming assignment or exam</small><br/>
 			<small> September 22, 2022. Only allow refund of classes that were taken within the same semester</small><br/>
 			<small> March 31, 2022: Removed the midterm/semester midpoint requirement </small>
 		</div><br/>
