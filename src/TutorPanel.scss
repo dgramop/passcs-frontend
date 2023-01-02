@@ -136,6 +136,17 @@
 		@include sm {
 			grid-template-columns: 1fr 1fr;
 		}
+		@include md {
+			padding-right: 2rem;
+		}
+
+		@include lg {
+			padding-right: 4rem;
+		}
+
+		@include xl {
+			width: 60vw;
+		}
 		gap: 1rem;
 	}
 }
