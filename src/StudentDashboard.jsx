@@ -5,6 +5,7 @@ import {useEffect, useState} from "react"
 import DateTimePicker from "react-datetime-picker"
 import {Link, useNavigate} from "react-router-dom"
 import {Button, Chip, get_date_info, Modal} from "./Components"
+import PaymentFlow from "./PaymentFlow"
 import "./StudentDashboard.scss"
 
 function DashNavButton({active, icon, title, onClick, href, ...props}) {
@@ -83,6 +84,7 @@ export default function StudentDashboard({ page, ...props}) {
 }
 
 function StudentPayments({payments, ...props}) {
+	console.log(payments)
 
 	return (
 		<Person 
@@ -141,7 +143,6 @@ function CancelModal({subscription, payment, isSubscription, isTutor, meeting, c
 		} else {
 			setSuccess("Meeting")
 		}
-		reload()
 	 }
 
 	let cancel_subscription = async () => {
@@ -153,7 +154,6 @@ function CancelModal({subscription, payment, isSubscription, isTutor, meeting, c
 		} else {
 			setSuccess("Subscription")
 		}
-		reload()
 	}
 
 	let cancel_tutor_meeting = async () => {
@@ -165,7 +165,6 @@ function CancelModal({subscription, payment, isSubscription, isTutor, meeting, c
 		} else {
 			setSuccess("Tutor Meeting")
 		}
-		reload()
 	}
 
 	let secondaries = [{text:"Skip Meeting", onClick:cancel_payment}]
@@ -188,7 +187,7 @@ function CancelModal({subscription, payment, isSubscription, isTutor, meeting, c
 		</Modal>
 	)
 	else return (
-		<Modal close={close} title={success+" canceled"} buttons={{primary:{text:"Close", onClick:close}, secondaries:[]}}>
+		<Modal close={()=>{reload(); close()}} title={success+" canceled"} buttons={{primary:{text:"Close", onClick:()=>{reload(); close()}}, secondaries:[]}}>
 		</Modal>
 	)
 }
@@ -246,15 +245,22 @@ function EditScheduleModal({meeting, close, reload, ...props}) {
 }
 
 /**
- * Only define payment if this is being displayed to a student
- * Only define payments if this is being displayed to a tutor
  * @param props.display_notes Whether to display notes form
  */
-export function Meeting({ payment, payments, meeting, display_notes, reload, ...props }) {
+export function Meeting({ staff, payments, meeting, display_notes, reload, ...props }) {
 	let date = new Date(meeting.occurrence_epoch*1000);
 	let end = new Date(meeting.occurrence_epoch*1000 + meeting.duration_mins*60*1000);
 	let dateinfo = get_date_info(date)
 	let endinfo = get_date_info(end)
+
+	let original_payment = payments.reduce((found, payment) => {
+		if(!payment.is_incremental) {
+			return payment;
+		}
+		else {
+			return found;
+		}
+	},null)
 
 	// modal to let tutors change the occurrence_epoch and duration of the meeting
 	const [editScheduleModal, setEditScheduleModal] = useState(false);
@@ -266,7 +272,7 @@ export function Meeting({ payment, payments, meeting, display_notes, reload, ...
 	let show_footer = props.show_footer || meeting.occurrence_epoch*1000 > Date.now()
 	return (
 		<div title={meeting.id} className="meeting">
-			{confirmCancel && <CancelModal reload={reload} close={()=>setConfirmCancel(null)} subscription={payment?.subscription} payment={payment} meeting={meeting} isTutor={confirmCancel==="tutor_meeting"} isSubscription={confirmCancel==="subscription"} />}
+			{confirmCancel && <CancelModal reload={reload} close={()=>setConfirmCancel(null)} subscription={original_payment?.subscription} payment={original_payment} meeting={meeting} isTutor={confirmCancel==="tutor_meeting"} isSubscription={confirmCancel==="subscription"} />}
 			{editScheduleModal && <EditScheduleModal reload={reload} close={()=>setEditScheduleModal(false)} meeting={meeting} />}
 			<div className="meeting__header">
 				<div className="meeting__header__datetime">
@@ -277,7 +283,7 @@ export function Meeting({ payment, payments, meeting, display_notes, reload, ...
 					<span className="meeting__header__time">
 						{dateinfo.hours}:{dateinfo.minutes}{dateinfo.am ? "am":"pm"} - {endinfo.hours}:{endinfo.minutes}{endinfo.am ? "am":"pm"}
 					</span>
-					{payments != null && <span className="meeting__header__edit">
+					{staff && <span className="meeting__header__edit">
 						<Edit onClick={() => setEditScheduleModal(true)}/>
 					</span>}
 				</div>
@@ -292,20 +298,20 @@ export function Meeting({ payment, payments, meeting, display_notes, reload, ...
 						{(["Empty","One-on-One","Group-of-Two"])[meeting.capacity] || "Group of "+meeting.capacity}
 					</Chip>}
 					{/* if we're displaying a particular payment (i.e. to a customer, then display the details up here*/}
-					{payment && <Chip	white icon={<CreditCard />}>
-						{({"processing":"Processing", "succeeded":"Complete", "subscription_pending":"Scheduled", "requires_payment_method": "Failed", "canceled":"Canceled/Refunded"})[payment.payment_status] || payment.payment_status}
+					{original_payment && <Chip	white icon={<CreditCard />}>
+						{({"processing":"Processing", "succeeded":"Complete", "subscription_pending":"Scheduled", "requires_payment_method": "Failed", "canceled":"Canceled/Refunded"})[original_payment.payment_status] || original_payment.payment_status}
 					</Chip>}
 				</div>
 			</div>
 			<div className={["meeting__body", (show_footer ? "meeting__body--middle" : "")].join(" ")}>
 				<div className="meeting__body__section">
 					<div className="meeting__body__section__title">
-						{payment && "Your tutor"}
-						{!payment && "Your customers"}
+						{!staff && "Your tutor"}
+						{staff && "Your customers"}
 					</div>
 					<div className="meeting__body__section__people">
-						{payment && <Person imgsrc={"/"+encodeURIComponent(meeting.offering.tutor.id)+".jpg"} name={meeting.offering.tutor.name} phone={meeting.offering.tutor.phone} email={meeting.offering.tutor.email} />}
-						{payments && Object.values(payments.reduce((map, payment) => {
+						{!staff && original_payment && <Person imgsrc={"/"+encodeURIComponent(meeting.offering.tutor.id)+".jpg"} name={meeting.offering.tutor.name} phone={meeting.offering.tutor.phone} email={meeting.offering.tutor.email} />}
+						{staff && payments && Object.values(payments.reduce((map, payment) => {
 							if(map[payment.customer.id]) {
 								map[payment.customer.id].push(payment);
 							} else {
@@ -313,16 +319,20 @@ export function Meeting({ payment, payments, meeting, display_notes, reload, ...
 							}
 							return map;
 						},{})).map((pymts) => <StudentPayments payments={pymts}/>)}
-						{payments && payments.length === 0 && <Person empty />}
+						{staff && payments && payments.length === 0 && <Person empty />}
 					</div>
 				</div>
 				{display_notes && <><hr/><MeetingNotesForm meeting={meeting} reload={reload}/></>}
 			</div>
 			{show_footer && <div className="meeting__footer">
-				{payments != null && <Button onClick={() => setConfirmCancel("tutor_meeting")} secondary>Cancel Meeting</Button>}
-				{payment?.subscription != null && <Button onClick={() => setConfirmCancel("subscription")} secondary>Cancel Subscription</Button>}
-				{payment && <Button onClick={() => setConfirmCancel("meeting")}>Skip Meeting</Button>}
+				{staff && payments != null && <Button onClick={() => setConfirmCancel("tutor_meeting")} secondary>Cancel Meeting</Button>}
+				{!staff && original_payment?.subscription != null && <Button onClick={() => setConfirmCancel("subscription")} secondary>Cancel Subscription</Button>}
+				{!staff && original_payment && <Button onClick={() => setConfirmCancel("meeting")}>Skip Meeting</Button>}
 			</div>}
+			{!show_footer && !staff && payments.length > 1 && <div className="meeting__footer meeting__footer--overtime">
+				You were billed for {(payments.reduce((minutes, payment)=>{return minutes + payment.minutes_paid}, 0) - original_payment.minutes_paid)/60} hours of extra meeting time{payments.length <= 2 ? <>.</> : <> in {payments.length -1} separate transactions.</>}
+			</div>}
+
 		</div>
 	)
 }
@@ -330,6 +340,7 @@ export function Meeting({ payment, payments, meeting, display_notes, reload, ...
 export function Sessions({history, ...props}) {
 	const [payments, setPayments] = useState(null)
 	const [error, setError] = useState(null)
+	const [empty, setEmpty] = useState(true);
 
 	const navigate = useNavigate();
 	
@@ -359,12 +370,24 @@ export function Sessions({history, ...props}) {
 
 	return (
 	<>
-		<h2 className="dash__content__title">
+		{!(payments && payments.length === 0 && !history) && <h2 className="dash__content__title">
 			{history && "Previous Sessions"}
 			{!history && "Upcoming Sessions"}
-		</h2>
+		</h2>}
 		<div className="dash__content__meetings">
-			{payments && payments.map((payment) => <Meeting reload={load_payments} key={payment.id} payment={payment} meeting={payment.meeting} />)}
+			{payments && Object.values(payments.reduce((map, payment)=>{
+
+				// group payments by meetings
+				if(map[payment.meeting.id]) {
+					map[payment.meeting.id].push(payment);
+				} else {
+					map[payment.meeting.id] = [payment]
+				}
+
+				return map;
+			},{})).map((payments) => <Meeting reload={load_payments} key={payments[0].meeting.id} payments={payments} meeting={payments[0].meeting} />)}
+			{!history && payments && payments.length === 0 && <PaymentFlow reload={load_payments} className={"studentdash_payflow"} embed />}
+			{history && payments && payments.length === 0 && <>You have no previous sessions<Link to="/"><Button primary>Book sessions</Button></Link></>}
 		</div>
 	</>
 	)

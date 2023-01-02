@@ -1,17 +1,16 @@
 @import "./index.scss";
 
 .meeting {
-	width: 20rem;
 	@include sm {
-		width: 25rem;
+		width: 30rem;
 	}
 
 	@include md {
-		width: 35rem;
+		width: 36rem;
 	}
 
 	@include lg {
-		width: 35rem;
+		width: 42rem;
 	}
 	@include xl {
 		width: 50rem;
@@ -52,6 +51,10 @@
 			display: flex;
 			gap: 1ch;
 			cursor: pointer;
+			flex-wrap:wrap;
+			@include lg {
+				flex-wrap:nowrap;
+			}
 		}
 	}
 
@@ -91,6 +94,9 @@
 		background-color: #E2E8F0;
 		display: flex;
 		justify-content: flex-end;
+		&--overtime {
+			justify-content: flex-start;
+		}
 		gap: 1.5rem;
 	}
 

@@ -40,7 +40,7 @@ function Assurance(props) {
 		)
 }
 
-function Pay({slot_etc, capacity, course_style, subscription, back, standalone, close, ...props}) {
+function Pay({slot_etc, capacity, course_style, subscription, back, standalone, close, reload, ...props}) {
 	//if the slot and meeting aren't defined, pull from the URL and render as a stand-alone page
 	
 	//TODO: add assurances 
@@ -171,7 +171,8 @@ function Pay({slot_etc, capacity, course_style, subscription, back, standalone, 
 		//wait until the payment is paid
 		setTimeout(() => {
 			console.log("bye")
-			navigate("/student/dashboard")
+			if(reload) reload() 
+			else navigate("/student/dashboard")
 		}, 500)
 
 
@@ -309,7 +310,7 @@ function Appointment({slot_etc, class_style, frequency, size, onBook, finalize, 
 	)
 }
 
-function AppointmentSelection({course_id, modality, size, frequency, close, autoscroll, ...props}) {
+function AppointmentSelection({course_id, modality, size, frequency, close, autoscroll, reload, ...props}) {
 	const [error, setError] = useState(null);
 
 	const [course, setCourse] = useState(null)
@@ -348,7 +349,7 @@ function AppointmentSelection({course_id, modality, size, frequency, close, auto
 	if(selection) 
 		return (
 				<Elements stripe={stripePromise}>
-					<Pay close={() => setSelection(null)} capacity={size} course_style={modality} subscription={frequency==='weekly'} slot_etc={selection} back={() => setSelection(null)} />
+					<Pay reload={reload} close={() => setSelection(null)} capacity={size} course_style={modality} subscription={frequency==='weekly'} slot_etc={selection} back={() => setSelection(null)} />
 				</Elements>
 		)
 	else
@@ -368,7 +369,7 @@ function AppointmentSelection({course_id, modality, size, frequency, close, auto
 }
 
 // autoscroll tells the appointment selector to automatically scroll to the bottom of the page when the slots are loaded (because its height is briefly very low while slots are loading)
-export default function PaymentFlow({embed, className, autoscroll, ...props}) {
+export default function PaymentFlow({reload, embed, className, autoscroll, ...props}) {
 
 	const [done, setDone] = useState(false);
 
@@ -439,7 +440,7 @@ export default function PaymentFlow({embed, className, autoscroll, ...props}) {
 
 	// CSS class computation
 	let flow_classes = ["payflow"]
-	if(embed) flow_classes.append("payflow--embed")
+	if(embed) flow_classes.push("payflow--embed")
 	if(className) flow_classes = flow_classes.concat(className.split(" "))
 
 
@@ -469,7 +470,7 @@ export default function PaymentFlow({embed, className, autoscroll, ...props}) {
 
 	if(done) return (
 		<div className={flow_classes.join(" ")}>
-			<AppointmentSelection autoscroll={autoscroll} course_id={selectedCourse.value} size={size} modality={modality} frequency={frequency} close={() => setDone(false)} />
+			<AppointmentSelection reload={reload} autoscroll={autoscroll} course_id={selectedCourse.value} size={size} modality={modality} frequency={frequency} close={() => setDone(false)} />
 		</div>
 	)
 	else return (

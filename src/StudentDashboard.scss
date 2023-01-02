@@ -84,3 +84,22 @@
 		}
 	}
 }
+
+.studentdash_payflow {
+	width: 20rem;
+	@include sm {
+		width: 25rem;
+	}
+
+	@include md {
+		width: 35rem;
+	}
+
+	@include lg {
+		width: 35rem;
+	}
+	@include xl {
+		width: 50rem;
+	}
+//	min-width: 50vw;
+}
