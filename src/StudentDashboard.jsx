@@ -221,6 +221,11 @@ function EditScheduleModal({meeting, close, reload, ...props}) {
 
 	let submit = async () => {
 		// first update the occurrence
+		let occurrence_form = new FormData();
+		occurrence_form.append("occurrence_epoch", Date.parse(occurrenceEpoch)/1000);
+		let occurrenceresp = await fetch(`/api/meetings/${meeting.id}/occurrence_epoch`, {method:"POST", body:occurrence_form});
+		let occurrencedata = await occurrenceresp.json();
+
 
 		// then update the duration
 		let form_data = new FormData();
@@ -236,6 +241,7 @@ function EditScheduleModal({meeting, close, reload, ...props}) {
 		<Modal close={close} title="Edit Meeting Time + Duration" buttons={{secondaries:[{text:"Close", onClick:close}], primary:{text:"Update", onClick: submit}}} >
 			Start time:<br/>
 			<DateTimePicker value={occurrenceEpoch} onChange={(date)=>{setOccurrenceEpoch(date)}}/><br/><br/>
+			{occurrenceEpoch > new Date() && (duration !== 60 || meeting.duration_mins !== 60) && <>Modified duration meetings cannot be rescheduled into the future<br/></>}
 			Duration:<br/>
 			<input type="number" value={duration} onChange={(e)=>{setDuration(parseInt(e.target.value))}} disabled={Date.parse(occurrenceEpoch)/1000 >= Date.now()/1000}/> minutes<br/>
 			{duration > 60 + 15 && <>The customer will be charged by rounding to the nearest 30 minutes. <br/></>}
