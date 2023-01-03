@@ -26,6 +26,10 @@
 	}
 	gap: 1rem;
 
+	&--embed {
+		padding: 1.25ch;
+	}
+
 	&__heading {
 		display: flex;
 		gap: 1rem;

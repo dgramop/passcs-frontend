@@ -8,41 +8,14 @@ import {Button, Chip, get_date_info, Modal, SidebarButton} from "./Components"
 import PaymentFlow from "./PaymentFlow"
 import "./StudentDashboard.scss"
 
-function DashNavButton({active, icon, title, onClick, href, ...props}) {
-	let indicatorclasses = ["dash__nav__button__indicator"]
-	if(active) {
-		indicatorclasses.push("dash__nav__button__indicator--active")
-	}
-	const navigate = useNavigate()
-	return (
-		<div className="dash__nav__button" onClick={() => {
-			if(onClick) {
-				onClick()
-			}
-			if(href) {
-				navigate(href)
-			}
-		}}>
-			<div className={indicatorclasses.join(" ")}>
-			</div>
-			<div className="dash__nav__button__icon__container">
-				{icon}
-			</div>
-			<div className="dash__nav__button__title">
-				{title}
-			</div>
-		</div>	
-	)
-}
-
 export function DashNav({ id, page, customer, ...props }) {
 	//sidebar on desktop, tray on mobile
 	//TODO: make position fixed
 	return (
 		<div className="sidebar">
-			<div className="sidebar__profilecard">
+			<div className="sidebar__profilecard sidebar__profilecard--student">
 				<div className="sidebar__profilecard__info">
-					<div className="sidebar__profilecard__name">
+					<div className="sidebar__profilecard__name sidebar__profilecard__name">
 						Hi {customer && customer.firstname}!
 					</div>
 					<div className="sidebar__profilecard__role">
@@ -92,7 +65,7 @@ function StudentPayments({payments, ...props}) {
 			name={payments[0].customer.firstname+" "+payments[0].customer.lastname}
 			phone={payments[0].customer.phone}
 			email={payments[0].customer.email}
-			addl_items={payments.map((payment) => {
+			addl_items={payments.sort((a, b) => {return a.inserted_at_epoch > b.inserted_at_epoch}).map((payment) => {
 				let overtime = "Payment ";
 				if(payment.is_incremental) {
 					overtime = "Overtime payment ("+payment.minutes_paid+" mins extra) ";
@@ -383,10 +356,11 @@ export function Sessions({history, ...props}) {
 
 	return (
 	<>
-		{!(payments && payments.length === 0 && !history) && <h2 className="dash__content__title">
-			{history && "Previous Sessions"}
-			{!history && "Upcoming Sessions"}
-		</h2>}
+		<h2 className="dash__content__title">
+			{history && !(payments && payments.length === 0) && "Previous Sessions"}
+			{!history && !(payments && payments.length === 0) && "Upcoming Sessions"}
+			{payments && payments.length === 0 && <>&nbsp;&nbsp;Book a session to get started</>}
+		</h2>
 		<div className="dash__content__meetings">
 			{payments && Object.values(payments.reduce((map, payment)=>{
 
