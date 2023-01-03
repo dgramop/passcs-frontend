@@ -1,8 +1,26 @@
+@import "./index.scss";
+
 .container {
 	margin: auto;
-	width: 70%;
+	margin: 1rem;
+	@include sm {
+		width: 70%;
+	}
 	padding: 1rem;
   box-shadow: 0px 0px 4px #000000;
 	margin-top: 2rem;
 	border-radius: 0.5rem;
+	background-color: white;
+}
+
+.terms {
+	width: 100%;
+	background-image: url("../public/bg-noise.png");
+	background-blend-mode: multiply;
+	// crappy hack
+	position: absolute;
+	top: 0;
+	left:0;
+	display: flex;
+	justify-content: center;
 }

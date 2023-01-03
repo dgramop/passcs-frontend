@@ -2,7 +2,7 @@ import {Link} from "react-router-dom";
 import "./Terms.scss";
 
 export default function Terms(props) {
-	return (<>
+	return (<div className="terms">
 		<div className="container">
 			<Link to="/">Back to Home</Link>
 			<section>
@@ -70,5 +70,5 @@ export default function Terms(props) {
 			<small> September 22, 2022. Only allow refund of classes that were taken within the same semester</small><br/>
 			<small> March 31, 2022: Removed the midterm/semester midpoint requirement </small>
 		</div><br/>
-	</>)
+	</div>)
 }
