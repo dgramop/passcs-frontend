@@ -99,27 +99,36 @@ export function Schedule(props) {
 
 export function CreateSlotPopup(props) {
 	const [startDate, setStartDate] = useState(new Date());
+	const [onetime, setOnetime] = useState(false);
 	let {tutor_id} = useParams();
 	let submit = async () => {
 		// TODO
 		// also reload the page data
 
 		let form_data = new FormData();
-		form_data.append("duration_mins", 60);
-		form_data.append("anchor_epoch", Date.parse(startDate)/1000);
-		form_data.append("tutor", tutor_id);
-		let slotresp = await fetch("/api/slots", {method:"POST", body:form_data});
-		let slotdata = await slotresp.json();
-		console.log(slotdata);
+		if(onetime) {
+			form_data.append("occurrence_epoch", Date.parse(startDate)/1000);
+			form_data.append("tutor", tutor_id);
+			let meetingresp = await fetch("/api/meetings", {method:"POST", body:form_data});
+			let meetingdata = await meetingresp.json();
+			console.log(meetingdata);
+		} else {
+			form_data.append("duration_mins", 60);
+			form_data.append("anchor_epoch", Date.parse(startDate)/1000);
+			form_data.append("tutor", tutor_id);
+			let slotresp = await fetch("/api/slots", {method:"POST", body:form_data});
+			let slotdata = await slotresp.json();
+			console.log(slotdata);
+		}
 		props.reload()
 		props.close()
 	}
 	return (
-		<Modal close={props.close} buttons={{primary:{text:"Create Availability", onClick:submit}, secondaries:[{text:"Cancel", onClick:props.close}]}} title="Add availability">
+		<Modal close={props.close} buttons={{primary:{text:`Create ${onetime ? "One-off": "Weekly"} Availability`, onClick:submit}, secondaries:[{text:"Cancel", onClick:props.close}]}} title="Add availability">
 			When would you like to start weekly meetings?<br/>
 			<DateTimePicker minDate={new Date()} value={startDate} onChange={(date) => setStartDate(date)}/><br/>
-			Each session will be one hour, and will repeat weekly until the last reading day of the semester
-
+			<b>Each session will be one hour, and will repeat weekly until the last reading day of the semester, unless you check the box below</b><br/>
+			<input type="checkbox" value="onetime" onChange={(e) => {setOnetime(e.target.checked)}}/> Is this a one-time meeeting?
 		</Modal>
 		)
 }
