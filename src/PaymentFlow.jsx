@@ -145,7 +145,7 @@ function Pay({slot_etc, capacity, course_style, subscription, back, standalone, 
 				clientSecret_g = sub.data.client_secret;
 				setClientSecret(clientSecret_g)
 			} else {
-				let pymt = await register_payment(slot_etc.slot.id, course_style, capacity, slot_etc.offering.id, slot_etc.meetings[0].id)
+				let pymt = await register_payment(course_style, capacity, slot_etc.offering.id, slot_etc.meetings[0].id)
 				if(pymt.status==="failure") {
 					setError(pymt.error.type)
 					setLoading(false)
@@ -237,7 +237,7 @@ function Pay({slot_etc, capacity, course_style, subscription, back, standalone, 
 
 
 
-function Appointment({slot_etc, class_style, frequency, size, onBook, finalize, fake,  ...props}) {
+function Appointment({slot_etc, meeting, class_style, frequency, size, onBook, finalize, fake,  ...props}) {
 
 	const [price, setPrice] = useState(null)
 	const [more, setMore] = useState(false);
@@ -256,6 +256,15 @@ function Appointment({slot_etc, class_style, frequency, size, onBook, finalize, 
 		}
 		load_prices()
 	}, [size, frequency])
+
+	if(meeting && !slot_etc) {
+		// create a synthetic slot_etc (this is a good candidate for something to be cleaned up)
+		slot_etc = {
+			slot: null, // even though it's synthetic, there is no slot
+			meetings: [meeting],
+			offering: meeting.offering
+		}
+	}
 
 	let start_date = new Date(slot_etc.meetings[0].occurrence_epoch*1000)
 	let end_date = new Date(slot_etc.meetings[0].occurrence_epoch*1000 + slot_etc.meetings[0].duration_mins*60*1000)
@@ -284,7 +293,7 @@ function Appointment({slot_etc, class_style, frequency, size, onBook, finalize, 
 				{fake && <>
 					<Chip icon={<LocationOn className="fixicon"/>}>On Campus</Chip>
 					<Chip icon={<Group className="fixicon"/>}>One-on-One</Chip>
-					<Chip icon={<Sell className="fixicon"/>}>$34/hr</Chip>
+					<Chip icon={<Sell className="fixicon"/>}>$45/hr</Chip>
 				</>}
 			</div>
 			<div className="payflow__appt__tutor">
@@ -315,6 +324,7 @@ function AppointmentSelection({course_id, modality, size, frequency, close, auto
 
 	const [course, setCourse] = useState(null)
 	const [slots, setSlots] = useState(null)
+	const [meetings, setMeetings] = useState(null)
 
 	const [selection, setSelection] = useState(null)
 
@@ -332,11 +342,22 @@ function AppointmentSelection({course_id, modality, size, frequency, close, auto
 		
 		const load_slots = async () => {
 			//load the course
-			let slotsresp = await fetch(`/api/slots?course=${course_id}&capacity=${size}&course_style=${modality}&subscription=${frequency==='weekly'}`);
-			let slotsdata = await slotsresp.json()
+			if(frequency === "weekly") {
+				let slotsresp = await fetch(`/api/slots?course=${course_id}&capacity=${size}&course_style=${modality}&subscription=true`);
+				let slotsdata = await slotsresp.json()
 
-			if(slotsdata.data.length === 0) setError("All tutors are busy for the given class configuration. Please try a different location/meeting size!")
-			setSlots(slotsdata.data)
+				if(slotsdata.data.length === 0) setError("All tutors are busy for the given class configuration. Please try a different location/meeting size!")
+				setSlots(slotsdata.data)
+				setMeetings(null);
+			} else {
+				let meetingsresp = await fetch(`/api/meetings?course=${course_id}&capacity=${size}&course_style=${modality}`);
+				let meetingsdata = await meetingsresp.json()
+
+				if(meetingsdata.data.length === 0) setError("All tutors are busy for the given class configuration. Please try a different location/meeting size!")
+				setMeetings(meetingsdata.data)
+				setSlots(null);
+
+			}
 			if(autoscroll) window.scrollTo(0, document.body.scrollHeight);
 		}
 
@@ -363,6 +384,7 @@ function AppointmentSelection({course_id, modality, size, frequency, close, auto
 			</section>
 
 			<section className="payflow__appts">
+				{ meetings && meetings.sort((a,b) => a.occurrence_epoch > b.occurrence_epoch).map((meeting) => <Appointment key={meeting.id} onBook={setSelection} meeting={meeting} class_style={modality} size={size} frequency={frequency}/>)}
 				{ slots && slots.sort((a,b) => a.meetings[0].occurrence_epoch > b.meetings[0].occurrence_epoch).map((slot) => <Appointment key={slot.slot.id} onBook={setSelection} slot_etc={slot} class_style={modality} size={size} frequency={frequency}/>)}
 			</section>
 		</>)
@@ -381,7 +403,13 @@ export default function PaymentFlow({reload, embed, className, autoscroll, ...pr
 	const [courseOptions, setCourseOptions] = useState([])
 	const [selectedCourse, setSelectedCourse] = useState(null);
 	const [slots, setSlots] = useState([])
+	const [meetings, setMeetings] = useState([])
 	const [prices, setPrices] = useState(null)
+
+	// form control
+	const [size, setSize] = useState(null);
+	const [frequency, setFrequency] = useState(null);
+	const [modality, setModality] = useState(null);
 
 	useEffect(() => {
 		let get_classes = async () => {
@@ -421,23 +449,35 @@ export default function PaymentFlow({reload, embed, className, autoscroll, ...pr
 
 		const get_slots = async () => {
 			setClassError(null)
-			let slotsresp = await fetch(`/api/slots/?course=${encodeURIComponent(selectedCourse.value)}`)
-			let slotsdata = await slotsresp.json()
-			if(slotsdata.data.length === 0) {
-				setClassError(`All tutors for ${selectedCourse.label} are fully booked. Please check back tomorrow or dial/text 571-524-3033`)
+
+			//since the user selects the frequency after selecting the class, we'll assume the most permissive frequency (one-off) until they pick weekly. That way if there's an error they'll immediately know what caused it
+
+			if(frequency !== "weekly") {
+				let meetingsresp = await fetch(`/api/meetings?course=${encodeURIComponent(selectedCourse.value)}`);
+				let meetingsdata = await meetingsresp.json()
+
+				if(meetingsdata.data.length === 0) {
+					setClassError(`All tutors for ${selectedCourse.label} are fully booked. Please check back tomorrow or dial/text 571-524-3033`)
+				}
+				setMeetings(meetingsdata.data)
+				//setSlots(null);
+			} else {
+				let slotsresp = await fetch(`/api/slots/?course=${encodeURIComponent(selectedCourse.value)}`)
+				let slotsdata = await slotsresp.json()
+				if(slotsdata.data.length === 0) {
+					setClassError(`All tutors for ${selectedCourse.label} are fully booked for weekly subscriptions. Please check back tomorrow or dial/text 571-524-3033`)
+				}
+				setSlots(slotsdata.data)
+				//setMeetings(null)
 			}
-			setSlots(slotsdata.data)
+
 		}
 		if(selectedCourse) get_slots()
 		load_prices()
-	}, [selectedCourse])
+	}, [selectedCourse, frequency])
 
 
-	// form control
-	const [size, setSize] = useState(null);
-	const [frequency, setFrequency] = useState(null);
-	const [modality, setModality] = useState(null);
-
+	
 	// CSS class computation
 	let flow_classes = ["payflow"]
 	if(embed) flow_classes.push("payflow--embed")
@@ -513,7 +553,7 @@ export default function PaymentFlow({reload, embed, className, autoscroll, ...pr
 			</section>
 			<section className="payflow__submit">
 				<div className="payflow__submit__assurances">You won’t be charged yet · All prices are per student for one hour sessions</div>
-				<Button full disabled={slots == null || slots.length === 0 || size === null || frequency === null || modality === null} onClick={() => {setDone(true)}} className="payflow__submit__button">Select Tutor, Time and Location</Button>
+				<Button full disabled={(frequency === "weekly" && (slots == null || slots.length === 0)) || (frequency !=="weekly" && (meetings == null || meetings.length === 0)) || size === null || frequency === null || modality === null} onClick={() => {setDone(true)}} className="payflow__submit__button">Select Tutor, Time and Location</Button>
 			</section>
 		</div>
 	)

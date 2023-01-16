@@ -225,10 +225,9 @@ export async function register_customer(firstname, lastname, email, phone) {
 		return json_res;
 }
 
-export async function register_payment(slot, course_style, capacity, offering, first_meeting) {
+export async function register_payment(course_style, capacity, offering, first_meeting) {
 		let form_data = new FormData();
 		form_data.append('meeting',first_meeting);
-		form_data.append('slot',slot);
 		form_data.append('course_style',course_style);
 		form_data.append('capacity',capacity);
 		form_data.append('offering',offering);
