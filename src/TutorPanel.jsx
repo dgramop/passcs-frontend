@@ -16,9 +16,27 @@ import {Button} from "./Components";
 // 3) rescheduling meetings
 // 4) canceling meetings
 
+async function submitBackground(background, tutor_id) {
+	let form_data = new FormData();
+	form_data.append("background", background);
+	let backgroundresp = await fetch(`/api/tutors/${tutor_id}/background`, {method:"POST", body:form_data});
+	let backgrounddata = await backgroundresp.json();
+}
+
+export function TutorBackgroundPopup({tutor_id, initialbg, close}) {
+	let [background, setBackground] = useState(initialbg);
+	return (
+		<Modal close={close} title="Update your background blurb" buttons={{secondaries: [{text:"Close", onClick:close}], primary:{text:"Submit", onClick: ()=>submitBackground(background, tutor_id)}}} >
+			<div><textarea style={{width:"100%", height:"8rem", fontSize:"inherit"}} value={background} onChange={(e) => setBackground(e.target.value)}/></div>
+			Remember, background blurbs must be written in the third person! They are customer-facing, so check your spelling. They should be as brief as the other ones on our front page, where you can find examples.
+		</Modal>
+	)
+}
+
 export function TutorPanelSidebar(props) {
 	let {tutor_id} = useParams();
 	let [tutor, setTutor] = useState(null);
+	let [backgroundPopup, setBackgroundPopup] = useState(false);
 	const navigate = useNavigate();
 	useEffect(() => {
 		let loadTutor = async () => {
@@ -39,7 +57,8 @@ export function TutorPanelSidebar(props) {
 
 	return (
 		<div className="sidebar">
-			<div className="sidebar__profilecard" onClick={() => alert("")}>
+			{backgroundPopup && <TutorBackgroundPopup initialbg={tutor.background} tutor_id={tutor_id} close={() => setBackgroundPopup(false)}/>}
+			<div className="sidebar__profilecard sidebar__profilecard--clickable" onClick={() => setBackgroundPopup(true)}>
 				{tutor && <img className="sidebar__profilecard__photo" src={`/${tutor.id}.jpg`} alt="Your profile" />}
 				<div className="sidebar__profilecard__info">
 					<div className="sidebar__profilecard__name">
@@ -274,13 +293,7 @@ function Tutor({tutor, start_date, end_date, ...props}) {
 		load_offerings()
 	}
 
-	let submitBackground = async () => {
-		let form_data = new FormData();
-		form_data.append("background", background);
-		let backgroundresp = await fetch(`/api/tutors/${tutor.id}/background`, {method:"POST", body:form_data});
-		let backgrounddata = await backgroundresp.json();
-		//TODO: reload the tutor object when background is updated
-	}
+
 
 	let phone_friendly = tutor.phone.toString();
 
@@ -317,8 +330,8 @@ function Tutor({tutor, start_date, end_date, ...props}) {
 				</div>
 				<div className="tutor__section">
 					<div className="tutor__section__title">Update background</div>
-					<textarea value={background} onChange={(e) => setBackground(e.target.value)}/>
-					<Button secondary onClick={submitBackground}>Submit</Button>
+					<textarea style={{fontSize:"inherit"}} value={background} onChange={(e) => setBackground(e.target.value)}/>
+					<Button secondary onClick={() => submitBackground(background, tutor.id)}>Submit</Button>
 				</div>
 
 				<div className="tutor__section">

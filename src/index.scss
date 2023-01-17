@@ -392,6 +392,9 @@ a {
 	}
 
 	&__profilecard {
+		&--clickable {
+			cursor:pointer;
+		}
 		justify-self: flex-start;
 		flex-direction: row;
 		align-self: center;
