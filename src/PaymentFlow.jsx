@@ -2,7 +2,7 @@ import "./PaymentFlow.scss"
 import {ArrowBack, Group, LocationOn, School, Sell} from '@mui/icons-material';
 import Select from 'react-select';
 import {useEffect, useState} from "react";
-import {Button, Chip, register_customer, register_payment, register_subscription, TextField, get_date_info, Fake} from "./Components";
+import {Button, Chip, Verification, register_customer, register_payment, register_subscription, TextField, get_date_info, Fake} from "./Components";
 import {CardElement, useElements, useStripe, Elements} from '@stripe/react-stripe-js';
 import {loadStripe} from '@stripe/stripe-js';
 import {useNavigate} from "react-router-dom";
@@ -57,31 +57,35 @@ function Pay({slot_etc, capacity, course_style, subscription, back, standalone, 
 	let [phone, setPhone] = useState("");
 	let [email, setEmail] = useState("");
 
+	// modals
+	let [verification, setVerification] = useState(false);
+
 	// other hooks
 	const stripe = useStripe();
 	const elements = useElements();
 	const navigate = useNavigate()
 
-	useEffect(() => {
-		let load_customer = async () => {
-			let customerresp = await fetch("/api/customers/myself");
-			let customerdata = await customerresp.json()
+	let load_customer = async () => {
+		let customerresp = await fetch("/api/customers/myself");
+		let customerdata = await customerresp.json()
 
-			if(customerdata.status === "success") {
-				setError(null);
-				setCustomer(customerdata.data)
-				setLastname(customerdata.lastname)
-				setFirstname(customerdata.firstname)
-				setEmail(customerdata.email)
-				setPhone(customerdata.phone)
-				console.log(customerdata.data)
-			} else if(customerdata.error==="DBError") {
-				setError("Cannot contact server, please text or dial 571-524-3033 to reserve your spot")
-			} else {
-				//assume the customer doesn't exist
-				setCustomer(false)
-			}
+		if(customerdata.status === "success") {
+			setError(null);
+			setCustomer(customerdata.data)
+			setLastname(customerdata.lastname)
+			setFirstname(customerdata.firstname)
+			setEmail(customerdata.email)
+			setPhone(customerdata.phone)
+			console.log(customerdata.data)
+		} else if(customerdata.error==="DBError") {
+			setError("Cannot contact server, please text or dial 571-524-3033 to reserve your spot")
+		} else {
+			//assume the customer doesn't exist
+			setCustomer(false)
 		}
+	}
+	useEffect(() => {
+		
 		load_customer()
 	}, [])
 
@@ -120,6 +124,7 @@ function Pay({slot_etc, capacity, course_style, subscription, back, standalone, 
 			if(customer.status === "failure" && customer.error.type === "AlreadyExists") {
 				// TODO send the customer a log in text message and ask them to enter the code via a popup
 				setError("You have an account with us already, please log in and retry")
+				setVerification(true);
 				setLoading(false)
 				return;
 			}
@@ -225,6 +230,7 @@ function Pay({slot_etc, capacity, course_style, subscription, back, standalone, 
 					Easy cancellation
 			</Assurance>}
 			{customer?.payment_method && <Assurance icon="payment">
+				{/* TODO: handle credits */}
 					We'll charge your card-on-file
 			</Assurance>}
 		</div>
@@ -232,6 +238,7 @@ function Pay({slot_etc, capacity, course_style, subscription, back, standalone, 
 			{error && <span className="genericError">{error}</span>}
 			<Button full disabled={loading} onClick={submit} extraClasses="payflow__submit__button">Pay</Button>
 		</section>
+		{verification && <Verification close={async () => {await load_customer(); setVerification(false)}} email={email}/>}
 	</>)
 }
 

@@ -1,4 +1,4 @@
-import {useState} from "react"
+import {useEffect, useState} from "react"
 import {Link, useNavigate} from "react-router-dom"
 
 export function SidebarButton({onClick, selected, name, icon, text, ...props}) {
@@ -263,4 +263,76 @@ export function Fake({width = 5, ...props}) {
 			{chars.join()}
 		</div>
 	)
+}
+
+export function Verification({email, close}) {
+	let [tokenDetails, setTokenDetails] = useState(null);
+	let [error, setError] = useState(null);
+	let [code, setCode] = useState("");
+
+	let login = async () => {
+		setError(null);
+		try {
+			let validationresp = await fetch(`/api/verification?code_id=${tokenDetails.code_id}&code=${code}`);
+			let validationdata = await validationresp.json();
+			if(validationdata.error) {
+				throw validationdata;
+			}
+			console.log("logged in with", validationdata.data);
+			close()
+		} catch(e) {
+			console.log("got error", e);
+			if(e.error) {
+				console.log(e.error);
+				setError(e.error);
+			} else {
+				setError("Cannot contact sever");
+			}
+		}
+	}
+
+	let send_text = async (email) => {
+		console.log("sending text");
+		setError(null);
+
+		let form_data = new FormData();
+		form_data.append("email", email);
+		try {
+			let validationresp = await fetch("/api/verification",{body: form_data, method: "POST"});
+			let validationdata = await validationresp.json();
+			if(validationdata.error) {
+				throw validationdata;
+			}
+			setTokenDetails(validationdata.data);
+		} catch(e) {
+			console.log("got error", e);
+			if(e.error) {
+				console.log(e.error);
+				setError(e.error);
+			} else {
+				setError("FAIL");
+			}
+		}
+	}
+
+	useEffect(() => {
+		send_text(email)
+	}, [email])
+
+	if(tokenDetails) {
+		return (<Modal title="We texted you a login code" buttons={{secondaries:[{text:"Close", onClick:close}], primary:{onClick:login, text:"Login"}}}>
+			We automatically sent you a login code to your phone number ending in <b>{tokenDetails.last_four_phone}</b>, since you already have an account with us.<br/><br/>
+			<div className="payflow__inputgroup">
+				<h3 className="payflow__inputgroup__title">Your 7-digit code</h3>
+				<TextField placeholder="8289407" autoComplete="family-name" value={code} onChange={setCode}/>
+			</div>
+			{error && (({})[error] || error)}
+			</Modal>
+		)
+	} else {
+		return (<Modal title={error ? ({"TooSoon":"Please log-in to continue"})[error] || error : "Texting you a login code..."} buttons={{secondaries:[], primary:{text:"Close", onClick: close}}}>
+			{!error && "Please wait"} {error && ({"TooSoon":"We couldn't text you a verification code since we just sent you one, so you'll have to log-in via email and retry."})[error] || error}
+			</Modal>
+		)
+	}
 }
