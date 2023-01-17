@@ -26,7 +26,7 @@ async function submitBackground(background, tutor_id) {
 export function TutorBackgroundPopup({tutor_id, initialbg, close}) {
 	let [background, setBackground] = useState(initialbg);
 	return (
-		<Modal close={close} title="Update your background blurb" buttons={{secondaries: [{text:"Close", onClick:close}], primary:{text:"Submit", onClick: ()=>submitBackground(background, tutor_id)}}} >
+		<Modal close={close} title="Update your background blurb" buttons={{secondaries: [{text:"Close", onClick:close}], primary:{text:"Submit", onClick: ()=>{ submitBackground(background, tutor_id); close()}}}} >
 			<div><textarea style={{width:"100%", height:"8rem", fontSize:"inherit"}} value={background} onChange={(e) => setBackground(e.target.value)}/></div>
 			Remember, background blurbs must be written in the third person! They are customer-facing, so check your spelling. They should be as brief as the other ones on our front page, where you can find examples.
 		</Modal>
@@ -38,26 +38,27 @@ export function TutorPanelSidebar(props) {
 	let [tutor, setTutor] = useState(null);
 	let [backgroundPopup, setBackgroundPopup] = useState(false);
 	const navigate = useNavigate();
-	useEffect(() => {
-		let loadTutor = async () => {
-			try {
-				let tutorresp = await fetch(`/api/tutors/${tutor_id}`);
-				let tutorjson = await tutorresp.json();
-				if(tutorjson?.data == null) {
-					navigate("/")
-				}
-				setTutor(tutorjson.data);
-			} catch(e) {
-				navigate("/");
-			}
-		}
 
-		loadTutor()
+	let loadTutor = async (tutor_id) => {
+		try {
+			let tutorresp = await fetch(`/api/tutors/${tutor_id}`);
+			let tutorjson = await tutorresp.json();
+			if(tutorjson?.data == null) {
+				navigate("/")
+			}
+			setTutor(tutorjson.data);
+		} catch(e) {
+			navigate("/");
+		}
+	}
+
+	useEffect(() => {
+		loadTutor(tutor_id)
 	}, [tutor_id])
 
 	return (
 		<div className="sidebar">
-			{backgroundPopup && <TutorBackgroundPopup initialbg={tutor.background} tutor_id={tutor_id} close={() => setBackgroundPopup(false)}/>}
+			{backgroundPopup && <TutorBackgroundPopup initialbg={tutor.background} tutor_id={tutor_id} close={async () => {await loadTutor(tutor_id); setBackgroundPopup(false)}}/>}
 			<div className="sidebar__profilecard sidebar__profilecard--clickable" onClick={() => setBackgroundPopup(true)}>
 				{tutor && <img className="sidebar__profilecard__photo" src={`/${tutor.id}.jpg`} alt="Your profile" />}
 				<div className="sidebar__profilecard__info">
@@ -224,7 +225,7 @@ export function WorkHistory(props) {
 		</div>)
 }
 
-function Tutor({tutor, start_date, end_date, ...props}) {
+function Tutor({tutor, start_date, end_date, reload, ...props}) {
 	const [meetings, setMeetings] = useState(null);
 	const [offerings, setOfferings] = useState(null);
 	const [courseOptions, setCourseOptions] = useState(null);
@@ -331,7 +332,7 @@ function Tutor({tutor, start_date, end_date, ...props}) {
 				<div className="tutor__section">
 					<div className="tutor__section__title">Update background</div>
 					<textarea style={{fontSize:"inherit"}} value={background} onChange={(e) => setBackground(e.target.value)}/>
-					<Button secondary onClick={() => submitBackground(background, tutor.id)}>Submit</Button>
+					<Button secondary onClick={async () => { await submitBackground(background, tutor.id); reload() }}>Submit</Button>
 				</div>
 
 				<div className="tutor__section">
@@ -374,7 +375,7 @@ export function Supervisor(props) {
 				<DateTimePicker value={endDate} onChange={(date) => setEndDate(date)}/>
 			</div>
 			<div className="booking_container__tutors">
-				{tutors && tutors.map((tutor) => <Tutor key={tutor.id} start_date={startDate} end_date={endDate} tutor={tutor} />)}
+				{tutors && tutors.sort((a, b)=> a.name > b.name).map((tutor) => <Tutor key={tutor.id} start_date={startDate} end_date={endDate} tutor={tutor} reload={load_tutors} />)}
 			</div>
 		</div>
 	)
