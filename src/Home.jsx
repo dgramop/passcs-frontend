@@ -1,4 +1,3 @@
-import ReservationForm from './ReservationForm';
 import './Home.scss'
 import './index.scss'
 import {Button, Modal, get_token, LoginModal} from "./Components";
