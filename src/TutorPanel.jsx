@@ -25,7 +25,6 @@ export function TutorPanelSidebar(props) {
 			try {
 				let tutorresp = await fetch(`/api/tutors/${tutor_id}`);
 				let tutorjson = await tutorresp.json();
-				console.log(tutorjson);
 				if(tutorjson?.data == null) {
 					navigate("/")
 				}
@@ -38,17 +37,16 @@ export function TutorPanelSidebar(props) {
 		loadTutor()
 	}, [tutor_id])
 
-	console.log(tutor);
 	return (
 		<div className="sidebar">
-			<div className="sidebar__profilecard">
+			<div className="sidebar__profilecard" onClick={() => alert("")}>
 				{tutor && <img className="sidebar__profilecard__photo" src={`/${tutor.id}.jpg`} alt="Your profile" />}
 				<div className="sidebar__profilecard__info">
 					<div className="sidebar__profilecard__name">
 						{tutor && tutor.name.split(" ")[0]}
 					</div>
 					<div className="sidebar__profilecard__role">
-						{tutor && tutor.role === 'Supervisor' ? "Supervisor" : "Tutor"}
+						{tutor && tutor.role}
 					</div>
 				</div>
 			</div>
@@ -213,6 +211,7 @@ function Tutor({tutor, start_date, end_date, ...props}) {
 	const [courseOptions, setCourseOptions] = useState(null);
 	const [selectedCourse, setSelectedCourse] = useState(null);
 	const [qualification, setQualification] = useState("");
+	const [background, setBackground] = useState(tutor.background);
 
 	let load_offerings = async () => {
 		let offeringsresp = await fetch(`/api/tutors/${tutor.id}/offerings`);
@@ -266,7 +265,6 @@ function Tutor({tutor, start_date, end_date, ...props}) {
 	const navigate = useNavigate();
 
 	let submitQualification = async () => {
-		// TODO: if it's an existing qualification just edit it
 		let form_data = new FormData();
 		form_data.append("tutor", tutor.id);
 		form_data.append("course", selectedCourse.value);
@@ -274,6 +272,14 @@ function Tutor({tutor, start_date, end_date, ...props}) {
 		let slotresp = await fetch("/api/offerings", {method:"POST", body:form_data});
 		let slotdata = await slotresp.json();
 		load_offerings()
+	}
+
+	let submitBackground = async () => {
+		let form_data = new FormData();
+		form_data.append("background", background);
+		let backgroundresp = await fetch(`/api/tutors/${tutor.id}/background`, {method:"POST", body:form_data});
+		let backgrounddata = await backgroundresp.json();
+		//TODO: reload the tutor object when background is updated
 	}
 
 	let phone_friendly = tutor.phone.toString();
@@ -299,7 +305,7 @@ function Tutor({tutor, start_date, end_date, ...props}) {
 				</div>
 				<div className="tutor__section">
 					<div className="tutor__section__title">Qualifications</div>
-					{offerings && offerings.map((offering) => <>{offering.course.course_name} ({offering.qualification})<br/></>)} 
+						{offerings && offerings.map((offering) => <div key={offering.id}>{offering.course.course_name} ({offering.qualification})</div>)} 
 				</div>
 				<div className="tutor__section">
 					<div className="tutor__section__title">Add/Modify qualification</div>
@@ -308,6 +314,11 @@ function Tutor({tutor, start_date, end_date, ...props}) {
 					Qualification
 					<input type="text" onChange={(e) => setQualification(e.target.value)} value={qualification}/>
 					<Button secondary onClick={submitQualification}>Submit</Button>
+				</div>
+				<div className="tutor__section">
+					<div className="tutor__section__title">Update background</div>
+					<textarea value={background} onChange={(e) => setBackground(e.target.value)}/>
+					<Button secondary onClick={submitBackground}>Submit</Button>
 				</div>
 
 				<div className="tutor__section">
@@ -322,6 +333,7 @@ export function Supervisor(props) {
 	const [tutors, setTutors] = useState(null);
 	const [startDate, setStartDate] = useState(new Date(0));
 	const [endDate, setEndDate] = useState(new Date());
+	const [createTutor, setCreateTutor] = useState(false);
 
 	useEffect(() => {
 		setSelected("supervisor")
@@ -341,7 +353,7 @@ export function Supervisor(props) {
 	return (
 		<div className="booking_container">
 			<div className="booking_container__title">
-				Your Team
+				Your Team {/*<div className="booking_container__title__addbutton" onClick={()=>{setCreateTutor(true)}} ><Add /></div>*/}
 			</div>
 			<div>
 				<b>View summary by time period:</b><br/>
@@ -349,7 +361,7 @@ export function Supervisor(props) {
 				<DateTimePicker value={endDate} onChange={(date) => setEndDate(date)}/>
 			</div>
 			<div className="booking_container__tutors">
-				{tutors && tutors.map((tutor) => <Tutor start_date={startDate} end_date={endDate} tutor={tutor} />)}
+				{tutors && tutors.map((tutor) => <Tutor key={tutor.id} start_date={startDate} end_date={endDate} tutor={tutor} />)}
 			</div>
 		</div>
 	)
