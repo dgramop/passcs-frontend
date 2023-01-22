@@ -278,7 +278,7 @@ export function Meeting({ staff, payments, meeting, display_notes, reload, ...pr
 						{(["Empty","One-on-One","Group-of-Two"])[meeting.capacity] || "Group of "+meeting.capacity}
 					</Chip>}
 					{/* if we're displaying a particular payment (i.e. to a customer, then display the details up here*/}
-					{original_payment && <Chip	white icon={<CreditCard />}>
+					{!staff && original_payment && <Chip	white icon={<CreditCard />}>
 						{({"processing":"Processing", "succeeded":"Complete", "subscription_pending":"Scheduled", "requires_payment_method": "Failed", "canceled":"Canceled/Refunded"})[original_payment.payment_status] || original_payment.payment_status}
 					</Chip>}
 				</div>
