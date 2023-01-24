@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 import "./TutorPanel.scss";
 import {Link, Outlet, useNavigate, useOutletContext, useParams} from "react-router-dom"
 import {Meeting} from "./StudentDashboard";
-import {Modal, SidebarButton} from "./Components";
+import {get_date_info, Modal, SidebarButton} from "./Components";
 
 import DateTimePicker from "react-datetime-picker";
 import Select from 'react-select';
@@ -136,6 +136,11 @@ export function CreateSlotPopup(props) {
 
 			if(meetingdata.error) {
 				curError = meetingdata.error.type;
+				if(meetingdata.error.type === "Overlap") {
+					let overlap_date = new Date(meetingdata.error?.meeting?.occurrence_epoch*1000 || 0);
+					let overlap_date_info = get_date_info(overlap_date);
+					curError = "This meeting overlaps with your meeting on "+overlap_date_info.weekday+" "+overlap_date_info.month+" "+overlap_date.getDate()+" at "+overlap_date_info.hours+":"+overlap_date_info.minutes+" "+(overlap_date_info.am ? "AM" : "PM");
+				}
 			}
 			console.log(meetingdata);
 		} else {
@@ -148,6 +153,11 @@ export function CreateSlotPopup(props) {
 
 				if(slotdata.error) {
 					curError = ({"EarlyAnchor":"Please pick a time in the future (consider next week at the same time)"})[slotdata.error.type] || slotdata.error.type;
+					if(slotdata.error.type === "Overlap") {
+						let overlap_date = new Date(slotdata.error?.meeting?.occurrence_epoch*1000 || 0);
+						let overlap_date_info = get_date_info(overlap_date);
+						curError = "This slot overlaps with your meeting on "+overlap_date_info.weekday+" "+overlap_date_info.month+" "+overlap_date.getDate()+" at "+overlap_date_info.hours+":"+overlap_date_info.minutes+" "+(overlap_date_info.am ? "AM" : "PM");
+					}
 				}
 			} catch(e) {
 				alert(e);
