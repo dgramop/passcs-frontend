@@ -77,7 +77,7 @@ function Pay({slot_etc, capacity, course_style, subscription, back, standalone, 
 			setEmail(customerdata.email)
 			setPhone(customerdata.phone)
 			console.log(customerdata.data)
-		} else if(customerdata.error==="DBError") {
+		} else if(customerdata.error?.type==="DBError") {
 			setError("Cannot contact server, please text or dial 571-524-3033 to reserve your spot")
 		} else {
 			//assume the customer doesn't exist

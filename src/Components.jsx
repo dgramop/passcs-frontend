@@ -282,9 +282,9 @@ export function Verification({email, close}) {
 			close()
 		} catch(e) {
 			console.log("got error", e);
-			if(e.error) {
-				console.log(e.error);
-				setError(e.error);
+			if(e.error?.type) {
+				console.log(e.error.type);
+				setError(e.error.type);
 			} else {
 				setError("Cannot contact sever");
 			}
@@ -306,9 +306,9 @@ export function Verification({email, close}) {
 			setTokenDetails(validationdata.data);
 		} catch(e) {
 			console.log("got error", e);
-			if(e.error) {
-				console.log(e.error);
-				setError(e.error);
+			if(e.error?.type) {
+				console.log(e.error.type);
+				setError(e.error.type);
 			} else {
 				setError("FAIL");
 			}

@@ -191,23 +191,40 @@ export function MeetingNotesForm({meeting, reload, ...props}) {
 function EditScheduleModal({meeting, close, reload, ...props}) {
 	let [occurrenceEpoch, setOccurrenceEpoch] = useState(new Date(meeting.occurrence_epoch*1000));
 	let [duration, setDuration] = useState(meeting.duration_mins);
+	let [error, setError] = useState(null)
 
 	let submit = async () => {
-		// first update the occurrence
-		let occurrence_form = new FormData();
-		occurrence_form.append("occurrence_epoch", Date.parse(occurrenceEpoch)/1000);
-		let occurrenceresp = await fetch(`/api/meetings/${meeting.id}/occurrence_epoch`, {method:"POST", body:occurrence_form});
-		let occurrencedata = await occurrenceresp.json();
+		setError(null);
+		let curError = null;
+
+		if(Math.floor(Date.parse(occurrenceEpoch)/1000) !== meeting.occurrence_epoch) {
+			// first update the occurrence (TODO: if the timestamp is different)
+			let occurrence_form = new FormData();
+			occurrence_form.append("occurrence_epoch", Date.parse(occurrenceEpoch)/1000);
+			let occurrenceresp = await fetch(`/api/meetings/${meeting.id}/occurrence_epoch`, {method:"POST", body:occurrence_form});
+			let occurrencedata = await occurrenceresp.json();
+			if(occurrencedata.error?.type) {
+				curError = occurrencedata.error?.type
+			}
+		}
 
 
-		// then update the duration
-		let form_data = new FormData();
-		form_data.append("duration_mins", duration);
-		let durationresp = await fetch(`/api/meetings/${meeting.id}/duration_mins`, {method:"POST", body:form_data});
-		let durationdata = await durationresp.json();
+		if(meeting.duration_mins !== duration) {
+			// then update the duration
+			let form_data = new FormData();
+			form_data.append("duration_mins", duration);
+			let durationresp = await fetch(`/api/meetings/${meeting.id}/duration_mins`, {method:"POST", body:form_data});
+			let durationdata = await durationresp.json();
+			if(durationdata.error?.type) {
+				curError = durationdata.error?.type
+			}
+		}
 
-		reload()
-		close()
+		setError(curError)
+		if(curError == null) {
+			reload()
+			close()
+		}
 	}
 
 	return (
@@ -334,12 +351,12 @@ export function Sessions({history, ...props}) {
 		let paymentsresp = await fetch("/api/customers/myself/payments"); 
 		let paymentsdata = await paymentsresp.json()
 		if(paymentsdata.status === "failure") {
-			if(paymentsdata.error === "NotAuthorized") {
+			if(paymentsdata.error?.type === "NotAuthorized") {
 				navigate("/")
 				return;
 			}
 
-			setError(paymentsdata.error)
+			setError(paymentsdata.error?.type)
 			return;
 		}
 
