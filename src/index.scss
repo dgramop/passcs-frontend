@@ -535,3 +535,19 @@ a {
 		gap: 4rem;
 	}
 }
+
+.assurance {
+		display: flex;
+		gap: 0.5rem;
+		align-items: center;
+		&__icon {
+				color: #059669;
+				font-size: inherit;
+		}
+}
+
+.assurances {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+}
