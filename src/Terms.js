@@ -65,7 +65,16 @@ export default function Terms(props) {
 				</p>
 			</section>
 
-			<small> Last Updated Jan 9, 2023. Removed "one-time" courtesies for no-shows, changes to the cancellation policy that permit tutors to reschedule. Clarified tutor's ability to cancel sessions. Created overtime policy section</small><br/>
+			<section>
+				<h2> Notification Policy </h2>
+				<p>
+					You agree to be contacted via email, text message, or phone call so that passCS can communicate information directly related to your tutoring, for example information related to a scheduling session. Message and data rates may apply.
+				</p>
+			</section>
+
+
+			<small> Last Updated Jan 27, 2023. Added Notification Policy section</small><br/>
+			<small> Jan 9, 2023. Removed "one-time" courtesies for no-shows, changes to the cancellation policy that permit tutors to reschedule. Clarified tutor's ability to cancel sessions. Created overtime policy section</small><br/>
 			<small> Oct 15, 2022. Add clause that requires you notify your tutor well in advance of an upcoming assignment or exam</small><br/>
 			<small> September 22, 2022. Only allow refund of classes that were taken within the same semester</small><br/>
 			<small> March 31, 2022: Removed the midterm/semester midpoint requirement </small>
