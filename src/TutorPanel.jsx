@@ -231,7 +231,7 @@ export function WorkHistory(props) {
 	let load_meetings = async () => {
 		let meetingsresp = await fetch(`/api/tutors/${tutor_id}/meetings`);
 		let meetingsdata = await meetingsresp.json();
-		setMeetings(meetingsdata.data.filter((meeting) => {return meeting.meeting.occurrence_epoch < Date.now()/1000 && meeting.payments.length > 0} ))
+		setMeetings(meetingsdata.data.filter((meeting) => {return meeting.meeting.occurrence_epoch < Date.now()/1000 && meeting.payments.length > 0} ).sort((a, b) => a.meeting.occurrence_epoch < b.meeting.occurrence_epoch))
 	}
 
 	useEffect(() => {
