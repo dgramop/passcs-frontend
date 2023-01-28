@@ -3,6 +3,9 @@
 .hero {
 	background-color: #1E293B;
 	height: 90vh;
+	@include short {
+		height: calc(99vh);
+	}
 	color:white;
 	display: flex;
 	flex-direction: column;
@@ -138,10 +141,15 @@
 		@include lg {
 			display:flex;
 		}
+		@include shorter {
+			display: none;
+		}
 	}
 
 	&__payflow {
-		height: 60vh;
+		@include short {
+			max-height: calc(100% - 4rem);
+		}
 		border: 2px solid #000000;
 		box-shadow: inset 0px 0px 4px 4px rgba(0, 0, 0, 0.25);
 		border-radius: 6px;
@@ -207,6 +215,9 @@
 	&--payflow {
 		@include lg {
 			display: none;
+		}
+		@include shorter {
+			display: block;
 		}
 	}
 }
