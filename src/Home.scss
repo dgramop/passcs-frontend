@@ -144,9 +144,11 @@
 	}
 
 	&__payflow {
-		@include short {
+		height: calc(100% - 8rem);
+		max-height: calc(100% - 8rem);
+		/*@include short {
 			max-height: calc(100% - 4rem);
-		}
+		}*/
 
 		@include shorter {
 			max-height: calc(100% - 8rem);
