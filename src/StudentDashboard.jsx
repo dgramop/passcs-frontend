@@ -36,13 +36,25 @@ export function DashNav({ id, page, customer, ...props }) {
 export default function StudentDashboard({ ...props}) {
 	const [customer, setCustomer] = useState(null)
 	const [page, setPage] = useState("upcoming");
+	const navigate = useNavigate()
 
 	useEffect(() => {
 		const load_customer = async () => {
-			const customerresp = await fetch("/api/customers/myself");
-			const customerdata = await customerresp.json();
+			try {
+				const customerresp = await fetch("/api/customers/myself");
+				const customerdata = await customerresp.json();
 
-			setCustomer(customerdata.data)
+				if(customerdata.error) {
+					throw customerdata.error;
+				}
+
+				setCustomer(customerdata.data)
+			} catch(e) {
+				console.log(e)
+				if(e.type === "Unauthorized" || e.type === "NoAuth") {
+					navigate("/");
+				}
+			}
 		}
 		load_customer()
 	},[])
