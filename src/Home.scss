@@ -144,13 +144,14 @@
 	}
 
 	&__payflow {
-		height: calc(100% - 8rem);
-		max-height: calc(100% - 8rem);
+		height: calc(100% - 14rem);
+		max-height: calc(100% - 14rem);
 		/*@include short {
 			max-height: calc(100% - 4rem);
 		}*/
 
 		@include shorter {
+			height: calc(100% - 8rem);
 			max-height: calc(100% - 8rem);
 		}
 		border: 2px solid #000000;
