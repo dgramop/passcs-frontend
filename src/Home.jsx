@@ -117,15 +117,21 @@ export default function Home({...props}) {
 				<section className="home_section">
 					<h2 className="home_section__title">Tutoring that <i>works</i></h2>
 					<div className="home_section__cards">
-						<QuoteCard name="D.N." position="CS310 Student">
-							My fundamentals were strengthened and I was able to use my stronger fundamentals to build my skills.
+
+						<QuoteCard name="B.T." position="CS310 Student">
+							I did so great in CS310 that I landed an Undergrad Teaching Assistant position! I am grateful to passCS for this big step 
 						</QuoteCard>
+
 						<QuoteCard name="S.A." position="CS262 Student">
 							I spent all weekend trying to learn recursion from YouTube videos. You took just one hour!
 						</QuoteCard>
-						<QuoteCard name="A.M." position="CS112 Student">
-							I had recently used the PassCS service myself and it was a great experience
+
+						<QuoteCard name="D.N." position="CS310 Student">
+							My fundamentals were strengthened and I was able to use my stronger fundamentals to build my skills.
 						</QuoteCard>
+						{/*<QuoteCard name="A.M." position="CS112 Student">
+							I had recently used the PassCS service myself and it was a great experience
+						</QuoteCard>*/}
 					</div>
 				</section>
 				
