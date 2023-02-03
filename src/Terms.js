@@ -15,7 +15,7 @@ export default function Terms(props) {
 						<li>You completed the course (withdrawals, incomplete do not count), and</li>
 						<li>You did not have receive a grade high enough to allow the course to fill any of your degree requirements, and</li>
 						<li>You notify your tutor of all upcoming major assesments, assignments, exams at least 2 class sessions before they are due/occur (or immediately during your first session you have not already had 2 sessions yet), and</li>
-						<li>You attended during the same semester you were enrolled, at least 12 classes of one-on-one tutoring in the class you failed for a minimum of 12 hours of total one-on-one passCS instruction for the class you failed. For passCS Guarantee computations only, one hour of one-on-two instruction shall be equivalent to 40 minutes of one-on-one instruction, and</li>
+						<li>You attended during the same semester you were enrolled, at least 12 classes of one-on-one tutoring in the class you failed for a minimum of 12 hours of total one-on-one passCS instruction for the class you failed. For passCS Guarantee computations only, one hour of one-on-two instruction shall be equivalent to 40 minutes of one-on-one instruction (regardless of the actual presence of a second student), and</li>
 						<li>You made a concerted effort to pass, </li>
 						<li>You made no effort to fail</li>
 						<li>You didn’t violate your university’s honor code or receive any sanction (including but not limited to course failure) for cheating (includes “plea deals” with professors that don’t receive an official honor council hearing), and</li>
@@ -73,7 +73,8 @@ export default function Terms(props) {
 			</section>
 
 
-			<small> Last Updated Jan 27, 2023. Added Notification Policy section</small><br/>
+			<small> Last updated Feb 3, 2023. Clarified 40 minute rule for one-on-two sessions holds regardless of whether a second student is present or not</small><br/>
+			<small> Jan 27, 2023. Added Notification Policy section</small><br/>
 			<small> Jan 9, 2023. Removed "one-time" courtesies for no-shows, changes to the cancellation policy that permit tutors to reschedule. Clarified tutor's ability to cancel sessions. Created overtime policy section</small><br/>
 			<small> Oct 15, 2022. Add clause that requires you notify your tutor well in advance of an upcoming assignment or exam</small><br/>
 			<small> September 22, 2022. Only allow refund of classes that were taken within the same semester</small><br/>
