@@ -407,6 +407,7 @@ export default function PaymentFlow({reload, embed, className, autoscroll, ...pr
 	const [error, setError] = useState(null)
 
 	// data loaded from the backend
+	const [selectedSchool, setSelectedSchool] = useState("George Mason University");
 	const [courseOptions, setCourseOptions] = useState([])
 	const [selectedCourse, setSelectedCourse] = useState(null);
 	const [slots, setSlots] = useState([])
@@ -426,20 +427,23 @@ export default function PaymentFlow({reload, embed, className, autoscroll, ...pr
 			let compsci = []
 			let math = []
 			let other = []
+			let it = []
 			for(let course of coursesdata.data) {
-				let subj = course.course_number.match(/[A-Za-z]+/g)[0]
-				let num = parseInt(course.course_number.match(/[0-9]+/g)[0])
+				let subj = course.course_number.match(/[A-Za-z]+/g)?.[0] || 0
+				let num = parseInt(course.course_number.match(/[0-9]+/g)?.[0])
 
-				if(subj.toLowerCase() === "cs") {
-					compsci.push({label: `${course.course_number} (${course.course_name})`, value: course.id, num:num})
-				} else if(subj.toLowerCase() === "math") {
-					math.push({label: `${course.course_number} (${course.course_name})`, value: course.id, num:num})
+				if(subj.toLowerCase() === "cs" || subj.toLowerCase().startsWith("apcs")) {
+					compsci.push({label: `${course.course_number} (${course.course_name})`, value: course.id, num:num, school:course.school})
+				} else if(subj.toLowerCase() === "math" || subj.toLowerCase().startsWith("apcalc") || subj.toLowerCase().startsWith("apstat")) {
+					math.push({label: `${course.course_number} (${course.course_name})`, value: course.id, num:num, school: course.school})
+				} else if(subj.toLowerCase() === "it") {
+					it.push({label: `${course.course_number} (${course.course_name})`, value: course.id, num:num, school: course.school})
 				} else {
-					other.push({label: `${course.course_number} (${course.course_name})`, value: course.id, num:num})
+					other.push({label: `${course.course_number} (${course.course_name})`, value: course.id, num:num, school:course.school})
 				}
 			}
 
-			const course_options = [{label:"Computer Science",options:compsci.sort((a,b) => a.num - b.num)}, {label:"Math",options:math.sort((a,b) => a.num - b.num)}, {label:"Other",options:other.sort((a,b) => a.num - b.num)}];
+			const course_options = [{label:"Computer Science",options:compsci.sort((a,b) => a.num - b.num)}, {label:"Math",options:math.sort((a,b) => a.num - b.num)}, {label:"Information Technology (IT)",options:it.sort((a,b) => a.num - b.num)}, {label:"Other",options:other.sort((a,b) => a.num - b.num)}];
 			setCourseOptions(course_options)
 		}
 
@@ -534,11 +538,11 @@ export default function PaymentFlow({reload, embed, className, autoscroll, ...pr
 			<section className="payflow__inputs">
 				<section className="payflow__inputgroup">
 					<h3 className="payflow__inputgroup__title">Select your school</h3>
-					<RadioSelect onChange={()=>{}} value={1} options={[{label:"GMU", value:1}]}/>
+					<RadioSelect onChange={setSelectedSchool} value={selectedSchool} options={[{label:"GMU", value:"George Mason University"}, {label:"High School", value:"High School"}]}/>
 				</section>
 				<section className="payflow__inputgroup">
 					<h3 className="payflow__inputgroup__title">What course can we help you with?</h3>
-					<Select autoFocus value={selectedCourse} onChange={(val) => setSelectedCourse(val)} placeholder="Select or type..." className="payflow__inputgroup__select" options={courseOptions} />
+					<Select autoFocus value={selectedCourse} onChange={(val) => setSelectedCourse(val)} placeholder="Select or type..." className="payflow__inputgroup__select" options={courseOptions.map((group)=>{return {...group, options: group.options.filter((option) => {return option.school === selectedSchool})}})} />
 				</section>
 				{classError && <span className="genericError">{classError}</span>}
 
@@ -554,7 +558,7 @@ export default function PaymentFlow({reload, embed, className, autoscroll, ...pr
 				
 				<section className="payflow__inputgroup">
 					<h3 className="payflow__inputgroup__title">Where would you like to meet?</h3>
-					<RadioSelect onChange={setModality} value={modality} options={[{label:"On-Campus", value:"in-person"}, {label:"Online", value:"online"}]}/>
+					<RadioSelect onChange={setModality} value={modality} options={[{label:({"George Mason University":"On-Campus", "High School":"GMU Library"})[selectedSchool] || "GMU Fenwick Library", value:"in-person"}, {label:"Online", value:"online"}]}/>
 				</section>
 				{error && <span className="genericError">{error}</span>}
 			</section>
