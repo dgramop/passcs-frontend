@@ -275,23 +275,21 @@ function Tutor({tutor, start_date, end_date, reload, ...props}) {
 			let coursesresp = await fetch("/api/courses/")
 			let coursesdata = await coursesresp.json()
 
-			let compsci = []
-			let math = []
+			let schools = {}
 			let other = []
 			for(let course of coursesdata.data) {
-				let subj = course.course_number.match(/[A-Za-z]+/g)[0]
-				let num = parseInt(course.course_number.match(/[0-9]+/g)[0])
+				let subj = course.course_number.match(/[A-Za-z]+/g)?.[0]
+				let num = parseInt(course.course_number.match(/[0-9]+/g)?.[0])
 
-				if(subj.toLowerCase() === "cs") {
-					compsci.push({label: `${course.course_number} (${course.course_name})`, value: course.id, num:num})
-				} else if(subj.toLowerCase() === "math") {
-					math.push({label: `${course.course_number} (${course.course_name})`, value: course.id, num:num})
-				} else {
-					other.push({label: `${course.course_number} (${course.course_name})`, value: course.id, num:num})
-				}
+				if(schools[course.school] == null) schools[course.school] = [];
+				schools[course.school].push({label: `${course.course_number} (${course.course_name})`, value: course.id, num:num})
 			}
 
-			const course_options = [{label:"Computer Science",options:compsci.sort((a,b) => a.num - b.num)}, {label:"Math",options:math.sort((a,b) => a.num - b.num)}, {label:"Other",options:other.sort((a,b) => a.num - b.num)}];
+			let course_options = [];
+			for(let school in schools) {
+				course_options.push({label:school,options:schools[school].sort((a,b) => a.num - b.num), school:school})
+			}
+
 			setCourseOptions(course_options)
 		}
 
