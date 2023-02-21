@@ -18,9 +18,9 @@ export async function sendLoginLink(email) {
 				if(email.indexOf("@passcs.io") !== -1)
 				{
 					// a bit of a hack, but easy to fix
-					r = await fetch("/api/login?user_type=tutor&email="+email,{method: "POST"});
+					r = await fetch("/api/login?user_type=tutor&email="+email.toLowerCase(),{method: "POST"});
 				} else {
-					r = await fetch("/api/login?user_type=customer&email="+email,{method: "POST"});
+					r = await fetch("/api/login?user_type=customer&email="+email.toLowerCase(),{method: "POST"});
 				}
 
 				r = await r.json()
@@ -214,7 +214,7 @@ export function TextField({onChange, value, className, disabled, placeholder, ty
 
 export async function register_customer(firstname, lastname, email, phone) {
 		let form_data = new FormData();
-		form_data.append('email',email);
+		form_data.append('email',email.toLowerCase());
 		form_data.append('phone',phone);
 		form_data.append('firstname',firstname);
 		form_data.append('lastname',lastname);
