@@ -77,7 +77,7 @@ function StudentPayments({payments, ...props}) {
 			name={payments[0].customer.firstname+" "+payments[0].customer.lastname}
 			phone={payments[0].customer.phone}
 			email={payments[0].customer.email}
-			addl_items={payments.sort((a, b) => {return a.inserted_at_epoch > b.inserted_at_epoch}).map((payment) => {
+			addl_items={payments.sort((a, b) => {return a.inserted_at_epoch - b.inserted_at_epoch}).map((payment) => {
 				let overtime = "Payment ";
 				if(payment.is_incremental) {
 					overtime = "Overtime payment ("+payment.minutes_paid+" mins extra) ";

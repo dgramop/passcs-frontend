@@ -231,7 +231,7 @@ export function WorkHistory(props) {
 	let load_meetings = async () => {
 		let meetingsresp = await fetch(`/api/tutors/${tutor_id}/meetings`);
 		let meetingsdata = await meetingsresp.json();
-		setMeetings(meetingsdata.data.filter((meeting) => {return meeting.meeting.occurrence_epoch < Date.now()/1000 && meeting.payments.length > 0} ).sort((a, b) => a.meeting.occurrence_epoch < b.meeting.occurrence_epoch))
+		setMeetings(meetingsdata.data.filter((meeting) => {return meeting.meeting.occurrence_epoch < Date.now()/1000 && meeting.payments.length > 0} ).sort((a, b) => b.meeting.occurrence_epoch - a.meeting.occurrence_epoch ))
 	}
 
 	useEffect(() => {
@@ -402,7 +402,7 @@ export function Supervisor(props) {
 				<DateTimePicker value={endDate} onChange={(date) => setEndDate(date)}/>
 			</div>
 			<div className="booking_container__tutors">
-				{tutors && tutors.sort((a, b)=> a.name > b.name).map((tutor) => <Tutor key={tutor.id} start_date={startDate} end_date={endDate} tutor={tutor} reload={load_tutors} />)}
+				{tutors && tutors.sort((a, b)=> a.name - b.name).map((tutor) => <Tutor key={tutor.id} start_date={startDate} end_date={endDate} tutor={tutor} reload={load_tutors} />)}
 			</div>
 		</div>
 	)
