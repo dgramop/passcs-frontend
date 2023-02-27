@@ -391,8 +391,10 @@ function AppointmentSelection({course_id, modality, size, frequency, close, auto
 			</section>
 
 			<section className="payflow__appts">
-				{ meetings && meetings.sort((a,b) => a.occurrence_epoch > b.occurrence_epoch).map((meeting) => <Appointment key={meeting.id} onBook={setSelection} meeting={meeting} class_style={modality} size={size} frequency={frequency}/>)}
-				{ slots && slots.sort((a,b) => { return a.meetings[0].occurrence_epoch > b.meetings[0].occurrence_epoch }).map((slot) => <Appointment key={slot.slot.id} onBook={setSelection} slot_etc={slot} class_style={modality} size={size} frequency={frequency}/>)}
+				{ meetings && meetings.sort((a,b) => a.occurrence_epoch - b.occurrence_epoch).map((meeting) => <Appointment key={meeting.id} onBook={setSelection} meeting={meeting} class_style={modality} size={size} frequency={frequency}/>)}
+				{ slots && slots.sort((a,b) => { 
+					return a.meetings[0].occurrence_epoch - b.meetings[0].occurrence_epoch 
+				}).map((slot) => <Appointment key={slot.slot.id} onBook={setSelection} slot_etc={slot} class_style={modality} size={size} frequency={frequency}/>)}
 			</section>
 		</>)
 }
