@@ -530,7 +530,8 @@ a {
 	display: flex;
 	flex-direction: column-reverse;
 	justify-content: flex-end;
-	height: 100vh;
+	position:fixed;
+	height: 100%;
 
 	gap: 0rem;
 	@include sm {
