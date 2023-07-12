@@ -1,4 +1,4 @@
-import {Add, AdminPanelSettings, ArrowBack, Event, EventNote, EventSharp, History, PlusOne} from "@mui/icons-material";
+import {Add, AdminPanelSettings, Archive, ArchiveOutlined, ArchiveSharp, ArrowBack, Delete, DeleteSharp, Event, EventNote, EventSharp, History, PlusOne, Restore, RestoreFromTrashRounded, RestoreFromTrashSharp} from "@mui/icons-material";
 import {useEffect, useState} from "react";
 import "./TutorPanel.scss";
 import {Link, Outlet, useNavigate, useOutletContext, useParams} from "react-router-dom"
@@ -255,6 +255,53 @@ export function WorkHistory(props) {
 		</div>)
 }
 
+// nobuttons is used to prevent attempts to unarchive offerings that belong to arcived tutors
+function Offering({offering, nobuttons, ...props}) {
+	let classes = ["tutor__offering"];
+
+	if(offering.archived) {
+		classes.push("tutor__offering--archived");
+	}
+
+	let archive = async () => {
+		let fetchres = await fetch(`/api/offerings/${offering.id}/archive`, {method: "POST"});
+		let fetchresp = fetchres.json();
+		if(fetchresp.status === "success") {
+
+		}
+	}
+	
+
+	return (
+		<div title={offering.course.course_name} className={classes.join(" ")}>
+			<div className="tutor__offering__coursenumber">{offering.course.course_number}</div> 
+			<div className="tutor__offering__qualification">({offering.qualification})</div> 
+			{!nobuttons && <>
+				{!offering.archived && <div className="tutor__offering__button tutor__offering__button--red"><Delete className="fixicon" onClick={archive}/></div>}
+				{offering.archived && <div className="tutor__offering__button"><RestoreFromTrashRounded className="fixicon" onClick={archive}/></div>}
+			</>}
+		</div>
+	)
+}
+
+function Offerings({offerings, nobuttons, ...props}) {
+	let archived_offerings = offerings.filter((offering) => offering.archived);
+	let normal_offerings = offerings.filter((offering) => !offering.archived);
+
+	return (<>
+		{normal_offerings.length > 0 && <div className="tutor__section">
+				<div className="tutor__section__title">Qualifications</div>
+				<div className="tutor__section__items">{normal_offerings && normal_offerings.map((offering) => <Offering nobuttons={nobuttons} offering={offering} key={offering.id}/>)} </div>
+		</div>}
+
+		{archived_offerings.length > 0 && <div className="tutor__section">
+				<div className="tutor__section__title">Archived Qualifications</div>
+				<div className="tutor__section__items">{archived_offerings && archived_offerings.map((offering) => <Offering nobuttons={nobuttons} offering={offering} key={offering.id}/>)}</div>
+		</div>}
+	</>
+	)
+}
+
 function Tutor({tutor, start_date, end_date, reload, ...props}) {
 	const [meetings, setMeetings] = useState(null);
 	const [offerings, setOfferings] = useState(null);
@@ -331,9 +378,9 @@ function Tutor({tutor, start_date, end_date, reload, ...props}) {
 	return (
 			<div className="tutor" >
 				<div className="tutor__section tutor__section--top">
-					<img className="tutor__profile" alt={tutor.name} src={`/${tutor.id}.jpg`} />
+					<img className={"tutor__profile "+(tutor.role==='Archived' ? "tutor__profile--archived" : "")} alt={tutor.name} src={`/${tutor.id}.jpg`} />
 					<div className="tutor__details">
-						<div className="tutor__details__name">{tutor.name} {tutor.role === 'Supervisor' && <AdminPanelSettings className="fixicon"/>}</div>
+						<div className={"tutor__details__name "+(tutor.role==='Archived' ? "tutor__details__name--archived" : "")}>{tutor.name} {tutor.role === 'Supervisor' && <AdminPanelSettings className="fixicon"/>}</div>
 						<div className="tutor__details__meetings">{meetings && Math.round(customer_meetings.reduce((minutes, meeting) => {return minutes + meeting.meeting.duration_mins}, 0)*100/60)/100} scheduled hours</div>
 						<div className="tutor__details__meetings">{meetings && Math.round(customer_meetings.filter((meeting) => {
 							return meeting.meeting.notes !== "" && meeting.meeting.notes != null
@@ -345,10 +392,7 @@ function Tutor({tutor, start_date, end_date, reload, ...props}) {
 					<div className="tutor__details__meetings">{phone_friendly}</div>
 					<div className="tutor__details__meetings">{tutor.email}</div>
 				</div>
-				<div className="tutor__section">
-					<div className="tutor__section__title">Qualifications</div>
-						{offerings && offerings.map((offering) => <div key={offering.id}>{offering.course.course_name} ({offering.qualification})</div>)} 
-				</div>
+				{offerings && <Offerings nobuttons={tutor.role==="Archived"} offerings={offerings} />}
 				<div className="tutor__section">
 					<div className="tutor__section__title">Add/Modify qualification</div>
 					Class

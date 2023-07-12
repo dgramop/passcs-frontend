@@ -155,7 +155,7 @@ export default function Home({...props}) {
 				<section className="home_section">
 					<h2 className="home_section__title">Who we are</h2>
 					<div className="home_section__cards">
-						{tutors && tutors.map((tutor) => (<TutorCard tutor={tutor}/>)) }
+						{tutors && tutors.filter((tutor) => tutor.role!=="Archived").map((tutor) => (<TutorCard tutor={tutor}/>)) }
 					</div>
 				</section>
 				<section className="home_section home_section--payflow">

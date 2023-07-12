@@ -19,11 +19,20 @@
 		&__title {
 				font-weight: 600;
 		}
+
+		&__items {
+			display: flex;
+			flex-direction: column;
+			gap:0.5rem;
+		}
 	}
 	&__profile {
 		width: 5rem;
 		height: 5rem;
 		clip-path: circle();
+		&--archived {
+			filter: grayscale(100%);
+		}
 	}
 
 
@@ -34,6 +43,46 @@
 
 		&__name {
 			font-weight: 600;
+			&--archived {
+				text-decoration-line: line-through;
+			}
+		}
+	}
+
+	&__offering {
+		background-color: white;
+		border-radius: 0.5rem;
+		padding:0.5rem;
+		display: flex;
+		justify-content: flex-start;
+		align-items: center;
+		gap: 1ch;
+
+		&__coursenumber {
+			font-weight: bold;
+		}
+
+		&__qualification {
+			flex-grow: 1;
+		}
+
+		&--archived {
+			text-decoration-line: line-through;
+		}
+
+		&__button {
+			cursor: pointer;
+			background-color: #d1fae5;
+			color:#052e16;
+			&--red {
+				background-color: #fee2e2;
+				color:#450a0a;
+			}
+			padding:0.5rem;
+			border-radius:5rem;
+			display: flex;
+			justify-content: center;
+			align-items: center;
 		}
 	}
 }
