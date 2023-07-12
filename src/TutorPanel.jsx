@@ -8,6 +8,7 @@ import {get_date_info, Modal, SidebarButton} from "./Components";
 import DateTimePicker from "react-datetime-picker";
 import Select from 'react-select';
 import {Button} from "./Components";
+import {DateTime} from "luxon";
 
 // TODO: DUPLICATION! consolidate Sidebar with DashNav from StudentDashboard.
 // Work on more direct features to actually making the critical worflows possible
@@ -372,8 +373,8 @@ function Tutor({tutor, start_date, end_date, reload, ...props}) {
 export function Supervisor(props) {
 	const [selected, setSelected] = useOutletContext();
 	const [tutors, setTutors] = useState(null);
-	const [startDate, setStartDate] = useState(new Date(0));
-	const [endDate, setEndDate] = useState(new Date());
+	const [startDate, setStartDate] = useState(new Date(Date.now()-1000*60*60*24*7));
+	const [endDate, setEndDate] = useState(new Date(Date.now()));
 	const [createTutor, setCreateTutor] = useState(false);
 
 	useEffect(() => {
@@ -398,8 +399,20 @@ export function Supervisor(props) {
 			</div>
 			<div>
 				<b>View summary by time period:</b><br/>
-				<DateTimePicker value={startDate} onChange={(date) => setStartDate(date)}/> - 
-				<DateTimePicker value={endDate} onChange={(date) => setEndDate(date)}/>
+				<input type="date" value={DateTime.fromJSDate(startDate).toFormat("yyyy-MM-dd")} onChange={(e) => {
+					let parsed_time = DateTime.fromISO(e.target.value);
+					if(!parsed_time.invalid) {
+						console.log(DateTime.fromJSDate(parsed_time.toJSDate()).toFormat("yyyy-MM-dd"))
+						setStartDate(parsed_time.toJSDate())
+					}
+				}} /> - 
+				<input type="date" value={DateTime.fromJSDate(endDate).toFormat("yyyy-MM-dd")} onChange={(e) => {
+					let parsed_time = DateTime.fromISO(e.target.value);
+					if(!parsed_time.invalid) {
+						console.log(DateTime.fromJSDate(parsed_time.toJSDate()).toFormat("yyyy-MM-dd"))
+						setEndDate(parsed_time.toJSDate())
+					}
+				}} />
 			</div>
 			<div className="booking_container__tutors">
 				{tutors && tutors.sort((a, b)=> a.name - b.name).map((tutor) => <Tutor key={tutor.id} start_date={startDate} end_date={endDate} tutor={tutor} reload={load_tutors} />)}
