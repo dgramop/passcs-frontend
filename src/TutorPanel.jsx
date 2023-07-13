@@ -256,7 +256,7 @@ export function WorkHistory(props) {
 }
 
 // nobuttons is used to prevent attempts to unarchive offerings that belong to arcived tutors
-function Offering({offering, nobuttons, ...props}) {
+function Offering({offering, nobuttons, reload, ...props}) {
 	let classes = ["tutor__offering"];
 
 	if(offering.archived) {
@@ -264,10 +264,43 @@ function Offering({offering, nobuttons, ...props}) {
 	}
 
 	let archive = async () => {
-		let fetchres = await fetch(`/api/offerings/${offering.id}/archive`, {method: "POST"});
-		let fetchresp = fetchres.json();
+		let fetchresp = null;
+		try {
+			let fetchres = await fetch(`/api/offerings/${offering.id}/archive`, {method: "POST"});
+			fetchresp = await fetchres.json();
+		} catch(e) {
+			console.log(e);
+			//TODO
+		}
 		if(fetchresp.status === "success") {
+			reload(fetchresp.data);
+		} else if(fetchresp.status === "failure"){
+			switch(fetchresp.error.type) {
+					//TODO: error handling
+				case "NotAuthorized":
+					console.log(fetchresp);
+					break;
+				case "OfferingNotFound":
+					console.log(fetchresp);
 
+					reload()
+					break;
+				case "UpcomingMeetings":
+					// launch a whole flow
+					break;
+				case "ArchivedTutorCannotHaveUnarchivedOfferings":
+					// should be unreachable because the button isn't visible, but it's possible the user iteracted with a stale data in the UI
+					break;
+				case "DBError":
+
+					break;
+				default:
+					console.log("Unhandled error")
+					console.log(fetchresp);
+
+					reload()
+					break;
+			}
 		}
 	}
 	
@@ -277,26 +310,26 @@ function Offering({offering, nobuttons, ...props}) {
 			<div className="tutor__offering__coursenumber">{offering.course.course_number}</div> 
 			<div className="tutor__offering__qualification">({offering.qualification})</div> 
 			{!nobuttons && <>
-				{!offering.archived && <div className="tutor__offering__button tutor__offering__button--red"><Delete className="fixicon" onClick={archive}/></div>}
+				{!offering.archived && <div className="tutor__offering__button tutor__offering__button--red" onClick={archive}><Delete className="fixicon" /></div>}
 				{offering.archived && <div className="tutor__offering__button"><RestoreFromTrashRounded className="fixicon" onClick={archive}/></div>}
 			</>}
 		</div>
 	)
 }
 
-function Offerings({offerings, nobuttons, ...props}) {
+function Offerings({offerings, nobuttons, reload, ...props}) {
 	let archived_offerings = offerings.filter((offering) => offering.archived);
 	let normal_offerings = offerings.filter((offering) => !offering.archived);
 
 	return (<>
 		{normal_offerings.length > 0 && <div className="tutor__section">
 				<div className="tutor__section__title">Qualifications</div>
-				<div className="tutor__section__items">{normal_offerings && normal_offerings.map((offering) => <Offering nobuttons={nobuttons} offering={offering} key={offering.id}/>)} </div>
+				<div className="tutor__section__items">{normal_offerings && normal_offerings.map((offering) => <Offering reload={reload} nobuttons={nobuttons} offering={offering} key={offering.id}/>)} </div>
 		</div>}
 
 		{archived_offerings.length > 0 && <div className="tutor__section">
 				<div className="tutor__section__title">Archived Qualifications</div>
-				<div className="tutor__section__items">{archived_offerings && archived_offerings.map((offering) => <Offering nobuttons={nobuttons} offering={offering} key={offering.id}/>)}</div>
+				<div className="tutor__section__items">{archived_offerings && archived_offerings.map((offering) => <Offering reload={reload} nobuttons={nobuttons} offering={offering} key={offering.id}/>)}</div>
 		</div>}
 	</>
 	)
@@ -392,7 +425,7 @@ function Tutor({tutor, start_date, end_date, reload, ...props}) {
 					<div className="tutor__details__meetings">{phone_friendly}</div>
 					<div className="tutor__details__meetings">{tutor.email}</div>
 				</div>
-				{offerings && <Offerings nobuttons={tutor.role==="Archived"} offerings={offerings} />}
+				{offerings && <Offerings reload={load_offerings} nobuttons={tutor.role==="Archived"} offerings={offerings} />}
 				<div className="tutor__section">
 					<div className="tutor__section__title">Add/Modify qualification</div>
 					Class
