@@ -256,7 +256,7 @@ function EditScheduleModal({meeting, close, reload, ...props}) {
 /**
  * @param props.display_notes Whether to display notes form
  */
-export function Meeting({ staff, payments, meeting, display_notes, reload, ...props }) {
+export function Meeting({ staff, payments, meeting, display_notes, display_tutor, reload, ...props }) {
 	let date = new Date(meeting.occurrence_epoch*1000);
 	let end = new Date(meeting.occurrence_epoch*1000 + meeting.duration_mins*60*1000);
 	let dateinfo = get_date_info(date)
@@ -316,10 +316,11 @@ export function Meeting({ staff, payments, meeting, display_notes, reload, ...pr
 				<div className="meeting__body__section">
 					<div className="meeting__body__section__title">
 						{!staff && "Your tutor"}
-						{staff && "Your customers"}
+						{staff && !display_tutor && "Your customers"}
+						{staff && display_tutor && "Attendees"}
 					</div>
 					<div className="meeting__body__section__people">
-						{!staff && original_payment && <Person imgsrc={"/"+encodeURIComponent(meeting.offering.tutor.id)+".jpg"} name={meeting.offering.tutor.name} phone={meeting.offering.tutor.phone} email={meeting.offering.tutor.email} />}
+						{((!staff && original_payment) || display_tutor) && <Person imgsrc={"/"+encodeURIComponent(meeting.tutor.id)+".jpg"} name={meeting.tutor.name} phone={meeting.tutor.phone} email={meeting.tutor.email} />}
 						{staff && payments && Object.values(payments.reduce((map, payment) => {
 							if(map[payment.customer.id]) {
 								map[payment.customer.id].push(payment);

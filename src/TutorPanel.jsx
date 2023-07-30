@@ -1,4 +1,4 @@
-import {Add, AdminPanelSettings, Archive, ArchiveOutlined, ArchiveSharp, ArrowBack, Delete, DeleteSharp, Event, EventNote, EventSharp, History, PlusOne, Restore, RestoreFromTrashRounded, RestoreFromTrashSharp} from "@mui/icons-material";
+import {Add, AdminPanelSettings, Archive, ArchiveOutlined, ArchiveSharp, ArrowBack, Delete, DeleteSharp, Event, EventNote, EventSharp, History, PlusOne, Restore, RestoreFromTrashRounded, RestoreFromTrashSharp, Summarize} from "@mui/icons-material";
 import {useEffect, useState} from "react";
 import "./TutorPanel.scss";
 import {Link, Outlet, useNavigate, useOutletContext, useParams} from "react-router-dom"
@@ -75,7 +75,8 @@ export function TutorPanelSidebar(props) {
 				<SidebarButton name="schedule" selected={props.selected} icon={<Event className="fixicon"/>} text="Schedule"/>
 				<SidebarButton name="availability" selected={props.selected} icon={<EventNote className="fixicon"/>} text="Availability"/>
 				<SidebarButton name="history" selected={props.selected} icon={<History className="fixicon"/>} text="Work History"/>
-				{tutor && tutor.role === 'Supervisor' && tutor_id === "myself" && <SidebarButton name="supervisor" selected={props.selected} icon={<AdminPanelSettings className="fixicon"/>} text="Supervisor"/>}
+				{tutor && tutor.role === 'Supervisor' && tutor_id === "myself" && <SidebarButton name="supervisor" selected={props.selected} icon={<AdminPanelSettings className="fixicon"/>} text="Team View"/>}
+				{tutor && tutor.role === 'Supervisor' && tutor_id === "myself" && <SidebarButton name="all-summaries" selected={props.selected} icon={<Summarize className="fixicon"/>} text="Summaries"/>}
 				{tutor_id !== "myself" && <SidebarButton name="back" onClick={() => {navigate("/tutors/myself/dashboard/supervisor")}} icon={<ArrowBack className="fixicon"/>} text="Back"/>}
 			</div>
 		</div>
@@ -217,6 +218,44 @@ export function Availability(props) {
 			</div>
 		</div>
 		</>)
+}
+
+// lists session summaries for all tutors in one place, so a supervisor can quickly and easily check them
+export function Summaries({...props}) {
+	const [selected, setSelected] = useOutletContext();
+	const [meetings, setMeetings] = useState(null);
+
+	useEffect(() => {
+			setSelected("all-summaries")
+	}, [setSelected]);
+
+	let load_all_meetings = async () => {
+		let meetingslist = [];
+		let tutorsresp = await fetch(`/api/tutors`);
+		let tutorsdata = await tutorsresp.json();
+		console.log(tutorsdata);
+		for(let tutor of tutorsdata.data) {
+			let meetingsresp = await fetch(`/api/tutors/${tutor.id}/meetings`);
+			let meetingsdata = await meetingsresp.json();
+			meetingslist = meetingslist.concat(meetingsdata.data)
+		}
+		setMeetings(meetingslist);
+	}
+
+	useEffect(() => {
+		load_all_meetings();
+	}, []);
+
+	return (
+		<div className="booking_container">
+			<div className="booking_container__title">
+				Recent sessions
+			</div>
+			<div className="booking_container__bookings">
+				{meetings && meetings.sort((a,b) => a.meeting.occurrence_epoch < b.meeting.occurrence_epoch).filter((meeting) => {return meeting.meeting.occurrence_epoch < Date.now()/1000 && meeting.meeting.reservations_taken > 0} ).map((meeting) => <Meeting staff reload={load_all_meetings} key={meeting.meeting.id} meeting={meeting.meeting} payments={meeting.payments} display_notes display_tutor/>)}
+			</div>
+		</div>
+	)
 }
 
 export function WorkHistory(props) {

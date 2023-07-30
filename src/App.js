@@ -1,6 +1,6 @@
 import './App.scss';
 import Home from './Home';
-import TutorPanel, {Schedule, Availability, WorkHistory, Supervisor} from './TutorPanel';
+import TutorPanel, {Schedule, Availability, Summaries, WorkHistory, Supervisor} from './TutorPanel';
 import StudentDashboard, {Sessions} from './StudentDashboard';
 import FromToken from './FromToken';
 import Terms from './Terms';
@@ -24,6 +24,7 @@ function App() {
 								<Route path="availability" element={<Availability/>} />
 								<Route path="history" element={<WorkHistory/>} />
 								<Route path="supervisor" element={<Supervisor/>} />
+								<Route path="all-summaries" element={<Summaries/>} />
 							</Route>
 							<Route path="terms" element={<Terms/>}/>
 				  </Route>
