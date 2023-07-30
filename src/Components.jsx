@@ -94,9 +94,9 @@ export function Loader({light, ...props}) {
  */
 export function Button({loading, ...props}) {
 		return (
-			<div role="button" className={"button "+(props.red ? "button--red " : "")+(props.green ? "button--green " : "")+(props.disabled ? "button--disabled " : "")+(props.secondary ? "button--secondary " : "")+(props.darktheme ? "button--secondary--darktheme " : "")+(props.secondary && props.red ? "button--secondary--red" : "")+(props.extraClasses != null ? props.extraClasses : "")} onClick={() => {
-				if(!props.disabled && props.onClick) props.onClick()
-				if(props.disabled && props.onDisabledClick) props.onDisabledClick()
+			<div role="button" className={"button "+(loading ? "button--loading " : "")+(props.red ? "button--red " : "")+(props.green ? "button--green " : "")+(props.disabled ? "button--disabled " : "")+(props.secondary ? "button--secondary " : "")+(props.darktheme ? "button--secondary--darktheme " : "")+(props.secondary && props.red ? "button--secondary--red" : "")+(props.extraClasses != null ? props.extraClasses : "")} onClick={() => {
+				if(!props.disabled && !props.loading && props.onClick) props.onClick()
+				if((props.disabled || props.loading) && props.onDisabledClick) props.onDisabledClick()
 				}}>
 				{props.children}
 				{loading && <Loader light={!props.secondary}/>}

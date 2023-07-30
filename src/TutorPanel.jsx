@@ -335,10 +335,60 @@ function Offerings({offerings, nobuttons, reload, ...props}) {
 	)
 }
 
+
+function ArchiveTutorPopup({tutor, close, offerings, reload, ...props}) {
+	const [page, setPage] = useState("confirm");
+	const [unarchivedOfferingsExist, setUnarchivedOfferingsExist] = useState(false);
+	const [futureBookedMeetingsExist, setFutureBookedMeetingsExist] = useState(false);
+	const [error, setError] = useState(false);
+	const [loading, setLoading] = useState(false);
+
+	let archiveTutor = async (tutor_to_archive_id, unarchive) => {
+		setLoading(true)
+		let archiveresp = await fetch(`/api/tutors/${tutor.id}/archive?unarchive=${unarchive}`,{method:"POST"});
+		let archivedata = await archiveresp.json();
+		if(archivedata.status === "failure") {
+			console.log(archivedata.error);
+			setError(archivedata.error);
+			setLoading(false)
+			return;
+		}
+		setLoading(false)
+		setPage("complete");
+	}
+
+	useEffect(() => {
+		// Check if there are offerings
+		if(offerings) {
+			for(let offering in offerings) {
+			}
+		}
+
+		// Check if there are future scheduled meetings
+	}, []);
+
+
+	if(page==="confirm") {
+		return (<Modal close={close} title={`Confirm ${tutor.role==="Archived" ? "un" : ""}archival`} buttons={{primary:{text:`${tutor.role==="Archived" ? "Unarchive" : "Archive"} ${tutor.name}`, red:true, onClick:() => archiveTutor(tutor.id, tutor.role==="Archived"), loading}, secondaries:[{text:"Cancel", onClick:close}]}}> 
+			Un-archiving a tutor may make this tutor bookable (once they have un-archived offerings), and they will be visible on our front page
+			<br/><br/>
+			They will be brought back as a regular tutor, not as a supervisor
+			{error && 
+				<div className="genericError">{({"CannotArchiveSelf":"You cannot archive yourself. Please contact another supervisor.", "HasAttachedOfferings":`This tutor has ${error?.offerings?.length} attached offerings. Please archive the tutors offerings before archiving the tutor.`, "HasAttachedMeetings":`This tutor has attached ${error?.meetings?.length} scheduled meetings. Please cancel them or have them re-assigned to another tutor.`})[error.type] || error.type}</div>
+			}
+		</Modal>)
+	} else if(page==="complete") {
+		return (<Modal close={close} title={`Tutor Succesfully Archived`} buttons={{primary:{text:`Close`, onClick:() => {reload(); close()} }}}> </Modal>)
+	}
+
+
+}
+
 function Tutor({tutor, start_date, end_date, reload, ...props}) {
 	const [meetings, setMeetings] = useState(null);
 	const [offerings, setOfferings] = useState(null);
 	const [courseOptions, setCourseOptions] = useState(null);
+	const [archivePopup, setArchivePopup] = useState(false);
 	const [selectedCourse, setSelectedCourse] = useState(null);
 	const [qualification, setQualification] = useState("");
 	const [background, setBackground] = useState(tutor.background);
@@ -425,6 +475,7 @@ function Tutor({tutor, start_date, end_date, reload, ...props}) {
 					<div className="tutor__details__meetings">{phone_friendly}</div>
 					<div className="tutor__details__meetings">{tutor.email}</div>
 				</div>
+				{archivePopup && <ArchiveTutorPopup reload={reload} offerings={offerings} close={() => setArchivePopup(false)} tutor={tutor}/>}
 				{offerings && <Offerings reload={load_offerings} nobuttons={tutor.role==="Archived"} offerings={offerings} />}
 				<div className="tutor__section">
 					<div className="tutor__section__title">Add/Modify qualification</div>
@@ -442,8 +493,10 @@ function Tutor({tutor, start_date, end_date, reload, ...props}) {
 
 				<div className="tutor__section">
 					<div className="tutor__section__title">Manage</div>
+					<Button secondary red onClick={() => setArchivePopup(true)}>{tutor.role==="Archived" ? "Unarchive" : "Archive"} Tutor</Button>
 					<Button onClick={() => {navigate(`/tutors/${tutor.id}/dashboard/history`)}}>View Dashboard</Button>
 				</div>
+
 		</div>)
 }
 
