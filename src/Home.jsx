@@ -148,7 +148,7 @@ export default function Home({...props}) {
 						</div>
 						<div className="home_card__body">
 							<p>Get that extra peace of mind. If you don’t pass after taking at least 12 hours of one-on-one passCS Tutoring, we’ll refund the money you paid us. <Link to="/terms">See additional terms</Link></p>
-							<p>We hire the best tutors available - people that can relate to both our students and to the topic they’re tutoring. It shows: we had zero claims last semester (for approx. 30 students).</p>
+							<p>We hire the best tutors available - people that can relate to both our students and to the topic they’re tutoring. It shows: we've only had to refund less than one percent of our students so far.</p>
 						</div>
 					</div>
 				</section>

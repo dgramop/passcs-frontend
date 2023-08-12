@@ -12,10 +12,11 @@ export default function Terms(props) {
 					<ul>
 						<li>You have never failed a course with passCS previously, and</li>
 						<li>You failed the class (F or D final grade), and</li>
-						<li>You completed the course (withdrawals, incomplete do not count), and</li>
+						<li>You completed the course (for example withdrawal/incomplete status does not count as failing), and</li>
 						<li>You did not have receive a grade high enough to allow the course to fill any of your degree requirements, and</li>
-						<li>You notify your tutor of all upcoming major assesments, assignments, exams at least 2 class sessions before they are due/occur (or immediately during your first session you have not already had 2 sessions yet), and</li>
-						<li>You attended during the same semester you were enrolled, at least 12 classes of one-on-one tutoring in the class you failed for a minimum of 12 hours of total one-on-one passCS instruction for the class you failed. For passCS Guarantee computations only, one hour of one-on-two instruction shall be equivalent to 40 minutes of one-on-one instruction (regardless of the actual presence of a second student), and</li>
+						<li>You notify your tutor of all upcoming major assesments, assignments, exams at least 2 tutoring sessions before they are due/occur (or immediately during your first session you have not already had 2 sessions yet), and</li>
+						<li>You correctly entered each of your assignment grades recieved after contracting our services within 7 days of recieving each grade into our Planner tool (grades you recieved before contracting our tutoring services must entered within 7 days of contracting our services), and</li>
+						<li>You attended during the same semester you were enrolled for the class with your university, at least 12 classes of one-on-one tutoring in the class you failed for a minimum of 12 hours of total one-on-one passCS instruction for the class you failed. For passCS Guarantee computations only, one hour of one-on-two instruction shall be equivalent to 40 minutes of one-on-one instruction (regardless of the actual presence of a second student), and</li>
 						<li>If you are in high school or are taking a academic-year-long course, you must have attended at least 30 classes of passCS Tutoring and you must have started tutoring before the half-way point of the academic year</li>
 						<li>You made a concerted effort to pass, </li>
 						<li>You made no effort to fail</li>
@@ -25,7 +26,7 @@ export default function Terms(props) {
 						<li>You must be currently enrolled in the class</li>
 					</ul>
 
-					If you fail, you must provide evidence of your course failure, itemized individual assignment grades, test scores, and feedback from your professor, and evidence that you qualify for the passCS Guarantee in writing to dhruv@passcs.io within 7 days of grades being posted, or two weeks following the end of finals, whichever comes first.<br/><br/>
+					If you fail, you must provide evidence of your course failure, itemized individual assignment grades directly from your gradebook, test scores, and feedback from your professor (as requested), and evidence that you qualify for the passCS Guarantee in writing to dhruv@passcs.io within 7 days of grades being posted, or two weeks following the end of finals, whichever comes first.<br/><br/>
 
 					<b>Parameters</b>
 					<ul>
@@ -38,6 +39,13 @@ export default function Terms(props) {
 
 					Other than the limited warranty laid out above, our services are provided AS-IS, without warranties or guarentees, implied or otherwise expressed.<br/><br/>
 					Additionally, passCS reserves the right to refuse service, at any time, for any reason (or no reason at all). 
+				</p>
+			</section>
+
+			<section>
+				<h2> Planner Tool Accuracy</h2>
+				<p>
+					The planner tool may not correctly compute your grade and does not take into account any curves that your professor may at the end of the semester. Therefore, the planner tool exists only to help you and your tutor and passCS Inc. keep track of your relative progress in class.
 				</p>
 			</section>
 
@@ -74,7 +82,8 @@ export default function Terms(props) {
 			</section>
 
 
-			<small> Last updated Feb 21, 2023. High-school and year-long 30 course/half-way period constraint</small><br/>
+			<small> Last updated Aug 3, 2023. Planner requirement</small><br/>
+			<small> Feb 21, 2023. High-school and year-long 30 course/half-way period constraint</small><br/>
 			<small> Feb 3, 2023. Clarified 40 minute rule for one-on-two sessions holds regardless of whether a second student is present or not</small><br/>
 			<small> Jan 27, 2023. Added Notification Policy section</small><br/>
 			<small> Jan 9, 2023. Removed "one-time" courtesies for no-shows, changes to the cancellation policy that permit tutors to reschedule. Clarified tutor's ability to cancel sessions. Created overtime policy section</small><br/>
