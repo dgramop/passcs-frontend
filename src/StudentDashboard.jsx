@@ -1,5 +1,5 @@
 // supercedes CustomerDashboard
-import {Check, Class, CreditCard, Edit, Event, EventRepeat, Face, Group, History, LocationOn, Pending, School} from "@mui/icons-material"
+import {Book, Check, Class, CreditCard, Edit, Event, EventRepeat, Face, Group, History, LocationOn, Pending, School} from "@mui/icons-material"
 import {Card} from "@mui/material"
 import {useEffect, useState} from "react"
 import DateTimePicker from "react-datetime-picker"
@@ -26,8 +26,9 @@ export function DashNav({ id, page, customer, ...props }) {
 				</div>
 			</div>
 			<div className="sidebar__buttons">
-				<SidebarButton name="upcoming" selected={page} text="Upcoming" icon={<Event className="fixicon"/>} />
-				<SidebarButton name="history" selected={page} text="Booking History" icon={<History className="fixicon"/>} />
+				<SidebarButton name="upcoming" selected={page} text="Upcoming Sessions" icon={<Event className="fixicon"/>} />
+				<SidebarButton name="history" selected={page} text="Meeting History" icon={<History className="fixicon"/>} />
+				<SidebarButton name="grades" selected={page} text="CS112 Grades" icon={<Book className="fixicon"/>} />
 			</div>
 		</div>
 	)

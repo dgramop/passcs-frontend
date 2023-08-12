@@ -2,6 +2,7 @@ import {useEffect, useState} from "react"
 import {Link, useNavigate} from "react-router-dom"
 import LoaderWhite from "./LoaderWhite.svg";
 import LoaderBlack from "./LoaderBlack.svg";
+import {DateTime} from "luxon";
 
 export function SidebarButton({onClick, selected, name, icon, text, ...props}) {
 	const navigate = useNavigate();
@@ -79,6 +80,28 @@ export function get_date_info(date) {
 	}
 }
 
+/**
+ * Returns approximately how long ago the date supplied was, in the most-significant units
+ * Rounds Down (chops)
+ * @param date - JS Date Object
+ */
+export function get_duration_info(date) {
+	let start_date = DateTime.fromJSDate(date);
+	let end_date = DateTime.fromMillis(Date.now())
+
+	let units =["years", "months", "weeks", "days", "hours", "minutes", "seconds"]; 
+
+	let diff = end_date.diff(start_date, units)
+
+	for(let unit of units) {
+		if(diff[unit] > 0) {
+			return `${Math.floor(diff[unit])} ${unit.substring(0, Math.floor(diff[unit]) !== 1 ? unit.length : unit.length-1)}`
+		}
+	}
+
+	return "0 seconds";
+}
+
 export const DAYS_OF_THE_WEEK = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 
 export function Loader({light, ...props}) {
@@ -88,15 +111,17 @@ export function Loader({light, ...props}) {
 }
 /**
  * props.extraClasses Additional classes
- * props.disabled Disabled
+ * disabled Disabled
+ * loading Button represents loading situation
+ * thin Reduce button height for compact buttons
  * props.onClick On click function
  * props.children Button content
  */
-export function Button({loading, ...props}) {
+export function Button({loading, thin, disabled, ...props}) {
 		return (
-			<div role="button" className={"button "+(loading ? "button--loading " : "")+(props.red ? "button--red " : "")+(props.green ? "button--green " : "")+(props.disabled ? "button--disabled " : "")+(props.secondary ? "button--secondary " : "")+(props.darktheme ? "button--secondary--darktheme " : "")+(props.secondary && props.red ? "button--secondary--red" : "")+(props.extraClasses != null ? props.extraClasses : "")} onClick={() => {
-				if(!props.disabled && !props.loading && props.onClick) props.onClick()
-				if((props.disabled || props.loading) && props.onDisabledClick) props.onDisabledClick()
+			<div role="button" className={"button "+(loading ? "button--loading " : "")+(thin ? "button--thin " : "")+(props.red ? "button--red " : "")+(props.green ? "button--green " : "")+(disabled ? "button--disabled " : "")+(props.secondary ? "button--secondary " : "")+(props.darktheme ? "button--secondary--darktheme " : "")+(props.secondary && props.red ? "button--secondary--red" : "")+(props.extraClasses != null ? props.extraClasses : "")} onClick={() => {
+				if(!disabled && !loading && props.onClick) props.onClick()
+				if((disabled || loading) && props.onDisabledClick) props.onDisabledClick()
 				}}>
 				{props.children}
 				{loading && <Loader light={!props.secondary}/>}

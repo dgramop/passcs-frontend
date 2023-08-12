@@ -5,6 +5,7 @@ import StudentDashboard, {Sessions} from './StudentDashboard';
 import FromToken from './FromToken';
 import Terms from './Terms';
 import {Routes, Route} from "react-router-dom"
+import Gradebook from "./StudentGradebook.jsx"
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
 							<Route path="student/dashboard/" element={<StudentDashboard />}>
 								<Route index element={<Sessions /> }/>
 								<Route path="upcoming" element={<Sessions /> }/>
+								<Route path="grades" element={<Gradebook /> }/>
 								<Route path="history" element={ <Sessions history/> }/>
 							</Route>
 							<Route path="login" element={<FromToken/>}/>
