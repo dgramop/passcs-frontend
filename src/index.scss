@@ -596,10 +596,57 @@ a {
 	transform-origin: 50% 50%;
 }
 
-h2 {
-	color: #475569;
-	font-weight:600;
-	padding:0;
-	margin:0;
-	margin-top:1rem;
+.iconbutton {
+
+	color: #0F172A;
+	background-color: #E2E8F0;
+	
+	&--primary {
+		background-color: #0F172A;
+		color: white;
+	}
+
+	clip-path: circle();
+	border: none;
+	cursor:pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.5rem;
+}
+
+// Groups a label and a text input (generic, some of this may be duplicated in the paymentform)
+.generic_form {
+	&__inputgroup {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		flex-grow: 1;
+	}
+
+	&__inputs {
+		display: flex;
+		flex-direction: column;
+		@include xl {
+			flex-direction: row;
+		}
+		width: 100%;
+		gap: 1rem;
+	}
+
+	&__label {
+		font-weight: 600;
+		color: #1E293B;
+	}
+
+	&__input {
+
+		// shortens the width for inputs that only take in a few chars or digits
+		// normal size for screens below lg 
+		&--short {
+			@include xl {
+				width:6ch;
+			}
+		}
+	}
 }

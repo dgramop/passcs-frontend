@@ -184,7 +184,7 @@ export function LoginModal(props) {
 		</Modal>)
 	} else {
 			return (
-			<Modal title="Get a magic log-in link" icon="auto_fix_high" buttons={{primary: {text:"Send Link", onClick: submit, disabled}, secondaries: [{text:"Go Back", onClick:()=> props.close()}]}} close={()=>props.close()}>
+				<Modal title="Get a magic log-in link" icon="auto_fix_high" buttons={{primary: {text:"Send Link", loading:waitingForLogIn, onClick: submit, disabled}, secondaries: [{text:"Go Back", onClick:()=> props.close()}]}} close={()=>props.close()}>
 					We’ll email you a link you can use to log-in with in with one click
 					<div className="modal__text__form">
 						<form onSubmit={(e) => {

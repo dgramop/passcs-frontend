@@ -69,6 +69,14 @@
 }
 
 .grades {
+	&__sectionheader {
+		color: #475569;
+		font-weight:500;
+		padding:0;
+		font-size: 1.2rem;
+		line-height: 1.2rem;
+	}
+
 	&__summary {
 		align-self: stretch;
 		background-color: #F8FAFC;
@@ -163,27 +171,7 @@
 			margin-right: 2rem;
 		}
 
-		&__inputgroup {
-			display: flex;
-			flex-direction: column;
-			gap: 0.5rem;
-			flex-grow: 1;
-		}
-
-		&__inputs {
-			display: flex;
-			flex-direction: column;
-			@include xl {
-				flex-direction: row;
-			}
-			width: 100%;
-			gap: 1rem;
-		}
-
-		&__label {
-			font-weight: 600;
-			color: #1E293B;
-		}
+		
 	}
 
 	&__grades {
@@ -213,6 +201,130 @@
 		&__dates {
 			line-height: 1rem;
 			font-size: 0.75rem;
+		}
+	}
+
+	// The category and gradebook setup screen (intake process that a customer or tutor sees)
+	&__setup {
+		@include md {
+			max-width: 45rem;
+		}
+
+		border-radius: 1rem;
+		box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+
+		padding: 2.5rem;
+		@include sm {
+			margin-right: 2rem;
+		}
+
+		border: 1px solid lightgray;
+
+		&__title {
+			font-size: 1.5rem;
+			font-weight: 600;
+		}
+
+		&__tagline {
+			font-size: 1.25rem;
+			color: #334155;
+			font-weight: 400;
+		}
+
+		&__form {
+			display: flex;
+			flex-direction: column;
+			gap:1rem;
+			align-items: stretch;
+
+			// inputs for entering a new category
+			&__newcategory {
+				background-color: #CBD5E1;
+				padding:1.25rem;
+				border-radius: 0.5rem;
+
+				// percent sign icon in text input
+				&__icon {
+					color: black;
+					font-size: 1.4rem;
+					display: inline-flex;
+					align-items: center;
+				}
+
+				&__submit {
+					&--iconbutton {
+						display: none !important;
+						@include xl {
+							display: flex !important;
+						}
+					}
+					
+					&--button {
+						@include xl {
+							display: none !important;
+						}
+					}
+				}
+			}
+
+			// an entered category that is staged for submission to backend
+			&__category > * {
+				display: flex;
+				align-items: center;
+				justify-content: flex-end;
+			}
+
+			&__category {
+
+				padding:1.25rem;
+				font-size:1.25rem;
+				background-color: #CBD5E1;
+				color: #0F172A;
+				border-radius: 0.5rem;
+
+
+				// display strategy
+				display: flex;
+				flex-direction: column;
+				gap:0.125rem;
+
+				@include sm {
+					display: grid;
+					grid-template-columns: 1.5fr 1fr 2.5fr 0.25fr ;
+					gap: 1rem;
+				}
+				
+				&--empty {
+					border: 4px dashed #CBD5E1;
+					font-weight: 500;
+					color: #475569;
+					background: none;
+					display: block;
+				}
+
+				&__name {
+					font-weight: bold;
+					vertical-align: baseline;
+					text-align: left;
+					justify-content: flex-start;
+				}
+
+				&__buttoncontainer {
+					display: flex;
+					justify-content: flex-end;
+				}
+			}
+
+		}
+
+		&__footer {
+			display: flex;
+			justify-content: space-between;
+
+			&__error {
+				display: flex;
+				align-items: center;
+			}
 		}
 	}
 }
