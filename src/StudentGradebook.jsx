@@ -163,14 +163,35 @@ function CategorySetupNewCategoryForm({addCategory, ...props}) {
 	const [name, setName] = useState("");
 	const [weightage, setWeightage] = useState(null);
 	const [drops, setDrops] = useState(0);
+	const [error, setError] = useState(null);
 
 	let submit = () => {
+		let parsed_weightage = parseInt(weightage);
+		setError(null)
+		if(name == null || name.length===0) {
+			setError("The category must have a name");
+			return;
+		}
+
+		if(isNaN(weightage) || parsed_weightage < 0 || parsed_weightage > 100) {
+			setError("The grade category's weightage must be between 0 and 100");
+			return;
+		}
+
+		if(isNaN(drops) || drops < 0) {
+			setError("You must have a non-negative number of dropped assignments. If your syllabus does not \"drop\" any lowest grades, enter 0");
+			return;
+		}
+
 		addCategory(name, weightage, drops);
+		setName("");
+		setWeightage("");
+		setDrops(0);
 	}
 
 	return (<>
 			<div className="grades__setup__form__newcategory">
-				<div className="generic_form__inputs">
+				<form onSubmit={(e) => {e.preventDefault(); submit()}} className="generic_form__inputs">
 					<div className="generic_form__inputgroup">
 						<label className="generic_form__label" for="category-name">Grade Category</label>
 						<input value={name} onChange={(e) => setName(e.target.value)} id="category-name" placeholder="Midterm" type="text"/>
@@ -185,9 +206,17 @@ function CategorySetupNewCategoryForm({addCategory, ...props}) {
 						<label className="generic_form__label" for="drops">Dropped Assignments</label>
 						<input id="drops" value={drops} onChange={(e) => setDrops(e.target.value)} className="generic_form__input--short" type="number" placeholder="0"/>
 					</div>
-					<button onClick={submit} className="grades__setup__form__newcategory__submit--iconbutton iconbutton iconbutton--primary"><Add /></button>
-					<Button onClick={submit} extraClasses="grades__setup__form__newcategory__submit--button">Add Category</Button>
-			</div>
+					<button type="submit" className="grades__setup__form__newcategory__submit--iconbutton iconbutton iconbutton--primary"><Add /></button>
+					<Button extraClasses="grades__setup__form__newcategory__submit--button">Add Category</Button>
+			</form>
+				{error && 
+				<>
+					<br/>
+					<div className="genericError">
+						{error}
+					</div>
+				</>
+				}
 		</div>
 		</>)
 }
