@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
 import {useOutletContext} from "react-router";
 import ReactSelect from "react-select";
-import {Button, get_duration_info} from "./Components";
+import {Button, get_duration_info, Loader} from "./Components";
 import {DateTime, Duration} from "luxon";
 import {Add, Delete} from "@mui/icons-material";
 
@@ -29,18 +29,14 @@ function SummaryCategory({name, weight, earned, ...props}) {
 	)
 }
 
-function GradeSummary({...props}) {
+function GradeSummary({categories, ...props}) {
 	return (
 		<div className="grades__summary">
 			<div className="grades__summary__overall">
 				98<small className="grades__summary__overall__icon">%</small>
 			</div>
 			<div className="grades__summary__categories">
-				<SummaryCategory name="Homework" earned={20} weight={35} />
-				<SummaryCategory name="Homework" earned={20} weight={35} />
-				<SummaryCategory name="Homework" earned={20} weight={35} />
-				<SummaryCategory name="Quizzes" earned={50} weight={35} />
-				<SummaryCategory name="Quizzes" earned={50} weight={35} />
+				{categories && Object.keys(categories).map((category_id) => <SummaryCategory key={category_id} name={categories[category_id].name} earned={0} drops={categories[category_id].drops} weight={categories[category_id].weight} />)}
 			</div>
 			<div className="grades__summary__actions">
 				<Button>Syllabus</Button>
@@ -50,39 +46,137 @@ function GradeSummary({...props}) {
 	)
 }
 
-function NewGradeForm({...props}) {
+function NewGradeForm({gradebook_id, categories, grades, setGrades, ...props}) {
+	const [name, setName] = useState("")
+	const [pointsEarned, setPointsEarned] = useState("")
+	const [pointsTotal, setPointsTotal] = useState("")
+	const [dueDate, setDueDate] = useState("")
+	const [selectedCategory, setSelectedCategory] = useState(null)
+
+	const [error, setError] = useState(null)
+	const [loading, setLoading] = useState(false)
+
+	let submit = async () => {
+		setError(null);
+		
+		if(grades === null) {
+			setError("Please wait, loading existing grades");
+			return;
+		}
+		// validation
+		if(name == null || name === "") {
+			setError("Please enter an assignment name")
+			return;
+		}
+
+		if(isNaN(parseInt(pointsTotal))) {
+			setError("The total number of points must be a number")
+			return;
+		}
+
+		if(parseInt(pointsTotal) <= 0) {
+			setError("The assignment must have a positive number of total points");
+			return;
+		}
+		
+		if(isNaN(parseInt(pointsEarned))) {
+			setError("The earned number of points must be a number")
+			return;
+		}
+
+		if(parseInt(pointsEarned) < 0) {
+			setError("The assignment must have a non-negative number of earned points");
+			return;
+		}
+
+		if(selectedCategory == null) {
+			setError("Please select an assignment category for this grade");
+			return;
+		}
+
+		if(dueDate === "" || dueDate == null) {
+			setError("Please select a due date for this assignment");
+			return;
+		}
+
+		
+
+
+		// even if we only support taking assingments that are graded, we will still allow future due dates 
+		// it's possible that someone submitted their assignment early (and it got graded early)
+
+		try {
+			setLoading(true)
+			let grades_form = new FormData();
+			grades_form.append("name", name)
+			grades_form.append("due_date", dueDate[Symbol.toPrimitive]("number")/1000)
+			grades_form.append("points_recieved", pointsEarned)
+			grades_form.append("points_total", pointsTotal)
+
+			let graderesp = await fetch(`/api/gradebooks/${gradebook_id}/categories/${selectedCategory.value}/grades`, {method: "POST", body: grades_form})
+			let gradedata = await graderesp.json();
+
+			if(gradedata.status === "success") {
+				setGrades([...grades, gradedata.data])
+			} else if(gradedata.status === "failure") {
+				setError({
+					"GradeAlreadyExists":"A grade with this name already exists, please try a different assignment name",
+					"DBError":"Internal Server Error",
+					"Unauthorized":"Unauthorized",
+					"CategoryNotFound":"The selected grade category no longer exists. Please refresh and try agian",
+					"GradebookNotFound":"This gradebook no longer exists. Please refresh and try agian"
+				}[gradedata.error] || gradedata.error);
+			}
+
+			setLoading(false)
+		} catch(e) {
+			console.log(e);
+			setError("Couldn't contact server. Try again later.");
+			setLoading(false);
+		}
+	}
+
+	let categoryOptions = Object.keys(categories).map((category_id) => {return {label: categories[category_id].name, value: category_id}})
+
 	return (
-		<div className="grades__newgrade">
+		<form onSubmit={(e) => { e.preventDefault(); submit() }} className="grades__newgrade">
 			<div className="generic_form__inputs">
 				<div className="generic_form__inputgroup">
-					<label className="generic_form__label" for="assn-name">Assignment Name</label>
-					<input id="assn-name" placeholder="Homework #2" type="text"/>
+					<label className="generic_form__label" htmlFor="assn-name">Assignment Name</label>
+					<input onChange={(e) => setName(e.target.value)} id="assn-name" placeholder="Homework #2" type="text"/>
 				</div>
 				
 				<div className="generic_form__inputgroup">
-					<label className="generic_form__label" for="points-earned">Points Earned</label>
-					<input id="points-earned" placeholder="9" type="number" />
+					<label className="generic_form__label" htmlFor="points-earned">Points Earned</label>
+					<input onChange={(e) => setPointsEarned(e.target.value)} id="points-earned" placeholder="9" type="number" />
 				</div>
 
 				<div className="generic_form__inputgroup">
-					<label className="generic_form__label" for="points-total">Points Total</label>
-					<input id="points-total" placeholder="10" type="number" />
+					<label className="generic_form__label" htmlFor="points-total">Points Total</label>
+					<input onChange={(e) => setPointsTotal(e.target.value)} id="points-total" placeholder="10" type="number" />
 				</div>
 
 				<div className="generic_form__inputgroup">
-					<label className="generic_form__label" for="due-date">Due Date</label>
-					<input id="due-date" type="date"/>
+					<label className="generic_form__label" htmlFor="due-date">Due Date</label>
+					<input id="due-date" type="date" value={DateTime.fromJSDate(dueDate).toFormat("yyyy-MM-dd")} onChange={(e) => {
+					let parsed_time = DateTime.fromISO(e.target.value);
+					if(!parsed_time.invalid) {
+						console.log(DateTime.fromJSDate(parsed_time.toJSDate()).toFormat("yyyy-MM-dd"))
+						setDueDate(parsed_time.toJSDate())
+					}
+				}}/>
 				</div>
 
 
 				<div className="generic_form__inputgroup">
-					<label className="generic_form__label" for="points-total">Category</label>
-					<ReactSelect />
+					<label className="generic_form__label" htmlFor="points-total">Category</label>
+					<ReactSelect className="generic_form__reactselect" value={selectedCategory} onChange={(val) => setSelectedCategory(val)} placeholder="Select or type..." options={categoryOptions} />
 				</div>
 			</div>
+			{error && <span className="genericError">{error}</span>}
 
-			<Button thin>Add to Gradebook</Button>
-		</div>
+			<Button loading={loading} onClick={submit} thin>Add to Gradebook</Button>
+		</form>
 	)
 }
 
@@ -120,10 +214,10 @@ function Grade({name, category, score, points_earned, points_total, due_date, en
 	);
 }
 
-function Grades({...props}) {
+function Grades({grades, categories, ...props}) {
 	return (
 		<div className="grades__grades">
-			<Grade name="Homework #1" category="Homeworks" score={100} due_date={0} entered_date={Date.now()/1000}/>
+			{grades && grades.map((grade) => <Grade key={grade.id} name={grade.name} category={categories[grade.grade_category].name} score={Math.floor(grade.points_recieved*100/grade.points_total)} due_date={grade.due_date} entered_date={grade.grade_entered_date}/>)}
 		</div>
 	);
 }
@@ -339,22 +433,43 @@ export function CategorySetupView({gradebook_id, onComplete, categories, setCate
 	)
 }
 
-export function GradebookMainView({...props}) {
+export function GradebookMainView({gradebook_id, categories, ...props}) {
+	const [grades, setGrades] = useState(null) 
+
+	useEffect(()=> {
+		let load = async () => {
+			// Load all grades for all categories
+			
+			console.log("begin", grades);
+			let all_grades = [];
+			for(let category in categories) {
+				let gradesresp = await fetch(`/api/gradebooks/${gradebook_id}/categories/${category}/grades`);
+				let gradesdata = await gradesresp.json();
+
+				all_grades = all_grades.concat(gradesdata.data)
+			}
+			setGrades(all_grades);
+			console.log("end");
+		}
+		if(categories && Object.keys(categories).length > 0) {
+			load()
+		}
+	},[gradebook_id, categories])
 
 	return (<>
 		<section>
 			<h2 className="dash__content__title">
 				CS112 Gradebook
 			</h2>
-			<GradeSummary />
+			<GradeSummary categories={categories}/>
 		</section>
 		<section>
 			<h2 className="grades__sectionheader">Add Grade</h2>
-			<NewGradeForm />
+			<NewGradeForm grades={grades} setGrades={setGrades} gradebook_id={gradebook_id} categories={categories} />
 		</section>
 		<section>
-			<h2 className="grades__sectionheader">Recent Grades</h2>
-			<Grades />
+			<h2 className="grades__sectionheader">Recent Grades {grades===null && <Loader />}</h2>
+			{grades && <Grades grades={grades} categories={categories}/>}
 		</section>
 		</>
 	)
@@ -388,6 +503,6 @@ export default function Gradebook({...props}) {
 	if(!showGradebook) {
 		return (<CategorySetupView gradebook_id={gradebook_id} categories={categories} setCategories={setCategories} onComplete={() => setShowGradebook(true)}  />)
 	} else {
-		return <GradebookMainView />
+		return <GradebookMainView gradebook_id={gradebook_id} categories={categories}/>
 	}
 }

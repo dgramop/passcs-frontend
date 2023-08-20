@@ -627,6 +627,7 @@ a {
 	&__inputs {
 		display: flex;
 		flex-direction: column;
+		flex-wrap:wrap;
 		@include xl {
 			flex-direction: row;
 		}
@@ -647,6 +648,12 @@ a {
 			@include xl {
 				width:6ch;
 			}
+		}
+	}
+
+	&__reactselect {
+		@include xl {
+			width: 18ch;
 		}
 	}
 }
