@@ -204,7 +204,7 @@ function Grade({name, category, score, points_earned, points_total, due_date, en
 			<div className="grades__grade__header">
 				<span className="grades__grade__header__name">{name}</span> - {category}
 			</div>
-			<div className="grades__grade__grade">
+			<div className="grades__grade__performance">
 				{score}% {points_earned && points_total && <span className="grades__grade__performance__detail">({points_earned}/{points_total})</span>}
 			</div>
 			<div className="grades__grade__dates">
@@ -217,7 +217,7 @@ function Grade({name, category, score, points_earned, points_total, due_date, en
 function Grades({grades, categories, ...props}) {
 	return (
 		<div className="grades__grades">
-			{grades && grades.map((grade) => <Grade key={grade.id} name={grade.name} category={categories[grade.grade_category].name} score={Math.floor(grade.points_recieved*100/grade.points_total)} due_date={grade.due_date} entered_date={grade.grade_entered_date}/>)}
+			{grades && grades.sort((a,b) => {return b.grade_entered_date - a.grade_entered_date}).map((grade) => <Grade key={grade.id} name={grade.name} category={categories[grade.grade_category].name} score={Math.floor(grade.points_recieved*100/grade.points_total)} points_earned={grade.points_recieved} points_total={grade.points_total} due_date={grade.due_date} entered_date={grade.grade_entered_date}/>)}
 		</div>
 	);
 }
@@ -468,7 +468,7 @@ export function GradebookMainView({gradebook_id, categories, ...props}) {
 			<NewGradeForm grades={grades} setGrades={setGrades} gradebook_id={gradebook_id} categories={categories} />
 		</section>
 		<section>
-			<h2 className="grades__sectionheader">Recent Grades {grades===null && <Loader />}</h2>
+			<h2 className="grades__sectionheader">Recently Entered Grades {grades===null && <Loader />}</h2>
 			{grades && <Grades grades={grades} categories={categories}/>}
 		</section>
 		</>

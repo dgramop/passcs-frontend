@@ -193,10 +193,18 @@
 			}
 		}
 
-		&__grade {
+		
+
+		&__performance {
 			color: #0F172A;
 			font-weight: bold;
 			font-size: 2.25rem;
+
+			&__detail {
+				font-weight:400;
+				color: #0F172A;
+				font-size:0.875rem;
+			}
 		}
 
 		&__dates {
