@@ -110,8 +110,8 @@ function NewGradeForm({gradebook_id, categories, grades, setGrades, ...props}) {
 			let grades_form = new FormData();
 			grades_form.append("name", name)
 			grades_form.append("due_date", dueDate[Symbol.toPrimitive]("number")/1000)
-			grades_form.append("points_recieved", pointsEarned)
-			grades_form.append("points_total", pointsTotal)
+			grades_form.append("points_recieved_hundreths", pointsEarned*100)
+			grades_form.append("points_total_hundreths", pointsTotal*100)
 
 			let graderesp = await fetch(`/api/gradebooks/${gradebook_id}/categories/${selectedCategory.value}/grades`, {method: "POST", body: grades_form})
 			let gradedata = await graderesp.json();
@@ -217,7 +217,7 @@ function Grade({name, category, score, points_earned, points_total, due_date, en
 function Grades({grades, categories, ...props}) {
 	return (
 		<div className="grades__grades">
-			{grades && grades.sort((a,b) => {return b.grade_entered_date - a.grade_entered_date}).map((grade) => <Grade key={grade.id} name={grade.name} category={categories[grade.grade_category].name} score={Math.floor(grade.points_recieved*100/grade.points_total)} points_earned={grade.points_recieved} points_total={grade.points_total} due_date={grade.due_date} entered_date={grade.grade_entered_date}/>)}
+			{grades && grades.sort((a,b) => {return b.grade_entered_date - a.grade_entered_date}).map((grade) => <Grade key={grade.id} name={grade.name} category={categories[grade.grade_category].name} score={Math.floor(grade.points_recieved_hundreths*100/grade.points_total_hundreths)} points_earned={grade.points_recieved_hundreths/100} points_total={grade.points_total_hundreths/100} due_date={grade.due_date} entered_date={grade.grade_entered_date}/>)}
 		</div>
 	);
 }
@@ -440,16 +440,19 @@ export function GradebookMainView({gradebook_id, categories, ...props}) {
 		let load = async () => {
 			// Load all grades for all categories
 			
-			console.log("begin", grades);
 			let all_grades = [];
 			for(let category in categories) {
 				let gradesresp = await fetch(`/api/gradebooks/${gradebook_id}/categories/${category}/grades`);
 				let gradesdata = await gradesresp.json();
 
-				all_grades = all_grades.concat(gradesdata.data)
+				if(gradesdata.status==="success") {
+					all_grades = all_grades.concat(gradesdata.data)
+				} else {
+					alert("Error loading data");
+					return;
+				}
 			}
 			setGrades(all_grades);
-			console.log("end");
 		}
 		if(categories && Object.keys(categories).length > 0) {
 			load()
