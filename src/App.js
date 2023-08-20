@@ -6,6 +6,7 @@ import FromToken from './FromToken';
 import Terms from './Terms';
 import {Routes, Route} from "react-router-dom"
 import Gradebook from "./StudentGradebook.jsx"
+import {Loader} from './Components';
 
 function App() {
   return (

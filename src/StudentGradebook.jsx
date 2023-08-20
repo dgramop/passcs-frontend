@@ -29,14 +29,20 @@ function SummaryCategory({name, weight, earned, ...props}) {
 	)
 }
 
-function GradeSummary({categories, ...props}) {
+function GradeSummary({categories, grades, ...props}) {
+	let computed = {overall:null, by_category:{}}
+
+	if(grades && categories) {
+		computed = compute_overall_grade(grades, categories)
+	}
+
 	return (
 		<div className="grades__summary">
 			<div className="grades__summary__overall">
-				98<small className="grades__summary__overall__icon">%</small>
+				{computed.overall==null ? <Loader light/> : Math.floor(computed.overall)}<small className="grades__summary__overall__icon">%</small>
 			</div>
 			<div className="grades__summary__categories">
-				{categories && Object.keys(categories).map((category_id) => <SummaryCategory key={category_id} name={categories[category_id].name} earned={0} drops={categories[category_id].drops} weight={categories[category_id].weight} />)}
+				{categories && Object.keys(categories).map((category_id) => <SummaryCategory key={category_id} name={categories[category_id].name} earned={computed.by_category[category_id]==null ? "--": Math.floor(100*computed.by_category[category_id].points_earned_hundreths/computed.by_category[category_id].points_total_hundreths)} drops={categories[category_id].drops} weight={categories[category_id].weight} />)}
 			</div>
 			<div className="grades__summary__actions">
 				<Button>Syllabus</Button>
@@ -433,6 +439,33 @@ export function CategorySetupView({gradebook_id, onComplete, categories, setCate
 	)
 }
 
+/**
+ * Computes overall and category Grades
+ */
+function compute_overall_grade(grades, categories) {
+	let by_category = {};
+	for(let grade of grades) {
+		if(by_category[grade.grade_category] == null) {
+			by_category[grade.grade_category] = {points_earned_hundreths:grade.points_recieved_hundreths, points_total_hundreths:grade.points_total_hundreths};
+		} else {
+			by_category[grade.grade_category].points_earned_hundreths += grade.points_recieved_hundreths;
+			by_category[grade.grade_category].points_total_hundreths += grade.points_total_hundreths;
+		}
+	}
+
+	let numer = 0;
+	let denom = 0; //canonically 100%. If there are grade categories with no grade entered yet (like a final exam), then this may be much lower than 100%.
+	for(let category_id in by_category) {
+		denom += categories[category_id].weight
+		numer += categories[category_id].weight * (by_category[category_id].points_earned_hundreths/by_category[category_id].points_total_hundreths)
+	}
+
+	return {
+		overall: 100*numer/denom,
+		by_category
+	}
+}
+
 export function GradebookMainView({gradebook_id, categories, ...props}) {
 	const [grades, setGrades] = useState(null) 
 
@@ -459,12 +492,14 @@ export function GradebookMainView({gradebook_id, categories, ...props}) {
 		}
 	},[gradebook_id, categories])
 
+
+
 	return (<>
 		<section>
 			<h2 className="dash__content__title">
 				CS112 Gradebook
 			</h2>
-			<GradeSummary categories={categories}/>
+			<GradeSummary grades={grades} categories={categories}/>
 		</section>
 		<section>
 			<h2 className="grades__sectionheader">Add Grade</h2>

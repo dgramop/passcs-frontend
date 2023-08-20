@@ -42,7 +42,7 @@ export function DashNav({ id, page, customer, ...props }) {
 				<SidebarButton name="upcoming" selected={page} text="Upcoming Sessions" icon={<Event className="fixicon"/>} />
 				<SidebarButton name="history" selected={page} text="Meeting History" icon={<History className="fixicon"/>} />
 				
-				{gradebooks && gradebooks.map((gradebook) => <SidebarButton id={gradebook.id} name={`grades/${gradebook.id}`} selected={page} text={`${gradebook.course.course_number} Grades`} icon={<Book className="fixicon"/>} />)}
+				{gradebooks && gradebooks.map((gradebook) => <SidebarButton key={gradebook.id} name={`grades/${gradebook.id}`} selected={page} text={`${gradebook.course.course_number} Grades`} icon={<Book className="fixicon"/>} />)}
 			</div>
 		</div>
 	)
