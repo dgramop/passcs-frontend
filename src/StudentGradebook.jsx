@@ -51,7 +51,6 @@ function GradeSummary({...props}) {
 }
 
 function NewGradeForm({...props}) {
-	//TODO: handle cases where it's a percent/all assignments are equally weighted (can do this in category)
 	return (
 		<div className="grades__newgrade">
 			<div className="generic_form__inputs">
@@ -159,55 +158,77 @@ function CategorySetupCategory({name, weight, drops, deleteCategory, ...props}) 
 /**
  * Component that lets a user populate a homework category to be staged into the form
  */
-function CategorySetupNewCategoryForm({addCategory, ...props}) {
+function CategorySetupNewCategoryForm({addCategory, gradebook_id, ...props}) {
+	const [loading, setLoading] = useState(false);
 	const [name, setName] = useState("");
-	const [weightage, setWeightage] = useState(null);
+	const [weightage, setWeightage] = useState("");
 	const [drops, setDrops] = useState(0);
 	const [error, setError] = useState(null);
 
-	let submit = () => {
+	let submit = async () => {
+		setLoading(true);
 		let parsed_weightage = parseInt(weightage);
 		setError(null)
 		if(name == null || name.length===0) {
+			setLoading(false);
 			setError("The category must have a name");
 			return;
 		}
 
 		if(isNaN(weightage) || parsed_weightage < 0 || parsed_weightage > 100) {
+			setLoading(false);
 			setError("The grade category's weightage must be between 0 and 100");
 			return;
 		}
 
 		if(isNaN(drops) || drops < 0) {
+			setLoading(false);
 			setError("You must have a non-negative number of dropped assignments. If your syllabus does not \"drop\" any lowest grades, enter 0");
 			return;
 		}
 
-		addCategory(name, weightage, drops);
-		setName("");
-		setWeightage("");
-		setDrops(0);
+		let form_data = new FormData();
+		form_data.append("weight_percent", weightage);
+		form_data.append("drops", drops);
+		form_data.append("name", name);
+
+		try {
+			let categoriesresp = await fetch(`/api/gradebooks/${gradebook_id}/categories`, {method:"POST", body: form_data});
+			let categoriesdata = await categoriesresp.json();
+			console.log(categoriesdata);
+			addCategory(categoriesdata.data.category_name, categoriesdata.data.weight_percent, categoriesdata.data.drops, categoriesdata.data.id);
+
+			setLoading(false)
+			setName("");
+			setWeightage("");
+			setDrops(0);
+
+		} catch(e) {
+			setLoading(false);
+			setError(e.type)
+		}
+
 	}
 
 	return (<>
 			<div className="grades__setup__form__newcategory">
 				<form onSubmit={(e) => {e.preventDefault(); submit()}} className="generic_form__inputs">
 					<div className="generic_form__inputgroup">
-						<label className="generic_form__label" for="category-name">Grade Category</label>
+						<label className="generic_form__label" htmlFor="category-name">Grade Category</label>
 						<input value={name} onChange={(e) => setName(e.target.value)} id="category-name" placeholder="Midterm" type="text"/>
 					</div>
 					
 					<div className="generic_form__inputgroup">
-						<label className="generic_form__label" for="weightage">Weight</label>
+						<label className="generic_form__label" htmlFor="weightage">Weight</label>
 						<div><input value={weightage} onChange={(e) => setWeightage(e.target.value)} className="generic_form__input--short" id="weightage" placeholder="25" type="number" /> <div className="grades__setup__form__newcategory__icon">%</div></div>
 					</div>
 
 					<div className="generic_form__inputgroup">
-						<label className="generic_form__label" for="drops">Dropped Assignments</label>
+						<label className="generic_form__label" htmlFor="drops">Dropped Assignments</label>
 						<input id="drops" value={drops} onChange={(e) => setDrops(e.target.value)} className="generic_form__input--short" type="number" placeholder="0"/>
 					</div>
 					<button type="submit" className="grades__setup__form__newcategory__submit--iconbutton iconbutton iconbutton--primary"><Add /></button>
-					<Button extraClasses="grades__setup__form__newcategory__submit--button">Add Category</Button>
+					<Button loading={loading} onClick={submit} extraClasses="grades__setup__form__newcategory__submit--button">Add Category</Button>
 			</form>
 				{error && 
 				<>
@@ -221,15 +242,55 @@ function CategorySetupNewCategoryForm({addCategory, ...props}) {
 		</>)
 }
 
+function has_bad_category_sum(categories) {
+		const weight_sum = Object.keys(categories).reduce((sum,category_id) => {return sum + parseInt(categories[category_id].weight)}, 0)
+		console.log(weight_sum);
+		return weight_sum < 98 || weight_sum > 101
+}
+
+// TODO: Make this more flexible so it can be used to edit already-submitted categories. Right now, once done is hit (and data hits the server), removing a category doesn't actually do anything (remember, it only removes staged categories).
 /**
  * Customer (or tutor in first session) sets up a gradebook (and its grade categories) using the syllabus
+ * gradebook_id - id of the gradebook we're adding categories to
+ * onComplete - function to call when category setup is complete
  */
-export function CategorySetupView({...props}) {
-	const [categories, setCategories] = useState([]);
-	const [error, setError] = useState("Internal Server Error")
+export function CategorySetupView({gradebook_id, onComplete, categories, setCategories, ...props}) { 
+	//TODO: some way to reasonably find the gradebook id if it doesn't already exist. Maybe a create-if-not-exists endpoint that returns the gradebook
+	let [error, setError] = useState(null)
 
-	let removeCategory = (remove_idx) => {
-		setCategories(categories.filter((category, idx) => idx!==remove_idx));
+	let removeCategory = async (category_id) => {
+		//TODO: if we let people edit categories after they've been created, we need to handle the case where a category cannot be deleted because it has attached grades
+		try {
+			let delcatresp = await fetch(`/api/gradebooks/${gradebook_id}/categories/${category_id}`, {method:"DELETE"});
+			let delcatdata = await delcatresp.json();
+
+			if(delcatdata.status !== "success") {
+				throw delcatdata;
+			}
+			delete categories[delcatdata.data.id];
+			setCategories({...categories});
+		} catch(e) {
+			setError(e.type);
+			console.log(e);
+		}
+	}
+
+	let submit = async () => {
+		setError(null);
+
+		// validation
+		if(categories.length === 0) {
+			setError("Use the form to input at least one category");
+			return;
+		}
+
+		// check thta the weightage is at least 98%. We can stuff the extra 1-2% somewhere else. We only accept integer percents, and if the class has 33 + 33 + 33, there will be an extra 1%
+		if(has_bad_category_sum(categories)) {
+			setError("The weights of each category must add up to 100%. Are you sure you entered all the categories from your syllabus?");
+			return;
+		}
+
+		onComplete();
 	}
 
 	return (<>
@@ -241,19 +302,19 @@ export function CategorySetupView({...props}) {
 			<div className="grades__setup">
 				<h3 className="grades__setup__title">Grading Criteria for CS112</h3>
 				<p className="grades__setup__tagline">Enter the grade categories as they appear on your CS112 syllabus</p>
-				<p className="grades__setup__hesitation">This form is designed to take fewer than 10 minutes of your time</p>
+				<p className="grades__setup__hesitation">This activity is designed to take fewer than 10 minutes of your time</p>
 				<div className="grades__setup__form">
-					<CategorySetupNewCategoryForm addCategory={(name, weight,drops) => setCategories([...categories, {name, weight, drops}])} />
-					{categories.length === 0 && <div className="grades__setup__form__category grades__setup__form__category--empty">
+					<CategorySetupNewCategoryForm gradebook_id={gradebook_id} addCategory={(name, weight,drops, id) => setCategories({...categories, [id]: {name, weight, drops}})} />
+					{Object.keys(categories).length === 0 && <div className="grades__setup__form__category grades__setup__form__category--empty">
 						Use the form above to input the grading criteria from your syllabus
 					</div>}
-					{categories.length !== 0 && categories.map((category, idx) => <CategorySetupCategory name={category.name} weight={category.weight} drops={category.drops} deleteCategory={() => removeCategory(idx)}/>)}
+					{Object.keys(categories).length !== 0 && Object.keys(categories).map((category_id) => <CategorySetupCategory key={category_id} name={categories[category_id].name} weight={categories[category_id].weight} drops={categories[category_id].drops} deleteCategory={() => removeCategory(category_id)}/>)}
 
 				</div>
 				<div className="grades__setup__footer">
 					<div className="grades__setup__footer__error genericError">{error}</div>
 
-					<Button secondary className="">Done</Button>
+					<Button secondary onClick={submit} className="">Done</Button>
 				</div>
 			</div>
 
@@ -279,7 +340,6 @@ export function CategorySetupView({...props}) {
 }
 
 export function GradebookMainView({...props}) {
-	const [categories, setCategories] = useState(null);
 
 	return (<>
 		<section>
@@ -302,10 +362,32 @@ export function GradebookMainView({...props}) {
 
 export default function Gradebook({...props}) {
 	const [page, setPage] = useOutletContext();
+	const [categories, setCategories] = useState({});
+	const [showGradebook, setShowGradebook] = useState(true);
+
+	let gradebook_id='97A239B1-5A09-4E6D-B394-9C0B5DE07B1E'
+
 	useEffect(() => {
 		setPage("grades");
 	}, [setPage])
+	
+	// Load existing categories
+	useEffect(() => {
+		let load = async () => {
+			let categoriesresp = await fetch(`/api/gradebooks/${gradebook_id}/categories`);
+			let categoriesdata = await categoriesresp.json();
 
-	return (<CategorySetupView />
-	)
+			const existing_cats = categoriesdata.data.reduce((map, db_category) => {map[db_category.id] = {name: db_category.category_name, weight:db_category.weight_percent, drops: db_category.drops}; return map }, {});
+			setCategories(existing_cats)
+			setShowGradebook(!has_bad_category_sum(existing_cats))
+		}
+		load()
+	}, [gradebook_id])
+
+
+	if(!showGradebook) {
+		return (<CategorySetupView gradebook_id={gradebook_id} categories={categories} setCategories={setCategories} onComplete={() => setShowGradebook(true)}  />)
+	} else {
+		return <GradebookMainView />
+	}
 }
