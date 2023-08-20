@@ -116,8 +116,8 @@ function NewGradeForm({gradebook_id, categories, grades, setGrades, ...props}) {
 			let grades_form = new FormData();
 			grades_form.append("name", name)
 			grades_form.append("due_date", dueDate[Symbol.toPrimitive]("number")/1000)
-			grades_form.append("points_recieved_hundreths", pointsEarned*100)
-			grades_form.append("points_total_hundreths", pointsTotal*100)
+			grades_form.append("points_recieved_hundreths", Math.floor(pointsEarned*100))
+			grades_form.append("points_total_hundreths", Math.floor(pointsTotal*100))
 
 			let graderesp = await fetch(`/api/gradebooks/${gradebook_id}/categories/${selectedCategory.value}/grades`, {method: "POST", body: grades_form})
 			let gradedata = await graderesp.json();
@@ -214,7 +214,7 @@ function Grade({name, category, score, points_earned, points_total, due_date, en
 				{score}% {points_earned && points_total && <span className="grades__grade__performance__detail">({points_earned}/{points_total})</span>}
 			</div>
 			<div className="grades__grade__dates">
-				Due {friendlyDueDate} ago. <br/>Entered {friendlyEnteredDate} ago.
+				Due {friendlyDueDate}. <br/>Entered {friendlyEnteredDate}.
 			</div>
 		</div>
 	);

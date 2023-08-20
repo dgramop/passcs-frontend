@@ -94,12 +94,12 @@ export function get_duration_info(date) {
 	let diff = end_date.diff(start_date, units)
 
 	for(let unit of units) {
-		if(diff[unit] > 0) {
-			return `${Math.floor(diff[unit])} ${unit.substring(0, Math.floor(diff[unit]) !== 1 ? unit.length : unit.length-1)}`
+		if(diff[unit] !== 0) {
+			return `${Math.abs(Math.floor(diff[unit]))} ${unit.substring(0, Math.floor(diff[unit]) !== 1 ? unit.length : unit.length-1)} ${Math.floor(diff[unit]) > 0 ? "ago" : "from now"}`
 		}
 	}
 
-	return "0 seconds";
+	return "now";
 }
 
 export const DAYS_OF_THE_WEEK = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
