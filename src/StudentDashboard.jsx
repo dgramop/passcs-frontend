@@ -11,6 +11,19 @@ import "./StudentDashboard.scss"
 export function DashNav({ id, page, customer, ...props }) {
 	//sidebar on desktop, tray on mobile
 	//TODO: make position fixed
+	const [gradebooks, setGradebooks] = useState(null);
+
+	useEffect(() => {
+		let load = async () => {
+			let gradebooksresp = await fetch(`/api/customers/${customer.id}/gradebooks`);
+			let gradebooksdata = await gradebooksresp.json();
+
+			setGradebooks(gradebooksdata.data)
+		}
+
+		if(customer) load()
+	}, [customer])
+
 	return (
 		<div className="sidebar">
 			<div className="sidebar__profilecard sidebar__profilecard--student">
@@ -28,7 +41,8 @@ export function DashNav({ id, page, customer, ...props }) {
 			<div className="sidebar__buttons">
 				<SidebarButton name="upcoming" selected={page} text="Upcoming Sessions" icon={<Event className="fixicon"/>} />
 				<SidebarButton name="history" selected={page} text="Meeting History" icon={<History className="fixicon"/>} />
-				<SidebarButton name="grades" selected={page} text="CS112 Grades" icon={<Book className="fixicon"/>} />
+				
+				{gradebooks && gradebooks.map((gradebook) => <SidebarButton id={gradebook.id} name={`grades/${gradebook.id}`} selected={page} text={`${gradebook.course.course_number} Grades`} icon={<Book className="fixicon"/>} />)}
 			</div>
 		</div>
 	)

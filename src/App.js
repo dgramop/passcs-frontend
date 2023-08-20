@@ -15,7 +15,7 @@ function App() {
 							<Route path="student/dashboard/" element={<StudentDashboard />}>
 								<Route index element={<Sessions /> }/>
 								<Route path="upcoming" element={<Sessions /> }/>
-								<Route path="grades" element={<Gradebook /> }/>
+								<Route path="grades/:gradebook_id" element={<Gradebook /> }/>
 								<Route path="history" element={ <Sessions history/> }/>
 							</Route>
 							<Route path="login" element={<FromToken/>}/>

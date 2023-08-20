@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {useOutletContext} from "react-router";
+import {useOutletContext, useParams} from "react-router";
 import ReactSelect from "react-select";
 import {Button, get_duration_info, Loader} from "./Components";
 import {DateTime, Duration} from "luxon";
@@ -483,10 +483,10 @@ export default function Gradebook({...props}) {
 	const [categories, setCategories] = useState({});
 	const [showGradebook, setShowGradebook] = useState(true);
 
-	let gradebook_id='97A239B1-5A09-4E6D-B394-9C0B5DE07B1E'
+	const {gradebook_id}=useParams()
 
 	useEffect(() => {
-		setPage("grades");
+		setPage(`grades/${gradebook_id}`);
 	}, [setPage])
 	
 	// Load existing categories
