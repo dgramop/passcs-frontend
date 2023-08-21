@@ -275,7 +275,7 @@ function CategorySetupNewCategoryForm({addCategory, gradebook_id, ...props}) {
 			return;
 		}
 
-		if(isNaN(weightage) || parsed_weightage < 0 || parsed_weightage > 100) {
+		if(weightage=="" || isNaN(weightage) || parsed_weightage < 0 || parsed_weightage > 100) {
 			setLoading(false);
 			setError("The grade category's weightage must be between 0 and 100");
 			return;
