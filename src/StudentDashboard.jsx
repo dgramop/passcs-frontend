@@ -4,7 +4,7 @@ import {Card} from "@mui/material"
 import {useEffect, useState} from "react"
 import DateTimePicker from "react-datetime-picker"
 import {Link, Outlet, useNavigate, useOutletContext} from "react-router-dom"
-import {Button, Chip, get_date_info, Modal, SidebarButton} from "./Components"
+import {Button, Chip, get_date_info, Loader, Modal, SidebarButton} from "./Components"
 import PaymentFlow from "./PaymentFlow"
 import "./StudentDashboard.scss"
 
@@ -29,7 +29,7 @@ export function DashNav({ id, page, customer, ...props }) {
 			<div className="sidebar__profilecard sidebar__profilecard--student">
 				<div className="sidebar__profilecard__info">
 					<div className="sidebar__profilecard__name sidebar__profilecard__name">
-						Hi {customer && customer.firstname}!
+						Hi {customer && customer.firstname}{!customer && <Loader text={8} />}!
 					</div>
 					<div className="sidebar__profilecard__role">
 						{customer?.credits > 0 && <div className="dash__nav__header__details__item">
@@ -404,9 +404,10 @@ export function Sessions({history, ...props}) {
 		<h2 className="dash__content__title">
 			{history && !(payments && payments.length === 0) && "Previous Sessions"}
 			{!history && !(payments && payments.length === 0) && "Upcoming Sessions"}
-			{payments && payments.length === 0 && <>&nbsp;&nbsp;Book a session to get started</>}
+			{payments && payments.length === 0 && <>Book a session to get started</>}
 		</h2>
 		<div className="dash__content__meetings">
+			{payments == null && error == null && <Loader />}
 			{payments && Object.values(payments.reduce((map, payment)=>{
 
 				// group payments by meetings

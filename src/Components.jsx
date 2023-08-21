@@ -104,10 +104,23 @@ export function get_duration_info(date) {
 
 export const DAYS_OF_THE_WEEK = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 
-export function Loader({light, ...props}) {
-				return (
-					<img className="loader" src={light ? LoaderWhite : LoaderBlack} alt="Load Icon"/>
-				)
+/**
+*
+* @param {*} light - If the color of the loader should be light 
+* @param {*} text - If this is a textual loader (defaults to spinner)
+* @returns 
+*/
+export function Loader({light, text, ...props}) {
+	if(text) {
+		return (
+			<span className={"loader loader--text "+(light ? "loader--light" : "")}>{"".padStart(text,"0")}</span>
+		)
+	}
+	else {
+		return (
+			<img className="loader--spinner" src={light ? LoaderWhite : LoaderBlack} alt="Load Icon"/>
+		)
+	}
 }
 /**
  * props.extraClasses Additional classes

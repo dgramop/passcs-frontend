@@ -589,11 +589,33 @@ a {
 }
 
 .loader {
-	height: 1em;
-	flex-grow: 0;
-  animation: rotating 1s linear infinite;
-	align-self: center;
-	transform-origin: 50% 50%;
+	@keyframes textload_blink {
+		0% {opacity: 0.5;}
+		50% {opacity: 1}
+		100% {opacity: 0.5}
+	}
+
+	&--spinner {
+		height: 1em;
+		flex-grow: 0;
+		animation: rotating 1s linear infinite;
+		align-self: center;
+		transform-origin: 50% 50%;
+	}
+
+	&--text {
+		background-color: #475569;
+		color: #475569;
+		user-select: none;
+		border-radius: 0.5rem;
+		animation: textload_blink 0.75s;
+	}
+
+	.loader--text.loader--light {
+		background-color: #f1f5f9;
+		color: #f1f5f9;
+		user-select: none;
+	}
 }
 
 .iconbutton {
