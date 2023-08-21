@@ -155,12 +155,12 @@ export function Modal(props) {
 								{props.children}
 						</div>
 						<div className="modal__buttons">
-								<div className="modal__buttons__secondary">{props.buttons.secondaries && props.buttons.secondaries.map((buttonProps) => (
+								<div className="modal__buttons__secondary">{props.buttons?.secondaries && props.buttons.secondaries.map((buttonProps) => (
 										<Button secondary={true} {...buttonProps}>{buttonProps.text}</Button>
 								))}
 								</div>
 								
-								<Button {...props.buttons.primary} extraClasses={(props.buttons.primary.extraClasses || "") + " modal__buttons__primary"} >{props.buttons.primary.text}</Button>
+								{props?.buttons?.primary && <Button {...props.buttons.primary} extraClasses={(props.buttons.primary.extraClasses || "") + " modal__buttons__primary"} >{props.buttons.primary.text}</Button>}
 						</div>
 				</div>
 		</>
