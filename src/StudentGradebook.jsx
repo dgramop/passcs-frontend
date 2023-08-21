@@ -39,14 +39,14 @@ function GradeSummary({categories, grades, ...props}) {
 	return (
 		<div className="grades__summary">
 			<div className="grades__summary__overall">
-				{computed.overall==null ? <Loader light/> : Math.floor(computed.overall)}<small className="grades__summary__overall__icon">%</small>
+				{computed.overall==null ? <Loader light/> : (isNaN(computed.overall) ? "~" : Math.floor(computed.overall))}<small className="grades__summary__overall__icon">%</small>
 			</div>
 			<div className="grades__summary__categories">
 				{categories && Object.keys(categories).map((category_id) => <SummaryCategory key={category_id} name={categories[category_id].name} earned={computed.by_category[category_id]==null ? "--": Math.floor(100*computed.by_category[category_id].points_earned_hundreths/computed.by_category[category_id].points_total_hundreths)} drops={categories[category_id].drops} weight={categories[category_id].weight} />)}
 			</div>
 			<div className="grades__summary__actions">
 				<Button>Syllabus</Button>
-				<Button secondary>Gradebook Settings</Button> {/* waive passCS guarantee, turn notification on/off, upload new syllabus, change grade criteria*/}
+				{/*<Button secondary>Gradebook Settings</Button> {/* waive passCS guarantee, turn notification on/off, upload new syllabus, change grade criteria*/}
 			</div>
 		</div>
 	)
