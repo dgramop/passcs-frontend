@@ -439,30 +439,31 @@ export function CategorySetupView({gradebook_id, onComplete, categories, setCate
 	)
 }
 
-/**
- * Computes overall and category Grades
- */
 function compute_overall_grade(grades, categories) {
-	let by_category = {};
-	for(let grade of grades) {
-		if(by_category[grade.grade_category] == null) {
-			by_category[grade.grade_category] = {points_earned_hundreths:grade.points_recieved_hundreths, points_total_hundreths:grade.points_total_hundreths};
-		} else {
-			by_category[grade.grade_category].points_earned_hundreths += grade.points_recieved_hundreths;
-			by_category[grade.grade_category].points_total_hundreths += grade.points_total_hundreths;
-		}
-	}
+	let grades_by_category = grades.reduce((category_groups, grade) => {
+		return {...category_groups, [grade.grade_category]:category_groups[grade.grade_category] ? [...category_groups[grade.grade_category], grade] : [grade]}
+	},{})
+
+	let sums = Object.keys(grades_by_category).reduce((category_sums, category_id) => {
+		return {...category_sums, [category_id]: 
+			grades_by_category[category_id].sort((a,b) => {return a.points_recieved_hundreths/a.points_total_hundreths - b.points_recieved_hundreths/b.points_total_hundreths}).slice(Math.min(categories[category_id].drops,Math.max(grades_by_category[category_id].length-1, 0))).reduce(
+				(sums,grade) => {
+					sums.points_total_hundreths += grade.points_total_hundreths;
+					sums.points_earned_hundreths += grade.points_recieved_hundreths;
+					return sums;
+				}, {points_earned_hundreths:0, points_total_hundreths:0} )}
+	}, {})
 
 	let numer = 0;
 	let denom = 0; //canonically 100%. If there are grade categories with no grade entered yet (like a final exam), then this may be much lower than 100%.
-	for(let category_id in by_category) {
+	for(let category_id in sums) {
 		denom += categories[category_id].weight
-		numer += categories[category_id].weight * (by_category[category_id].points_earned_hundreths/by_category[category_id].points_total_hundreths)
+		numer += categories[category_id].weight * (sums[category_id].points_earned_hundreths/sums[category_id].points_total_hundreths)
 	}
-
+	
 	return {
 		overall: 100*numer/denom,
-		by_category
+		by_category: sums
 	}
 }
 
