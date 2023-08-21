@@ -174,10 +174,23 @@ function Pay({slot_etc, capacity, course_style, subscription, back, standalone, 
 		}
 
 		//wait until the payment is paid
-		setTimeout(() => {
+		setTimeout(async () => {
 			console.log("bye")
+
+			// look up the gradebook for the class, and send the customer there if it isn't archived
+			// the next screen will make a hit to the same endpoint: opportunity for optimization
+			let gradebooksresp = await fetch("/api/customers/myself/gradebooks");
+			let gradebooksdata = await gradebooksresp.json();
+			let gradebook = gradebooksdata?.data?.filter((gb) => {
+				return gb.course.id == slot_etc.offering.course.id;
+			})[0];
+
+			console.log(gradebook);
+
+
 			if(reload) reload() 
-			else navigate("/student/dashboard")
+			else if(gradebook && !gradebook.archived) navigate(`/student/dashboard/grades/${gradebook.id}`)
+			else navigate(`/student/dashboard`) 
 		}, 500)
 
 
