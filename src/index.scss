@@ -608,7 +608,7 @@ a {
 		color: #475569;
 		user-select: none;
 		border-radius: 0.5rem;
-		animation: textload_blink 0.75s;
+		animation: textload_blink 0.75s infinite;
 	}
 
 	.loader--text.loader--light {

@@ -1,9 +1,10 @@
 import {useEffect, useState} from "react";
-import {useOutletContext, useParams} from "react-router";
+import {useNavigate, useOutletContext, useParams} from "react-router";
 import ReactSelect from "react-select";
-import {Button, get_duration_info, Loader} from "./Components";
+import {Button, get_duration_info, Loader, Modal} from "./Components";
 import {DateTime, Duration} from "luxon";
 import {Add, Delete} from "@mui/icons-material";
+import {Link} from "react-router-dom";
 
 /**
  * Represents a grade category (line item in grading criteria in syllabus)
@@ -142,7 +143,7 @@ function NewGradeForm({gradebook_id, categories, grades, setGrades, ...props}) {
 		}
 	}
 
-	let categoryOptions = Object.keys(categories).map((category_id) => {return {label: categories[category_id].name, value: category_id}})
+	let categoryOptions = categories == null ? null : Object.keys(categories).map((category_id) => {return {label: categories[category_id].name, value: category_id}})
 
 	return (
 		<form onSubmit={(e) => { e.preventDefault(); submit() }} className="grades__newgrade">
@@ -402,7 +403,7 @@ export function CategorySetupView({gradebook_id, onComplete, categories, setCate
 			<div className="grades__setup">
 				<h3 className="grades__setup__title">Grading Criteria for CS112</h3>
 				<p className="grades__setup__tagline">Enter the grade categories as they appear on your CS112 syllabus</p>
-				<p className="grades__setup__hesitation">This activity is designed to take fewer than 10 minutes of your time</p>
+				<p className="grades__setup__hesitation">This step is designed to take fewer than 3 minutes of your time</p>
 				<div className="grades__setup__form">
 					<CategorySetupNewCategoryForm gradebook_id={gradebook_id} addCategory={(name, weight,drops, id) => setCategories({...categories, [id]: {name, weight, drops}})} />
 					{Object.keys(categories).length === 0 && <div className="grades__setup__form__category grades__setup__form__category--empty">
@@ -467,7 +468,7 @@ function compute_overall_grade(grades, categories) {
 	}
 }
 
-export function GradebookMainView({gradebook_id, categories, ...props}) {
+export function GradebookMainView({gradebook, gradebook_id, categories, ...props}) {
 	const [grades, setGrades] = useState(null) 
 
 	useEffect(()=> {
@@ -498,7 +499,7 @@ export function GradebookMainView({gradebook_id, categories, ...props}) {
 	return (<>
 		<section>
 			<h2 className="dash__content__title">
-				CS112 Gradebook
+				{!gradebook?.course?.name && <Loader text={5}/>}{gradebook?.course?.name && gradebook.course.name} Gradebook
 			</h2>
 			<GradeSummary grades={grades} categories={categories}/>
 		</section>
@@ -514,20 +515,77 @@ export function GradebookMainView({gradebook_id, categories, ...props}) {
 	)
 }
 
+// Modal dialog shown to someone who has a completely empty gradebook, telling them about the gradebook and their options
+export function SetupModal({gradebook, close, ...props}) {
+	const {gradebooks, setGradebooks} = useOutletContext();
+	const [page, setPage] = useState(0);
+	const [optOutLoading, setOptOutLoading] = useState(false);
+	const [error, setError] = useState(false);
+	const navigate = useNavigate();
+
+	let waive_guarantee = async () => {
+		setOptOutLoading(true);
+		setError(null)
+		let waiveresp = await fetch(`/api/gradebooks/${gradebook.id}/archive`, {method:"POST"});
+		let waivedata = await waiveresp.json();
+
+		if(waivedata.status !== "success") {
+			setError(({"DBError":"Internal Server Error", "Unauthorized":"Insufficient Permissions", "GradebookNotFound":"This gradebook does not exist. Please contact support or try agian later"})[waivedata.error] || waivedata.error)
+			setOptOutLoading(false);
+			return;
+		}
+		setGradebooks(gradebooks.map((gb)=>{
+			if(gb.id === gradebook.id) {
+				return waivedata.data;
+			}
+			else {
+				return gb
+			}
+		}));
+		setPage(3);
+		setOptOutLoading(false);
+	}
+
+	let pages = [(
+		<Modal close={close} buttons={{primary:{text:"Next", onClick:() => setPage(1)}}} title={<>Get started with {gradebook && gradebook.course.course_number} tutoring</>} >
+			We’re excited to meet you!<br/><br/>
+passCS uses a special planner tool to help you calculate your overall grade, communicate your progress to your tutor, and stay on-track for class.
+		</Modal>
+	), (<Modal close={close} buttons={{secondaries:[{loading:optOutLoading, text:"Waive the passCS Guarantee", onClick:waive_guarantee}], primary:{text:"Keep the passCS Guarantee", onClick:() => setPage(2)}}} title={<>More about the planner tool</>} >
+		In order to qualify for the passCS Guarantee you must use the planner tool and enter in grades for individual assignments within 7 days of them being posted or otherwise communicated to you. Additional <Link target="_blank" to="/terms">terms</Link> apply.
+		<br/><br/>
+			<i>If you choose to waive The passCS Guarantee, you cannot change your mind later</i>
+		</Modal>),
+	 (<Modal close={close} buttons={{primary:{text:"I'm Ready!", onClick:close}}} title={<>You’ll need your syllabus for this step</>} >
+		 Pull up your syllabus and log-in to Blackboard, Gradescope, or wherever your course grades are kept.<br/><br/>
+		 This step is designed to take fewer than 10 minutes of your time. 
+		</Modal>),
+		(<Modal close={() => {close(); navigate("/student/dashboard")}} buttons={{primary:{text:"View Scheduled Meetings", onClick:() => {close(); navigate("/student/dashboard")} }}} title={<>passCS Guarantee Waived</>} >
+			You have succesfully waived the passCS Guarantee. We highly encourage you to communicate your expecatations for your tutoring experience to your tutor!
+		</Modal>)
+	]
+
+	return pages[page];
+}
+
 export default function Gradebook({...props}) {
-	const [page, setPage] = useOutletContext();
-	const [categories, setCategories] = useState({});
+	const { page, setPage } = useOutletContext();
+	const [categories, setCategories] = useState(null);
 	const [showGradebook, setShowGradebook] = useState(true);
+	const [gradebook, setGradebook] = useState(null);
+
+	// If the user closed the setup modal and wants to go straight to gradebook setup
+	const [forceSetup, setForceSetup] = useState(null);
 
 	const {gradebook_id}=useParams()
 
 	useEffect(() => {
 		setPage(`grades/${gradebook_id}`);
-	}, [setPage])
+	}, [setPage, gradebook_id])
 	
 	// Load existing categories
 	useEffect(() => {
-		let load = async () => {
+		let load_categories = async () => {
 			let categoriesresp = await fetch(`/api/gradebooks/${gradebook_id}/categories`);
 			let categoriesdata = await categoriesresp.json();
 
@@ -535,13 +593,30 @@ export default function Gradebook({...props}) {
 			setCategories(existing_cats)
 			setShowGradebook(!has_bad_category_sum(existing_cats))
 		}
-		load()
+
+		let load_gradebook = async () => {
+			let gradebooksresp = await fetch(`/api/customers/myself/gradebooks`);
+			let gradebooksdata = await gradebooksresp.json();
+
+			setGradebook(gradebooksdata.data.filter((gb) => gb.id === gradebook_id)[0]);
+		}
+		load_categories();
+		load_gradebook();
 	}, [gradebook_id])
 
+	
 
 	if(!showGradebook) {
-		return (<CategorySetupView gradebook_id={gradebook_id} categories={categories} setCategories={setCategories} onComplete={() => setShowGradebook(true)}  />)
+		if(categories != null && Object.keys(categories).length === 0 && !forceSetup) {
+			return (
+				<>
+					<SetupModal close={() => setForceSetup(true)} gradebook={gradebook}/>
+				</>
+			)
+		} else {
+			return (<CategorySetupView gradebook={gradebook} gradebook_id={gradebook_id} categories={categories} setCategories={setCategories} onComplete={() => setShowGradebook(true)}  />)
+		}
 	} else {
-		return <GradebookMainView gradebook_id={gradebook_id} categories={categories}/>
+		return <GradebookMainView gradebook={gradebook} gradebook_id={gradebook_id} categories={categories}/>
 	}
 }

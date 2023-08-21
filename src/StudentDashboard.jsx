@@ -8,21 +8,9 @@ import {Button, Chip, get_date_info, Loader, Modal, SidebarButton} from "./Compo
 import PaymentFlow from "./PaymentFlow"
 import "./StudentDashboard.scss"
 
-export function DashNav({ id, page, customer, ...props }) {
+export function DashNav({ id, page, customer, gradebooks, ...props }) {
 	//sidebar on desktop, tray on mobile
 	//TODO: make position fixed
-	const [gradebooks, setGradebooks] = useState(null);
-
-	useEffect(() => {
-		let load = async () => {
-			let gradebooksresp = await fetch(`/api/customers/${customer.id}/gradebooks`);
-			let gradebooksdata = await gradebooksresp.json();
-
-			setGradebooks(gradebooksdata.data)
-		}
-
-		if(customer) load()
-	}, [customer])
 
 	return (
 		<div className="sidebar">
@@ -42,7 +30,7 @@ export function DashNav({ id, page, customer, ...props }) {
 				<SidebarButton name="upcoming" selected={page} text="Upcoming Sessions" icon={<Event className="fixicon"/>} />
 				<SidebarButton name="history" selected={page} text="Meeting History" icon={<History className="fixicon"/>} />
 				
-				{gradebooks && gradebooks.map((gradebook) => <SidebarButton key={gradebook.id} name={`grades/${gradebook.id}`} selected={page} text={`${gradebook.course.course_number} Grades`} icon={<Book className="fixicon"/>} />)}
+				{gradebooks && gradebooks.filter((gb)=>!gb.archived).map((gradebook) => <SidebarButton key={gradebook.id} name={`grades/${gradebook.id}`} selected={page} text={`${gradebook.course.course_number} Grades`} icon={<Book className="fixicon"/>} />)}
 			</div>
 		</div>
 	)
@@ -52,6 +40,7 @@ export default function StudentDashboard({ ...props}) {
 	const [customer, setCustomer] = useState(null)
 	const [page, setPage] = useState("upcoming");
 	const navigate = useNavigate()
+	const [gradebooks, setGradebooks] = useState(null);
 
 	useEffect(() => {
 		const load_customer = async () => {
@@ -74,11 +63,23 @@ export default function StudentDashboard({ ...props}) {
 		load_customer()
 	},[])
 
+
+	useEffect(() => {
+		let load = async () => {
+			let gradebooksresp = await fetch(`/api/customers/${customer.id}/gradebooks`);
+			let gradebooksdata = await gradebooksresp.json();
+
+			setGradebooks(gradebooksdata.data)
+		}
+
+		if(customer) load()
+	}, [customer])
+
 	return (
 		<div className="tutorpanel">
-			<DashNav page={page} customer={customer}/>
+			<DashNav gradebooks={gradebooks} page={page} customer={customer}/>
 			<div className="booking_container">
-				<Outlet context={[page, setPage]}/>
+				<Outlet context={{gradebooks, setGradebooks, page, setPage}}/>
 			</div>
 		</div>
 	)
@@ -367,7 +368,7 @@ export function Sessions({history, ...props}) {
 	const [error, setError] = useState(null)
 	const [empty, setEmpty] = useState(true);
 
-	const [page, setPage] = useOutletContext();
+	const { page, setPage } = useOutletContext();
 
 	useEffect(() => {
 		setPage(history ? "history" : "upcoming");
