@@ -253,6 +253,14 @@
 			padding-bottom:1rem;
 		}
 
+		&__faq {
+			@include xl {
+				max-width: 80ch;
+			}
+			margin-right: 1ch;
+			line-height: 1.75em;
+		}
+
 		&__form {
 			display: flex;
 			flex-direction: column;

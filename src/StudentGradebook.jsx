@@ -423,7 +423,16 @@ export function CategorySetupView({gradebook_id, onComplete, categories, setCate
 
 		<section>
 			<h2 className="grades__sectionheader">About the Gradebook</h2>
-			<p>
+			<p className="grades__setup__faq">
+				<b>What is this for?</b> The gradebook tool helps you and your tutor calculate your grade in the class. It also facilitates communication between you and your tutor, so that your tutor can help you in the areas you struggle with most. This tool is intended to make you more likely to pass your class. 
+			<p/>
+				<b>Who will my grades be shared with?</b> Only passCS employees are allowed to know your grades when you enter them into this tool.
+			<p/>
+				<b>Who will my grades be shared with?</b> Only passCS employees are allowed to know your grades when you enter them into this tool. Your tutor and their supervisor will routinely check these grades so we can best fit your experience to meet your needs
+			<p/>
+				<b>Is this required?</b> If you would like to qualify for our money back guarantee, yes. Using the gradebook feature, and making sure all grades are entered within a few days of you recieving in them, is required by our <Link target="_blank" to="/terms">terms</Link>. 
+			<p/> 
+				<b>Need help or have more questions?</b> It will be our pleasure to assist you or hear your feedback over the phone or via text message. Please call our support number: <i>(571) 572-9406</i>. 
 				{/*
 					Discuss the gradebook FAQs here 
 					Helps you calculate your grade, since some professors don't have blackboard setup that way.
@@ -549,10 +558,10 @@ export function SetupModal({gradebook, close, ...props}) {
 	let pages = [(
 		<Modal close={close} buttons={{primary:{text:"Next", onClick:() => setPage(1)}}} title={<>Get started with {gradebook && gradebook.course.course_number} tutoring</>} >
 			We’re excited to meet you!<br/><br/>
-passCS uses a special planner tool to help you calculate your overall grade, communicate your progress to your tutor, and stay on-track for class.
+passCS uses a gradebook calculator to help you calculate your overall grade, communicate your progress to your tutor, and stay on-track for class.
 		</Modal>
-	), (<Modal close={close} buttons={{secondaries:[{loading:optOutLoading, text:"Waive the passCS Guarantee", onClick:waive_guarantee}], primary:{text:"Keep the passCS Guarantee", onClick:() => setPage(2)}}} title={<>More about the planner tool</>} >
-		In order to qualify for the passCS Guarantee you must use the planner tool and enter in grades for individual assignments within 7 days of them being posted or otherwise communicated to you. Additional <Link target="_blank" to="/terms">terms</Link> apply.
+	), (<Modal close={close} buttons={{secondaries:[{loading:optOutLoading, text:"Waive the passCS Guarantee", onClick:waive_guarantee}], primary:{text:"Keep the passCS Guarantee", onClick:() => setPage(2)}}} title={<>More about the gradebook tool</>} >
+		In order to qualify for the passCS Guarantee you must use the gradebok to enter in grades for individual assignments within 7 days of them being posted or otherwise communicated to you. Additional <Link target="_blank" to="/terms">terms</Link> apply.
 		<br/><br/>
 			<i>If you choose to waive The passCS Guarantee, you cannot change your mind later</i>
 		</Modal>),

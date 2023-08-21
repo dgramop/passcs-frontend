@@ -15,7 +15,7 @@ export default function Terms(props) {
 						<li>You completed the course (for example withdrawal/incomplete status does not count as failing), and</li>
 						<li>You did not have receive a grade high enough to allow the course to fill any of your degree requirements, and</li>
 						<li>You notify your tutor of all upcoming major assesments, assignments, exams at least 2 tutoring sessions before they are due/occur (or immediately during your first session you have not already had 2 sessions yet), and</li>
-						<li>You correctly entered each of your assignment grades recieved after contracting our services within 7 days of recieving each grade into our Planner tool (grades you recieved before contracting our tutoring services must entered within 7 days of contracting our services), and</li>
+						<li>You correctly entered each of your assignment grades recieved after contracting our services within 7 days of recieving each grade into our Gradebook tool (grades you recieved before contracting our tutoring services must entered within 7 days of contracting our services), and</li>
 						<li>You attended during the same semester you were enrolled for the class with your university, at least 12 classes of one-on-one tutoring in the class you failed for a minimum of 12 hours of total one-on-one passCS instruction for the class you failed. For passCS Guarantee computations only, one hour of one-on-two instruction shall be equivalent to 40 minutes of one-on-one instruction (regardless of the actual presence of a second student), and</li>
 						<li>If you are in high school or are taking a academic-year-long course, you must have attended at least 30 classes of passCS Tutoring and you must have started tutoring before the half-way point of the academic year</li>
 						<li>You made a concerted effort to pass, </li>
@@ -43,7 +43,7 @@ export default function Terms(props) {
 			</section>
 
 			<section>
-				<h2> Planner Tool Accuracy</h2>
+				<h2> Gradebook Tool Accuracy</h2>
 				<p>
 					The planner tool may not correctly compute your grade and does not take into account any curves that your professor may at the end of the semester. Therefore, the planner tool exists only to help you and your tutor and passCS Inc. keep track of your relative progress in class.
 				</p>
@@ -82,7 +82,7 @@ export default function Terms(props) {
 			</section>
 
 
-			<small> Last updated Aug 3, 2023. Planner requirement</small><br/>
+			<small> Last updated Aug 21, 2023. Gradebook requirement</small><br/>
 			<small> Feb 21, 2023. High-school and year-long 30 course/half-way period constraint</small><br/>
 			<small> Feb 3, 2023. Clarified 40 minute rule for one-on-two sessions holds regardless of whether a second student is present or not</small><br/>
 			<small> Jan 27, 2023. Added Notification Policy section</small><br/>
