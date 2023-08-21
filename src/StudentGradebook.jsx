@@ -211,7 +211,7 @@ function Grade({name, category, score, points_earned, points_total, due_date, en
 				<span className="grades__grade__header__name">{name}</span> - {category}
 			</div>
 			<div className="grades__grade__performance">
-				{score}% {points_earned && points_total && <span className="grades__grade__performance__detail">({points_earned}/{points_total})</span>}
+				{score}% <span className="grades__grade__performance__detail">({points_earned}/{points_total})</span>
 			</div>
 			<div className="grades__grade__dates">
 				Due {friendlyDueDate}. <br/>Entered {friendlyEnteredDate}.
