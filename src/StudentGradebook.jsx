@@ -504,11 +504,10 @@ export function GradebookMainView({gradebook, gradebook_id, categories, ...props
 	},[gradebook_id, categories])
 
 
-
 	return (<>
 		<section>
 			<h2 className="dash__content__title">
-				{!gradebook?.course?.name && <Loader text={5}/>}{gradebook?.course?.name && gradebook.course.name} Gradebook
+				{!gradebook?.course?.course_number && <Loader text={5}/>}{gradebook?.course?.course_number && gradebook.course.course_number} Gradebook
 			</h2>
 			<GradeSummary grades={grades} categories={categories}/>
 		</section>
@@ -607,7 +606,8 @@ export default function Gradebook({...props}) {
 			let gradebooksresp = await fetch(`/api/customers/myself/gradebooks`);
 			let gradebooksdata = await gradebooksresp.json();
 
-			setGradebook(gradebooksdata.data.filter((gb) => gb.id === gradebook_id)[0]);
+			let found_gradebook = gradebooksdata.data.filter((gb) => gb.id === gradebook_id)[0];
+			setGradebook(found_gradebook);
 		}
 		load_categories();
 		load_gradebook();
