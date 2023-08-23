@@ -78,7 +78,7 @@ function Pay({slot_etc, capacity, course_style, subscription, back, standalone, 
 			setPhone(customerdata.phone)
 			console.log(customerdata.data)
 		} else if(customerdata.error?.type==="DBError") {
-			setError("Cannot contact server, please text or dial 571-524-3033 to reserve your spot")
+			setError("Cannot contact server, please text or dial (571) 572-9406 to reserve your spot")
 		} else {
 			//assume the customer doesn't exist
 			setCustomer(false)
@@ -133,7 +133,7 @@ function Pay({slot_etc, capacity, course_style, subscription, back, standalone, 
 			customer_g = customer.data;
 		} else if(customer === null) {
 			// we couldn't load the customer due to a DB Error
-			setError("Failed to load customer, please text or dial 571-524-3033 to reserve your spot")
+			setError("Failed to load customer, please text or dial (571) 572-9406 to reserve your spot")
 			return;
 		} 
 
@@ -218,7 +218,7 @@ function Pay({slot_etc, capacity, course_style, subscription, back, standalone, 
 				</div>
 				<div className="payflow__inputgroup">
 					<h3 className="payflow__inputgroup__title">Phone number</h3>
-					<TextField placeholder="571-524-3033" autoComplete="tel-national" type="phone" value={phone} onChange={setPhone}/>
+					<TextField placeholder="571-572-9406" autoComplete="tel-national" type="phone" value={phone} onChange={setPhone}/>
 				</div>
 				<div className="payflow__inputgroup">
 					<h3 className="payflow__inputgroup__title">Email</h3>
@@ -483,7 +483,7 @@ export default function PaymentFlow({reload, embed, className, autoscroll, ...pr
 				let meetingsdata = await meetingsresp.json()
 
 				if(meetingsdata.data.length === 0) {
-					setClassError(`All tutors for ${selectedCourse.label} are fully booked. Please check back tomorrow or dial/text 571-524-3033`)
+					setClassError(`All tutors for ${selectedCourse.label} are fully booked. Please check back tomorrow or dial/text (571) 572-9406`)
 				}
 				setMeetings(meetingsdata.data)
 				//setSlots(null);
@@ -491,7 +491,7 @@ export default function PaymentFlow({reload, embed, className, autoscroll, ...pr
 				let slotsresp = await fetch(`/api/slots/?course=${encodeURIComponent(selectedCourse.value)}`)
 				let slotsdata = await slotsresp.json()
 				if(slotsdata.data.length === 0) {
-					setClassError(`All tutors for ${selectedCourse.label} are fully booked for weekly subscriptions. Please check back tomorrow or dial/text 571-524-3033`)
+					setClassError(`All tutors for ${selectedCourse.label} are fully booked for weekly subscriptions. Please check back tomorrow or dial/text (571) 572-9406`)
 				}
 				setSlots(slotsdata.data)
 				//setMeetings(null)
