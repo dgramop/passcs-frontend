@@ -355,7 +355,7 @@ function has_bad_category_sum(categories) {
  * gradebook_id - id of the gradebook we're adding categories to
  * onComplete - function to call when category setup is complete
  */
-export function CategorySetupView({gradebook_id, onComplete, categories, setCategories, ...props}) { 
+export function CategorySetupView({gradebook_id, gradebook, onComplete, categories, setCategories, ...props}) { 
 	//TODO: some way to reasonably find the gradebook id if it doesn't already exist. Maybe a create-if-not-exists endpoint that returns the gradebook
 	let [error, setError] = useState(null)
 
@@ -401,8 +401,8 @@ export function CategorySetupView({gradebook_id, onComplete, categories, setCate
 				Setup your gradebook
 			</h2>
 			<div className="grades__setup">
-				<h3 className="grades__setup__title">Grading Criteria for CS112</h3>
-				<p className="grades__setup__tagline">Enter the grade categories as they appear on your CS112 syllabus</p>
+				<h3 className="grades__setup__title">Grading Criteria for {gradebook?.course?.course_number && gradebook.course.course_number}</h3>
+				<p className="grades__setup__tagline">Enter the grade categories as they appear on your {gradebook?.course?.course_number && gradebook.course.course_number} syllabus</p>
 				<p className="grades__setup__hesitation">This step is designed to take fewer than 3 minutes of your time</p>
 				<div className="grades__setup__form">
 					<CategorySetupNewCategoryForm gradebook_id={gradebook_id} addCategory={(name, weight,drops, id) => setCategories({...categories, [id]: {name, weight, drops}})} />
