@@ -542,14 +542,6 @@ export function SetupModal({gradebook, close, ...props}) {
 			setOptOutLoading(false);
 			return;
 		}
-		setGradebooks(gradebooks.map((gb)=>{
-			if(gb.id === gradebook.id) {
-				return waivedata.data;
-			}
-			else {
-				return gb
-			}
-		}));
 		setPage(3);
 		setOptOutLoading(false);
 	}
@@ -616,7 +608,7 @@ export default function Gradebook({...props}) {
 	
 
 	if(!showGradebook) {
-		if(categories != null && Object.keys(categories).length === 0 && !forceSetup) {
+		if(!(gradebook && gradebook.archived) && categories != null && Object.keys(categories).length === 0 && !forceSetup) {
 			return (
 				<>
 					<SetupModal close={() => setForceSetup(true)} gradebook={gradebook}/>
