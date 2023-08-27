@@ -538,7 +538,7 @@ a {
 .tutorpanel {
 	display: flex;
 	flex-direction: column-reverse;
-	justify-content: flex-end;
+	justify-content: stretch;
 	position:fixed;
 	height: 100%;
 	width: 100%;

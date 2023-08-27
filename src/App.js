@@ -28,6 +28,7 @@ function App() {
 								<Route path="history" element={<WorkHistory/>} />
 								<Route path="supervisor" element={<Supervisor/>} />
 								<Route path="all-summaries" element={<Summaries/>} />
+								<Route path="grades/:gradebook_id" element={<Gradebook tutorview /> }/>
 							</Route>
 							<Route path="terms" element={<Terms/>}/>
 				  </Route>

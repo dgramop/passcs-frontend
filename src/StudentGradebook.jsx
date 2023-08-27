@@ -355,7 +355,7 @@ function has_bad_category_sum(categories) {
  * gradebook_id - id of the gradebook we're adding categories to
  * onComplete - function to call when category setup is complete
  */
-export function CategorySetupView({gradebook_id, gradebook, onComplete, categories, setCategories, ...props}) { 
+export function CategorySetupView({tutorview, gradebook_id, gradebook, onComplete, categories, setCategories, ...props}) { 
 	//TODO: some way to reasonably find the gradebook id if it doesn't already exist. Maybe a create-if-not-exists endpoint that returns the gradebook
 	let [error, setError] = useState(null)
 
@@ -396,7 +396,6 @@ export function CategorySetupView({gradebook_id, gradebook, onComplete, categori
 
 	return (<>
 		<section>
-
 			<h2 className="dash__content__title">
 				Setup your gradebook
 			</h2>
@@ -421,12 +420,10 @@ export function CategorySetupView({gradebook_id, gradebook, onComplete, categori
 
 		</section>
 
-		<section>
+		{!tutorview && <section>
 			<h2 className="grades__sectionheader">About the Gradebook</h2>
 			<p className="grades__setup__faq">
 				<b>What is this for?</b> The gradebook tool helps you and your tutor calculate your grade in the class. It also facilitates communication between you and your tutor, so that your tutor can help you in the areas you struggle with most. This tool is intended to make you more likely to pass your class. 
-			<p/>
-				<b>Who will my grades be shared with?</b> Only passCS employees are allowed to know your grades when you enter them into this tool.
 			<p/>
 				<b>Who will my grades be shared with?</b> Only passCS employees are allowed to know your grades when you enter them into this tool. Your tutor and their supervisor will routinely check these grades so we can best fit your experience to meet your needs
 			<p/>
@@ -443,8 +440,7 @@ export function CategorySetupView({gradebook_id, gradebook, onComplete, categori
 					About opting-out of the gradebook, and how they can opt out later too (though they cannot opt back in)
 				*/}
 			</p>
-		</section>
-
+		</section>}
 		</>
 	)
 }
@@ -568,7 +564,7 @@ passCS uses a gradebook calculator to help you calculate your overall grade, com
 	return pages[page];
 }
 
-export default function Gradebook({...props}) {
+export default function Gradebook({tutorview, ...props}) {
 	const { page, setPage } = useOutletContext();
 	const [categories, setCategories] = useState(null);
 	const [showGradebook, setShowGradebook] = useState(true);
@@ -608,16 +604,23 @@ export default function Gradebook({...props}) {
 	
 
 	if(!showGradebook) {
-		if(!(gradebook && gradebook.archived) && categories != null && Object.keys(categories).length === 0 && !forceSetup) {
+		if(!tutorview && !(gradebook && gradebook.archived) && categories != null && Object.keys(categories).length === 0 && !forceSetup) {
 			return (
 				<>
 					<SetupModal close={() => setForceSetup(true)} gradebook={gradebook}/>
 				</>
 			)
 		} else {
-			return (<CategorySetupView gradebook={gradebook} gradebook_id={gradebook_id} categories={categories} setCategories={setCategories} onComplete={() => setShowGradebook(true)}  />)
+			return (
+				<div className="booking_container">
+					<CategorySetupView gradebook={gradebook} gradebook_id={gradebook_id} categories={categories} setCategories={setCategories} onComplete={() => setShowGradebook(true)}  tutorview={tutorview} />
+				</div>)
 		}
 	} else {
-		return <GradebookMainView gradebook={gradebook} gradebook_id={gradebook_id} categories={categories}/>
+		return (
+			<div className="booking_container">
+				<GradebookMainView gradebook={gradebook} gradebook_id={gradebook_id} categories={categories}/>
+			</div>
+		)
 	}
 }

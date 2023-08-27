@@ -78,9 +78,7 @@ export default function StudentDashboard({ ...props}) {
 	return (
 		<div className="tutorpanel">
 			<DashNav gradebooks={gradebooks} page={page} customer={customer}/>
-			<div className="booking_container">
-				<Outlet context={{gradebooks, setGradebooks, page, setPage}}/>
-			</div>
+			<Outlet context={{gradebooks, setGradebooks, page, setPage}}/>
 		</div>
 	)
 }
@@ -401,7 +399,7 @@ export function Sessions({history, ...props}) {
 	}, [navigate])
 
 	return (
-	<>
+	<div className="booking_container">
 		<h2 className="dash__content__title">
 			{history && !(payments && payments.length === 0) && "Previous Sessions"}
 			{!history && !(payments && payments.length === 0) && "Upcoming Sessions"}
@@ -423,6 +421,6 @@ export function Sessions({history, ...props}) {
 			{!history && payments && payments.length === 0 && <PaymentFlow reload={load_payments} className={"studentdash_payflow"} embed />}
 			{history && payments && payments.length === 0 && <>You have no previous sessions<Link to="/"><Button primary>Book sessions</Button></Link></>}
 		</div>
-	</>
+	</div>
 	)
 }

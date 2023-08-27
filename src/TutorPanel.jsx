@@ -84,7 +84,7 @@ export function TutorPanelSidebar(props) {
 }
 
 export function Schedule(props) {
-	const [selected, setSelected] = useOutletContext();
+	const { selected, setSelected } = useOutletContext();
 	const [meetings, setMeetings] = useState(null);
 
 	let {tutor_id} = useParams();
@@ -183,7 +183,7 @@ export function CreateSlotPopup(props) {
 }
 
 export function Availability(props) {
-	const [selected, setSelected] = useOutletContext();
+	const { selected, setSelected } = useOutletContext();
 	const [meetings, setMeetings] = useState(null);
 	const [createSlots, setCreateSlots] = useState(false);
 
@@ -214,7 +214,7 @@ export function Availability(props) {
 			</div>
 			<div className="booking_container__bookings">
 				{meetings && meetings.filter((meeting) => {return meeting.meeting.occurrence_epoch > Date.now()/1000} ).map((meeting) => <Meeting staff reload={load_meetings} key={meeting.meeting.id} meeting={meeting.meeting} payments={meeting.payments} />)}
-				{meetings && meetings.length === 0 && <span>Use the + button above to add availability</span>} 
+				{meetings && meetings.filter((meeting) => {return meeting.meeting.occurrence_epoch > Date.now()/1000} ).length === 0 && <span>Use the + button above to add availability</span>} 
 			</div>
 		</div>
 		</>)
@@ -222,7 +222,7 @@ export function Availability(props) {
 
 // lists session summaries for all tutors in one place, so a supervisor can quickly and easily check them
 export function Summaries({...props}) {
-	const [selected, setSelected] = useOutletContext();
+	const { selected, setSelected } = useOutletContext();
 	const [meetings, setMeetings] = useState(null);
 
 	useEffect(() => {
@@ -259,7 +259,7 @@ export function Summaries({...props}) {
 }
 
 export function WorkHistory(props) {
-	const [selected, setSelected] = useOutletContext();
+	const { selected, setSelected } = useOutletContext();
 	const [meetings, setMeetings] = useState(null);
 
 	let {tutor_id} = useParams();
@@ -540,7 +540,7 @@ function Tutor({tutor, start_date, end_date, reload, ...props}) {
 }
 
 export function Supervisor(props) {
-	const [selected, setSelected] = useOutletContext();
+	const { selected, setSelected } = useOutletContext();
 	const [tutors, setTutors] = useState(null);
 	const [startDate, setStartDate] = useState(new Date(Date.now()-1000*60*60*24*7));
 	const [endDate, setEndDate] = useState(new Date(Date.now()));
@@ -591,12 +591,19 @@ export function Supervisor(props) {
 
 }
 
+export function Gradebooks({...props}) {
+	return (
+		<>
+		</>
+	)
+}
+
 export default function TutorPanel(props) {
 	let [selected, setSelected] = useState("bookings");
 	return (
 		<div className="tutorpanel">
 			<TutorPanelSidebar selected={selected} />
-			<Outlet context={[selected, setSelected]} />
+			<Outlet context={{selected, setSelected, page:selected, setPage:setSelected}} />
 		</div>
 	)
 }
