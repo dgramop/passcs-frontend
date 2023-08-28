@@ -187,7 +187,7 @@ function NewGradeForm({gradebook_id, categories, grades, setGrades, ...props}) {
 	)
 }
 
-function Grade({name, category, score, points_earned, points_total, due_date, entered_date, ...props}) {
+export function Grade({name, category, score, points_earned, points_total, due_date, entered_date, in_summary, className, ...props}) {
 	let [friendlyDueDate, setFriendlyDueDate] = useState("forver");
 	let [friendlyEnteredDate, setFriendlyEnteredDate] = useState("forever");
 
@@ -207,7 +207,7 @@ function Grade({name, category, score, points_earned, points_total, due_date, en
 	},[due_date, entered_date])
 
 	return (
-		<div className="grades__grade">
+		<div className={"grades__grade "+(className || "")}>
 			<div className="grades__grade__header">
 				<span className="grades__grade__header__name">{name}</span> - {category}
 			</div>
@@ -445,7 +445,7 @@ export function CategorySetupView({tutorview, gradebook_id, gradebook, onComplet
 	)
 }
 
-function compute_overall_grade(grades, categories) {
+export function compute_overall_grade(grades, categories) {
 	let grades_by_category = grades.reduce((category_groups, grade) => {
 		return {...category_groups, [grade.grade_category]:category_groups[grade.grade_category] ? [...category_groups[grade.grade_category], grade] : [grade]}
 	},{})
@@ -573,7 +573,7 @@ export default function Gradebook({tutorview, ...props}) {
 	// If the user closed the setup modal and wants to go straight to gradebook setup
 	const [forceSetup, setForceSetup] = useState(null);
 
-	const {gradebook_id}=useParams()
+	const {gradebook_id, customer_id}=useParams()
 
 	useEffect(() => {
 		setPage(`grades/${gradebook_id}`);
@@ -590,16 +590,29 @@ export default function Gradebook({tutorview, ...props}) {
 			setShowGradebook(!has_bad_category_sum(existing_cats))
 		}
 
-		let load_gradebook = async () => {
+		let load_gradebook_customer = async () => {
 			let gradebooksresp = await fetch(`/api/customers/myself/gradebooks`);
 			let gradebooksdata = await gradebooksresp.json();
 
 			let found_gradebook = gradebooksdata.data.filter((gb) => gb.id === gradebook_id)[0];
 			setGradebook(found_gradebook);
 		}
+
+		let load_gradebook_tutor = async () => {
+			// In this case we load myself since if this is a supervisor viewing another tutor's dashboard
+			let gradebooksresp = await fetch(`/api/tutors/myself/gradebooks?show_all=true`);
+			let gradebooksdata = await gradebooksresp.json();
+
+			let found_gradebook = gradebooksdata.data.filter((gb) => gb.id === gradebook_id)[0];
+			setGradebook(found_gradebook);
+		}
 		load_categories();
-		load_gradebook();
-	}, [gradebook_id])
+		if(tutorview) {
+			load_gradebook_tutor();
+		} else {
+			load_gradebook_customer();
+		}
+	}, [tutorview, gradebook_id])
 
 	
 

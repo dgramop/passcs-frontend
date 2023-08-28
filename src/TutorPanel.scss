@@ -170,4 +170,77 @@
 		}
 		gap: 1rem;
 	}
+
+	&__gradebooks {
+		display: grid;
+		padding: 1rem;
+		@include xl {
+			grid-template-columns: 1fr 1fr;
+		}
+		gap: 2rem;
+	}
+}
+
+.gradebook_summary {
+	background-color: #F8FAFC;
+	box-shadow: 0px 0px 4px 4px rgba(0, 0, 0, 0.25);
+	border-radius: 1rem;
+	padding: 2rem;
+	padding-left: 3rem;
+	padding-right: 3rem;
+	color: #0F172A;
+	display: flex;
+	gap: 1.5rem;
+	flex-direction: column;
+
+	&__latestgrade {
+		&__grade {
+			background-color: #CBD5E1 !important;
+			box-shadow: none !important;
+		}
+	}
+
+	&__header {
+		display: flex;
+		gap: 1rem;
+
+		&__grade {
+			background-color: #CBD5E1;
+			clip-path: circle();
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			padding: 1rem;
+			font-weight: 700;
+			font-size: 2.5rem;
+
+			&__percent {
+				height: 0.7rem;
+				font-size: 1rem;
+			}
+		}
+		&__gradebook_properties {
+			display: flex;
+			flex-direction: column;
+
+			&__name {
+				font-size: 2rem;
+				font-weight: 500;
+				overflow: clip;
+				white-space: nowrap;
+				max-width: 14ch;
+			}
+			&__course {
+				font-weight: 400;
+				font-size: 1.25rem;
+			}
+		}
+	}
+
+	&__link_container {
+		display: flex;
+		justify-content: center;
+	}
+	
 }

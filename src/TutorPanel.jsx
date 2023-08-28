@@ -1,14 +1,16 @@
-import {Add, AdminPanelSettings, Archive, ArchiveOutlined, ArchiveSharp, ArrowBack, Delete, DeleteSharp, Event, EventNote, EventSharp, History, PlusOne, Restore, RestoreFromTrashRounded, RestoreFromTrashSharp, Summarize} from "@mui/icons-material";
+import {Add, AdminPanelSettings, Archive, ArchiveOutlined, ArchiveSharp, ArrowBack, Bookmarks, Class, CollectionsBookmark, Delete, DeleteSharp, Event, EventNote, EventSharp, History, People, PlusOne, Restore, RestoreFromTrashRounded, RestoreFromTrashSharp, Summarize} from "@mui/icons-material";
 import {useEffect, useState} from "react";
 import "./TutorPanel.scss";
 import {Link, Outlet, useNavigate, useOutletContext, useParams} from "react-router-dom"
 import {Meeting} from "./StudentDashboard";
-import {get_date_info, Modal, SidebarButton} from "./Components";
+import {get_date_info, Modal, SidebarButton, get_duration_info} from "./Components";
 
 import DateTimePicker from "react-datetime-picker";
 import Select from 'react-select';
 import {Button} from "./Components";
 import {DateTime} from "luxon";
+
+import {compute_overall_grade, Grade} from "./StudentGradebook"
 
 // TODO: DUPLICATION! consolidate Sidebar with DashNav from StudentDashboard.
 // Work on more direct features to actually making the critical worflows possible
@@ -75,6 +77,8 @@ export function TutorPanelSidebar(props) {
 				<SidebarButton name="schedule" selected={props.selected} icon={<Event className="fixicon"/>} text="Schedule"/>
 				<SidebarButton name="availability" selected={props.selected} icon={<EventNote className="fixicon"/>} text="Availability"/>
 				<SidebarButton name="history" selected={props.selected} icon={<History className="fixicon"/>} text="Work History"/>
+				<SidebarButton name="gradebooks" selected={props.selected} icon={<Class className="fixicon"/>} text="Gradebooks"/>
+				{tutor && tutor.role === 'Supervisor' && tutor_id === "myself" && <SidebarButton name="all-gradebooks" selected={props.selected} icon={<CollectionsBookmark className="fixicon"/>} text="All Gradebooks"/>}
 				{tutor && tutor.role === 'Supervisor' && tutor_id === "myself" && <SidebarButton name="supervisor" selected={props.selected} icon={<AdminPanelSettings className="fixicon"/>} text="Team View"/>}
 				{tutor && tutor.role === 'Supervisor' && tutor_id === "myself" && <SidebarButton name="all-summaries" selected={props.selected} icon={<Summarize className="fixicon"/>} text="Summaries"/>}
 				{tutor_id !== "myself" && <SidebarButton name="back" onClick={() => {navigate("/tutors/myself/dashboard/supervisor")}} icon={<ArrowBack className="fixicon"/>} text="Back"/>}
@@ -604,6 +608,120 @@ export default function TutorPanel(props) {
 		<div className="tutorpanel">
 			<TutorPanelSidebar selected={selected} />
 			<Outlet context={{selected, setSelected, page:selected, setPage:setSelected}} />
+		</div>
+	)
+}
+
+export function GradebookSummaryCard({gradebook, ...props}) {
+
+	const [grades, setGrades] = useState(null);
+	const [categories, setCategories] = useState(null);
+	const [computed, setComputed] = useState(null);
+	const [error, setError] = useState(null);
+	let {tutor_id} = useParams();
+
+	useEffect(()=> {
+		let load = async () => {
+			// Load all grades for all categories
+			let categoriesresp = await fetch(`/api/gradebooks/${gradebook.id}/categories`);
+			let categoriesdata = await categoriesresp.json();
+
+			if(categoriesdata.data === null) {
+				setError("Error loading categories");
+			}
+
+			const categories = categoriesdata.data.reduce((map, db_category) => {map[db_category.id] = {name: db_category.category_name, weight:db_category.weight_percent, drops: db_category.drops}; return map }, {});
+			setCategories(categories);
+
+			let all_grades = [];
+			for(let category in categories) {
+				let gradesresp = await fetch(`/api/gradebooks/${gradebook.id}/categories/${category}/grades`);
+				let gradesdata = await gradesresp.json();
+
+				if(gradesdata.status==="success") {
+					all_grades = all_grades.concat(gradesdata.data)
+				} else {
+					setError("Error loading grades");
+					return;
+				}
+			}
+			setGrades(all_grades.sort((a,b)=> b.grade_entered_date - a.grade_entered_date));
+			// if loading grades fails, since we don't reset computed, it's possible that computed will then go out-of-date
+			// unlikely to matter much so will ignore this
+			setComputed(compute_overall_grade(all_grades, categories))
+		}
+		load()
+	},[gradebook])
+
+	return (
+		<div className="gradebook_summary">
+			<div className="gradebook_summary__header">
+				<div className="gradebook_summary__header__grade">
+					{computed?.overall}
+					<span className="gradebook_summary__header__grade__percent">
+						%
+					</span>
+				</div>
+				<div className="gradebook_summary__header__gradebook_properties">
+					<div className="gradebook_summary__header__gradebook_properties__name">
+						{gradebook.customer.firstname} {gradebook.customer.lastname.charAt(0)}.
+					</div>
+					<div className="gradebook_summary__header__gradebook_properties__course">
+						{gradebook.course.course_name} 
+					</div>
+				</div>
+			</div>
+
+			<div className="gradebook_summary__latestgrade">
+				Last-entered Grade ({grades && get_duration_info(new Date(grades[0].grade_entered_date))})
+				{grades && <Grade className={"gradebook_summary__latestgrade__grade"} name={grades[0].name} category={categories[grades[0].grade_category].name} score={Math.floor(grades[0].points_recieved_hundreths*100/grades[0].points_total_hundreths)} points_earned={grades[0].points_recieved_hundreths/100} points_total={grades[0].points_total_hundreths/100} due_date={grades[0].due_date} entered_date={grades[0].grade_entered_date}/>}
+			</div>
+			<div className="gradebook_summary__link_container">
+				<Link to={`/tutors/${tutor_id}/dashboard/gradebooks/${gradebook.id}`}>View Gradebook</Link>
+			</div>
+		</div>
+	)
+}
+
+/**
+ * Lists gradebook summaries for a tutor
+ * @param {showAll} - encodes whether the tutors endpoint should list gradebooks for the tutor whose dashboard this is for, or ALL gradebooks the *currently-logged-in* tutor can see (in this case the tutor passed the endpoint is ignored).
+ */
+export function GradebookList({showAll, ...props}) {
+	const { setSelected } = useOutletContext();
+	const [gradebooks, setGradebooks] = useState(null);
+
+	let {tutor_id} = useParams();
+
+	useEffect(() => {
+		if(showAll) {
+			setSelected("all-gradebooks")
+		} else {
+			setSelected("gradebooks")
+		}
+	}, [showAll, setSelected]);
+
+	useEffect( () => {
+		let load_customers = async () => { 
+			let customersresp = await fetch(`/api/tutors/${tutor_id}/gradebooks?show_all=${showAll===true}`);
+			let customersdata = await customersresp.json();
+			// TODO: Error handle, filter customers by ones a supervisor specifically tutors? Query customers by tutor instead? Maybe we need a customer relationships table
+
+			setGradebooks(customersdata.data)
+		}
+
+		load_customers();
+
+	}, [showAll, tutor_id]);
+
+	return (
+		<div className="booking_container">
+			<div className="booking_container__title">
+				Your Gradebooks
+			</div>
+			<div className="booking_container__gradebooks">
+				{gradebooks && gradebooks.map((gradebook) => <GradebookSummaryCard gradebook={gradebook} />)}
+			</div>
 		</div>
 	)
 }

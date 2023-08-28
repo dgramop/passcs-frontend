@@ -1,6 +1,6 @@
 import './App.scss';
 import Home from './Home';
-import TutorPanel, {Schedule, Availability, Summaries, WorkHistory, Supervisor} from './TutorPanel';
+import TutorPanel, {Schedule, Availability, Summaries, WorkHistory, Supervisor, GradebookList} from './TutorPanel';
 import StudentDashboard, {Sessions} from './StudentDashboard';
 import FromToken from './FromToken';
 import Terms from './Terms';
@@ -28,7 +28,9 @@ function App() {
 								<Route path="history" element={<WorkHistory/>} />
 								<Route path="supervisor" element={<Supervisor/>} />
 								<Route path="all-summaries" element={<Summaries/>} />
-								<Route path="grades/:gradebook_id" element={<Gradebook tutorview /> }/>
+								<Route path="gradebooks" element={<GradebookList /> }/>
+								<Route path="all-gradebooks" element={<GradebookList showAll={true}/> }/>
+								<Route path="gradebooks/:gradebook_id" element={<Gradebook tutorview /> }/>
 							</Route>
 							<Route path="terms" element={<Terms/>}/>
 				  </Route>
