@@ -657,7 +657,7 @@ export function GradebookSummaryCard({gradebook, ...props}) {
 		<div className="gradebook_summary">
 			<div className="gradebook_summary__header">
 				<div className="gradebook_summary__header__grade">
-					{computed?.overall}
+					{grades && grades.length > 0 && computed?.overall}{grades && grades.length === 0 && "--"}
 					<span className="gradebook_summary__header__grade__percent">
 						%
 					</span>
@@ -673,8 +673,9 @@ export function GradebookSummaryCard({gradebook, ...props}) {
 			</div>
 
 			<div className="gradebook_summary__latestgrade">
-				Last-entered Grade ({grades && get_duration_info(new Date(grades[0].grade_entered_date))})
-				{grades && <Grade className={"gradebook_summary__latestgrade__grade"} name={grades[0].name} category={categories[grades[0].grade_category].name} score={Math.floor(grades[0].points_recieved_hundreths*100/grades[0].points_total_hundreths)} points_earned={grades[0].points_recieved_hundreths/100} points_total={grades[0].points_total_hundreths/100} due_date={grades[0].due_date} entered_date={grades[0].grade_entered_date}/>}
+				Last-entered Grade ({grades && grades.length === 0 && "Never"}{grades && grades.length > 0 && get_duration_info(new Date(grades[0].grade_entered_date))})
+				{grades && grades.length > 0 && <Grade className={"gradebook_summary__latestgrade__grade"} name={grades[0].name} category={categories[grades[0].grade_category].name} score={Math.floor(grades[0].points_recieved_hundreths*100/grades[0].points_total_hundreths)} points_earned={grades[0].points_recieved_hundreths/100} points_total={grades[0].points_total_hundreths/100} due_date={grades[0].due_date} entered_date={grades[0].grade_entered_date}/>}
+				{grades && grades.length === 0 && <><br/><b>No grades entered</b></>}
 			</div>
 			<div className="gradebook_summary__link_container">
 				<Link to={`/tutors/${tutor_id}/dashboard/gradebooks/${gradebook.id}`}>View Gradebook</Link>
