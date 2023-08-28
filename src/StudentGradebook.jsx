@@ -420,7 +420,12 @@ export function CategorySetupView({tutorview, gradebook_id, gradebook, onComplet
 
 		</section>
 
-		{!tutorview && <section>
+
+		<section>
+			<h2 className="grades__sectionheader">Help Video</h2>
+			<iframe className="embed" width="560" height="315" src="https://www.youtube.com/embed/LBnz7V89Z9A?si=Sa9nd8R-kKoGyUuy" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+		</section>
+		 <section>
 			<h2 className="grades__sectionheader">About the Gradebook</h2>
 			<p className="grades__setup__faq">
 				<b>What is this for?</b> The gradebook tool helps you and your tutor calculate your grade in the class. It also facilitates communication between you and your tutor, so that your tutor can help you in the areas you struggle with most. This tool is intended to make you more likely to pass your class. 
@@ -440,7 +445,7 @@ export function CategorySetupView({tutorview, gradebook_id, gradebook, onComplet
 					About opting-out of the gradebook, and how they can opt out later too (though they cannot opt back in)
 				*/}
 			</p>
-		</section>}
+		</section>
 		</>
 	)
 }
