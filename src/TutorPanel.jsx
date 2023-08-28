@@ -648,7 +648,7 @@ export function GradebookSummaryCard({gradebook, ...props}) {
 			setGrades(all_grades.sort((a,b)=> b.grade_entered_date - a.grade_entered_date));
 			// if loading grades fails, since we don't reset computed, it's possible that computed will then go out-of-date
 			// unlikely to matter much so will ignore this
-			setComputed(Math.floor(compute_overall_grade(all_grades, categories)))
+			setComputed(compute_overall_grade(all_grades, categories))
 		}
 		load()
 	},[gradebook])
@@ -657,7 +657,7 @@ export function GradebookSummaryCard({gradebook, ...props}) {
 		<div className="gradebook_summary">
 			<div className="gradebook_summary__header">
 				<div className="gradebook_summary__header__grade">
-					{grades && grades.length > 0 && computed?.overall}{grades && grades.length === 0 && "--"}
+					{grades && grades.length > 0 && Math.floor(computed?.overall)}{grades && grades.length === 0 && "--"}
 					<span className="gradebook_summary__header__grade__percent">
 						%
 					</span>
