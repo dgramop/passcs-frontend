@@ -547,7 +547,7 @@ export function Supervisor(props) {
 	const { selected, setSelected } = useOutletContext();
 	const [tutors, setTutors] = useState(null);
 	const [startDate, setStartDate] = useState(new Date(Date.now()-1000*60*60*24*7));
-	const [endDate, setEndDate] = useState(new Date(Date.now()));
+	const [endDate, setEndDate] = useState(DateTime.fromJSDate(new Date(Date.now())).endOf('day').toJSDate());
 	const [createTutor, setCreateTutor] = useState(false);
 
 	useEffect(() => {
@@ -578,14 +578,13 @@ export function Supervisor(props) {
 						console.log(DateTime.fromJSDate(parsed_time.toJSDate()).toFormat("yyyy-MM-dd"))
 						setStartDate(parsed_time.toJSDate())
 					}
-				}} /> - 
+				}} />@12:00am - 
 				<input type="date" value={DateTime.fromJSDate(endDate).toFormat("yyyy-MM-dd")} onChange={(e) => {
 					let parsed_time = DateTime.fromISO(e.target.value);
 					if(!parsed_time.invalid) {
-						console.log(DateTime.fromJSDate(parsed_time.toJSDate()).toFormat("yyyy-MM-dd"))
-						setEndDate(parsed_time.toJSDate())
+						setEndDate(parsed_time.endOf('day').toJSDate())
 					}
-				}} />
+				}} />@11:59pm
 			</div>
 			<div className="booking_container__tutors">
 				{tutors && tutors.sort((a, b)=> a.name - b.name).map((tutor) => <Tutor key={tutor.id} start_date={startDate} end_date={endDate} tutor={tutor} reload={load_tutors} />)}
