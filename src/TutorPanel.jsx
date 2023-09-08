@@ -630,6 +630,7 @@ export function GradebookSummaryCard({gradebook, ...props}) {
 			}
 
 			const categories = categoriesdata.data.reduce((map, db_category) => {map[db_category.id] = {name: db_category.category_name, weight:db_category.weight_percent, drops: db_category.drops}; return map }, {});
+			
 			setCategories(categories);
 
 			let all_grades = [];
@@ -645,11 +646,15 @@ export function GradebookSummaryCard({gradebook, ...props}) {
 				}
 			}
 			setGrades(all_grades.sort((a,b)=> b.grade_entered_date - a.grade_entered_date));
+
+			if(Object.keys(categories).length === 0 && all_grades.length > 0) {
+				console.log(`Loading categories for gradebook ${gradebook.id} resulted in no categories but did result in grades`);
+			}
 			// if loading grades fails, since we don't reset computed, it's possible that computed will then go out-of-date
 			// unlikely to matter much so will ignore this
 			setComputed(compute_overall_grade(all_grades, categories))
 		}
-		load()
+		if(gradebook != null) load()
 	},[gradebook])
 
 	return (
@@ -673,8 +678,8 @@ export function GradebookSummaryCard({gradebook, ...props}) {
 
 			<div className="gradebook_summary__latestgrade">
 				Last-entered Grade ({grades && grades.length === 0 && "Never"}{grades && grades.length > 0 && get_duration_info(new Date(grades[0].grade_entered_date*1000))})
-				{grades && grades.length > 0 && <Grade className={"gradebook_summary__latestgrade__grade"} name={grades[0].name} category={categories[grades[0].grade_category].name} score={Math.floor(grades[0].points_recieved_hundreths*100/grades[0].points_total_hundreths)} points_earned={grades[0].points_recieved_hundreths/100} points_total={grades[0].points_total_hundreths/100} due_date={grades[0].due_date} entered_date={grades[0].grade_entered_date}/>}
-				{grades && grades.length === 0 && <><br/><b>No grades entered</b></>}
+				{grades && grades.length > 0 && categories && <Grade className={"gradebook_summary__latestgrade__grade"} name={grades[0].name} category={categories[grades[0].grade_category].name} score={Math.floor(grades[0].points_recieved_hundreths*100/grades[0].points_total_hundreths)} points_earned={grades[0].points_recieved_hundreths/100} points_total={grades[0].points_total_hundreths/100} due_date={grades[0].due_date} entered_date={grades[0].grade_entered_date}/>}
+				{grades && grades.length === 0 && categories && <><br/><b>No grades entered</b></>}
 			</div>
 			<div className="gradebook_summary__link_container">
 				<Link to={`/tutors/${tutor_id}/dashboard/gradebooks/${gradebook.id}`}>View Gradebook</Link>
@@ -720,7 +725,7 @@ export function GradebookList({showAll, ...props}) {
 				Your Gradebooks
 			</div>
 			<div className="booking_container__gradebooks">
-				{gradebooks && gradebooks.map((gradebook) => <GradebookSummaryCard gradebook={gradebook} />)}
+				{gradebooks && gradebooks.map((gradebook) => <GradebookSummaryCard key={gradebook.id} gradebook={gradebook} />)}
 			</div>
 		</div>
 	)
