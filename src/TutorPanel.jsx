@@ -256,7 +256,7 @@ export function Summaries({...props}) {
 				Recent sessions
 			</div>
 			<div className="booking_container__bookings">
-				{meetings && meetings.sort((a,b) => a.meeting.occurrence_epoch - b.meeting.occurrence_epoch).filter((meeting) => {return meeting.meeting.occurrence_epoch < Date.now()/1000 && meeting.meeting.reservations_taken > 0} ).map((meeting) => <Meeting staff reload={load_all_meetings} key={meeting.meeting.id} meeting={meeting.meeting} payments={meeting.payments} display_notes display_tutor/>)}
+				{meetings && meetings.sort((a,b) => b.meeting.occurrence_epoch - a.meeting.occurrence_epoch).filter((meeting) => {return meeting.meeting.occurrence_epoch < Date.now()/1000 && meeting.meeting.reservations_taken > 0} ).map((meeting) => <Meeting staff reload={load_all_meetings} key={meeting.meeting.id} meeting={meeting.meeting} payments={meeting.payments} display_notes display_tutor/>)}
 			</div>
 		</div>
 	)
