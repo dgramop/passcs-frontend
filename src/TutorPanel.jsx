@@ -657,6 +657,16 @@ export function GradebookSummaryCard({gradebook, ...props}) {
 		if(gradebook != null) load()
 	},[gradebook])
 
+	let deleteGrade = async (grade_to_delete) => {
+		let delreq  = await fetch(`/api/gradebooks/${grade_to_delete.gradebook}/categories/${grade_to_delete.grade_category}/grades/${grade_to_delete.id}`, {method: "DELETE"});
+		let delresp = await delreq.json();
+
+		if(delresp.status === "success") {
+			// since the delete was succesful, delete the grade without doing a full update
+			setGrades(grades.filter((grade) => grade.id !== grade_to_delete.id))
+		} 
+	}
+
 	return (
 		<div className="gradebook_summary">
 			<div className="gradebook_summary__header">
@@ -678,7 +688,7 @@ export function GradebookSummaryCard({gradebook, ...props}) {
 
 			<div className="gradebook_summary__latestgrade">
 				Last-entered Grade ({grades && grades.length === 0 && "Never"}{grades && grades.length > 0 && get_duration_info(new Date(grades[0].grade_entered_date*1000))})
-				{grades && grades.length > 0 && categories && <Grade className={"gradebook_summary__latestgrade__grade"} name={grades[0].name} category={categories[grades[0].grade_category].name} score={Math.floor(grades[0].points_recieved_hundreths*100/grades[0].points_total_hundreths)} points_earned={grades[0].points_recieved_hundreths/100} points_total={grades[0].points_total_hundreths/100} due_date={grades[0].due_date} entered_date={grades[0].grade_entered_date}/>}
+				{grades && grades.length > 0 && categories && <Grade deleteGrade={() => { deleteGrade(grades[0]) }} className={"gradebook_summary__latestgrade__grade"} name={grades[0].name} category={categories[grades[0].grade_category].name} score={Math.floor(grades[0].points_recieved_hundreths*100/grades[0].points_total_hundreths)} points_earned={grades[0].points_recieved_hundreths/100} points_total={grades[0].points_total_hundreths/100} due_date={grades[0].due_date} entered_date={grades[0].grade_entered_date}/>}
 				{grades && grades.length === 0 && categories && <><br/><b>No grades entered</b></>}
 			</div>
 			<div className="gradebook_summary__link_container">
