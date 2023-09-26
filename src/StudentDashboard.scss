@@ -207,9 +207,23 @@
 			}
 		}
 
+		&__footer {
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+		}
+
 		&__dates {
 			line-height: 1rem;
 			font-size: 0.75rem;
+		}
+
+		&__delete {
+			color: #7f1d1d;
+			cursor:pointer;
+			display: flex;
+			justify-content: center;
+			align-items: center;
 		}
 	}
 

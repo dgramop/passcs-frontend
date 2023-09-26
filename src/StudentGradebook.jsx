@@ -187,9 +187,16 @@ function NewGradeForm({gradebook_id, categories, grades, setGrades, ...props}) {
 	)
 }
 
-export function Grade({name, category, score, points_earned, points_total, due_date, entered_date, in_summary, className, ...props}) {
-	let [friendlyDueDate, setFriendlyDueDate] = useState("forver");
-	let [friendlyEnteredDate, setFriendlyEnteredDate] = useState("forever");
+export function Grade({name, category, score, points_earned, points_total, due_date, entered_date, in_summary, className, deleteGrade, ...props}) {
+	const [friendlyDueDate, setFriendlyDueDate] = useState("forver");
+	const [friendlyEnteredDate, setFriendlyEnteredDate] = useState("forever");
+	const [deletePending, setDeletePending] = useState(false);
+
+	const deleteThisGrade = async () => {
+		setDeletePending(true)
+		await deleteGrade();
+		setDeletePending(false)
+	}
 
 	useEffect(() => {
 		setFriendlyDueDate(get_duration_info(new Date(due_date*1000)))
@@ -206,6 +213,7 @@ export function Grade({name, category, score, points_earned, points_total, due_d
 
 	},[due_date, entered_date])
 
+
 	return (
 		<div className={"grades__grade "+(className || "")}>
 			<div className="grades__grade__header">
@@ -214,17 +222,22 @@ export function Grade({name, category, score, points_earned, points_total, due_d
 			<div className="grades__grade__performance">
 				{score}% <span className="grades__grade__performance__detail">({points_earned}/{points_total})</span>
 			</div>
-			<div className="grades__grade__dates">
-				Due {friendlyDueDate}. <br/>Entered {friendlyEnteredDate}.
+			<div className="grades__grade__footer">
+				<div className="grades__grade__dates">
+					Due {friendlyDueDate}. <br/>Entered {friendlyEnteredDate}.
+				</div>
+				<div role="button" onClick={deleteThisGrade} className="grades__grade__delete">
+					{deletePending ? <Loader /> : <Delete />}
+				</div>
 			</div>
 		</div>
 	);
 }
 
-function Grades({grades, categories, ...props}) {
+function Grades({grades, categories, deleteGrade, ...props}) {
 	return (
 		<div className="grades__grades">
-			{grades && grades.sort((a,b) => {return b.grade_entered_date - a.grade_entered_date}).map((grade) => <Grade key={grade.id} name={grade.name} category={categories[grade.grade_category].name} score={Math.floor(grade.points_recieved_hundreths*100/grade.points_total_hundreths)} points_earned={grade.points_recieved_hundreths/100} points_total={grade.points_total_hundreths/100} due_date={grade.due_date} entered_date={grade.grade_entered_date}/>)}
+			{grades && grades.sort((a,b) => {return b.grade_entered_date - a.grade_entered_date}).map((grade) => <Grade key={grade.id} deleteGrade={() => deleteGrade(grade)} name={grade.name} category={categories[grade.grade_category].name} score={Math.floor(grade.points_recieved_hundreths*100/grade.points_total_hundreths)} points_earned={grade.points_recieved_hundreths/100} points_total={grade.points_total_hundreths/100} due_date={grade.due_date} entered_date={grade.grade_entered_date}/>)}
 		</div>
 	);
 }
@@ -504,6 +517,16 @@ export function GradebookMainView({gradebook, gradebook_id, categories, ...props
 		}
 	},[gradebook_id, categories])
 
+	let deleteGrade = async (grade_to_delete) => {
+		let delreq  = await fetch(`/api/gradebooks/${grade_to_delete.gradebook}/categories/${grade_to_delete.grade_category}/grades/${grade_to_delete.id}`, {method: "DELETE"});
+		let delresp = await delreq.json();
+
+		if(delresp.status === "success") {
+			// since the delete was succesful, delete the grade without doing a full update
+			setGrades(grades.filter((grade) => grade.id !== grade_to_delete.id))
+		} 
+	}
+
 
 	return (<>
 		<section>
@@ -518,7 +541,7 @@ export function GradebookMainView({gradebook, gradebook_id, categories, ...props
 		</section>
 		<section>
 			<h2 className="grades__sectionheader">Recently Entered Grades {grades===null && <Loader />}</h2>
-			{grades && <Grades grades={grades} categories={categories}/>}
+			{grades && <Grades deleteGrade={deleteGrade} grades={grades} categories={categories}/>}
 		</section>
 		</>
 	)
