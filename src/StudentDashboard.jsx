@@ -218,9 +218,11 @@ function EditScheduleModal({meeting, close, reload, ...props}) {
 	let [occurrenceEpoch, setOccurrenceEpoch] = useState(new Date(meeting.occurrence_epoch*1000));
 	let [duration, setDuration] = useState(meeting.duration_mins);
 	let [error, setError] = useState(null)
+	let [loading, setLoading] = useState(false);
 
 	let submit = async () => {
 		setError(null);
+		setLoading(true)
 		let curError = null;
 
 		if(Math.floor(Date.parse(occurrenceEpoch)/1000) !== meeting.occurrence_epoch) {
@@ -247,6 +249,7 @@ function EditScheduleModal({meeting, close, reload, ...props}) {
 		}
 
 		setError(curError)
+		setLoading(false);
 		if(curError == null) {
 			reload()
 			close()
@@ -254,7 +257,7 @@ function EditScheduleModal({meeting, close, reload, ...props}) {
 	}
 
 	return (
-		<Modal close={close} title="Edit Meeting Time + Duration" buttons={{secondaries:[{text:"Close", onClick:close}], primary:{text:"Update", onClick: submit}}} >
+		<Modal close={close} title="Edit Meeting Time + Duration" buttons={{secondaries:[{text:"Close", onClick:close}], primary:{text:"Update", onClick: submit, loading}}} >
 			Start time:<br/>
 			<DateTimePicker value={occurrenceEpoch} onChange={(date)=>{setOccurrenceEpoch(date)}}/><br/><br/>
 			{occurrenceEpoch > new Date() && (duration !== 60 || meeting.duration_mins !== 60) && <>Modified duration meetings cannot be rescheduled into the future<br/></>}
