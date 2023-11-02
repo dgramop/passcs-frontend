@@ -8,4 +8,5 @@ apk add openssh
 
 SSH_OPTS="-o StrictHostKeyChecking=no -i /tmp/id_rsa"
 
-ssh $SSH_OPTS "yes | cp -r frontend_build/* /usr/share/nginx/html/"
+scp $SSH_OPTS frontend_build/* root@passcs.io:/home/passcs/frontend_staging
+ssh $SSH_OPTS root@passcs.io "yes | cp -r /home/passcs/frontend_staging/* /usr/share/nginx/html/"
