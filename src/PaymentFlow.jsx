@@ -478,20 +478,29 @@ export default function PaymentFlow({reload, embed, className, autoscroll, ...pr
 
 			//since the user selects the frequency after selecting the class, we'll assume the most permissive frequency (one-off) until they pick weekly. That way if there's an error they'll immediately know what caused it
 
+			let optionalParams = [];
+			if(size) {
+				optionalParams.push(`capacity=${size}`)
+			}
+
+			if(modality) {
+				optionalParams.push(`course_style=${modality}`);
+			}
+
 			if(frequency !== "weekly") {
-				let meetingsresp = await fetch(`/api/meetings?course=${encodeURIComponent(selectedCourse.value)}`);
+				let meetingsresp = await fetch(`/api/meetings?course=${encodeURIComponent(selectedCourse.value)}&${optionalParams.join('&')}`);
 				let meetingsdata = await meetingsresp.json()
 
 				if(meetingsdata.data.length === 0) {
-					setClassError(`All tutors for ${selectedCourse.label} are fully booked. Please check back tomorrow or dial/text (571) 572-9406`)
+					setClassError(`All tutors for ${selectedCourse.label} are fully booked for ${({1: "one-on-one", 2:"group-of-two"})[size]} meetings. Please check back tomorrow or dial/text (571) 572-9406`)
 				}
 				setMeetings(meetingsdata.data)
 				//setSlots(null);
 			} else {
-				let slotsresp = await fetch(`/api/slots/?course=${encodeURIComponent(selectedCourse.value)}`)
+				let slotsresp = await fetch(`/api/slots/?course=${encodeURIComponent(selectedCourse.value)}&subscription=true&${optionalParams.join('&')}`)
 				let slotsdata = await slotsresp.json()
 				if(slotsdata.data.length === 0) {
-					setClassError(`All tutors for ${selectedCourse.label} are fully booked for weekly subscriptions. Please check back tomorrow or dial/text (571) 572-9406`)
+					setClassError(`All tutors for ${selectedCourse.label} are fully booked for ${({1: "one-on-one", 2:"group-of-two"})[size]} weekly subscriptions. Please check back tomorrow or dial/text (571) 572-9406`)
 				}
 				setSlots(slotsdata.data)
 				//setMeetings(null)
@@ -500,7 +509,7 @@ export default function PaymentFlow({reload, embed, className, autoscroll, ...pr
 		}
 		if(selectedCourse) get_slots()
 		load_prices()
-	}, [selectedCourse, frequency])
+	}, [selectedCourse, frequency, size, modality])
 
 
 	
