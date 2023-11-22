@@ -26,7 +26,7 @@ export default function Terms(props) {
 						<li>You must be currently enrolled in the class</li>
 					</ul>
 
-					If you fail, you must provide evidence of your course failure, itemized individual assignment grades directly from your gradebook, test scores, and feedback from your professor (as requested), and evidence that you qualify for the passCS Guarantee in writing to dhruv@passcs.io within 7 days of grades being posted, or two weeks following the end of finals, whichever comes first.<br/><br/>
+					If you fail, you must provide evidence of your course failure, itemized individual assignment grades directly from your gradebook, test scores, and feedback from your professor (as requested), and evidence that you qualify for the passCS Guarantee in writing to dhruv@passcs.io within 7 days of grades being posted, or two weeks following the end of finals, whichever comes first. You must also provide (at your own cost) a sealed official transcript mailed (or emailed) by your institution upon request by passCS or an authorized representative.<br/><br/>
 
 					<b>Parameters</b>
 					<ul>
@@ -82,7 +82,8 @@ export default function Terms(props) {
 			</section>
 
 
-			<small> Last updated Aug 26, 2023. Loosen gradebook requirement to kick in during the second class</small><br/>
+			<small> Last updated Nov 18, 2023. Require official transcript in case of failure</small><br/>
+			<small> Aug 26, 2023. Loosen gradebook requirement to kick in during the second class</small><br/>
 			<small> Aug 21, 2023. Gradebook requirement</small><br/>
 			<small> Feb 21, 2023. High-school and year-long 30 course/half-way period constraint</small><br/>
 			<small> Feb 3, 2023. Clarified 40 minute rule for one-on-two sessions holds regardless of whether a second student is present or not</small><br/>
