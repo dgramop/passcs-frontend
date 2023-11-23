@@ -1,4 +1,4 @@
-import {Add, AdminPanelSettings, Archive, ArchiveOutlined, ArchiveSharp, ArrowBack, Bookmarks, Class, CollectionsBookmark, Delete, DeleteSharp, Event, EventNote, EventSharp, Expand, History, LoginSharp, Menu, More, People, PlusOne, Restore, RestoreFromTrashRounded, RestoreFromTrashSharp, Summarize, Unarchive} from "@mui/icons-material";
+import {Add, AdminPanelSettings, Archive, ArchiveOutlined, ArchiveSharp, ArrowBack, Bookmarks, Class, CollectionsBookmark, Delete, DeleteSharp, Event, EventNote, EventSharp, Expand, ExpandLess, ExpandMore, History, LoginSharp, Menu, More, People, PlusOne, Restore, RestoreFromTrashRounded, RestoreFromTrashSharp, Summarize, Unarchive} from "@mui/icons-material";
 import {useEffect, useRef, useState} from "react";
 import "./TutorPanel.scss";
 import {Link, Outlet, useNavigate, useOutletContext, useParams} from "react-router-dom"
@@ -516,11 +516,15 @@ function Tutor({tutor, start_date, end_date, reload, ...props}) {
 						<div className={"tutor__name "+(tutor.role==='Archived' ? "tutor__details__name--archived" : "")}>{tutor.name} {tutor.role === 'Supervisor' && <AdminPanelSettings className="fixicon"/>}</div>
 					</div>
 					<div className="tutor__right">
-						<div className="tutor__meetings"><div className="tutor__meetings__number">{scheduled_hours === null ? '~' : scheduled_hours}</div><small>scheduled hours</small></div>
-						<div className={"tutor__meetings "+(scheduled_hours != confirmed_hours ? "tutor__meetings--needs_review" : "")}><div className="tutor__meetings__number">{confirmed_hours === null ? '~' : confirmed_hours}</div><small>confirmed hours</small></div>
-						<Button secondary onClick={() => setShowAll(!showAll)}><Menu/></Button>
-						<Button secondary onClick={() => setArchivePopup(true)}>{tutor.role==="Archived" ? <Unarchive/> : <Archive/>}</Button>
-						<Button secondary onClick={() => {navigate(`/tutors/${tutor.id}/dashboard/history`)}}><LoginSharp/></Button>
+						<div className="tutor__summary">
+							<div className="tutor__summary__meetings"><div className="tutor__summary__meetings__number">{scheduled_hours === null ? '~' : scheduled_hours}</div><small>scheduled hours</small></div>
+							<div className={"tutor__summary__meetings "+(scheduled_hours !== confirmed_hours ? "tutor__summary__meetings--needs_review" : "")}><div className="tutor__summary__meetings__number">{confirmed_hours === null ? '~' : confirmed_hours}</div><small>confirmed hours</small></div>
+						</div>
+						<div className="tutor__summary tutor__summary--buttons">
+							<Button secondary onClick={() => setShowAll(!showAll)}>{showAll && <ExpandLess className="tutor__summary__button_icon"/>}{!showAll && <ExpandMore className="tutor__summary__button_icon"/>}</Button>
+							<Button secondary onClick={() => setArchivePopup(true)}>{tutor.role==="Archived" ? <Unarchive className="tutor__summary__button_icon"/> : <Archive className="tutor__summary__button_icon"/>}</Button>
+							<Button secondary onClick={() => {navigate(`/tutors/${tutor.id}/dashboard/history`)}}><LoginSharp className="tutor__summary__button_icon"/></Button>
+						</div>
 					</div>
 				</div>
 				{archivePopup && <ArchiveTutorPopup reload={reload} offerings={offerings} close={() => setArchivePopup(false)} tutor={tutor}/>}

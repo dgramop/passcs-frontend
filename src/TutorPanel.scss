@@ -12,17 +12,32 @@
 
 	&__right {
 		display: flex;
+		flex-direction: column;
+		@include sm {
+			flex-direction: row;
+		}
+		justify-content: space-between;
 		gap: 1rem;
-		align-items: center;
+		align-items: stretch;
+		@include sm {
+			align-items: center;
+		}
+
 	}
 
 	&__section {
 		display: flex;
 		flex-direction: column;
 		&--top {
-			flex-direction: row;
+			flex-direction: column;
+			@include sm {
+				flex-direction: row;
+			}
 			justify-content: space-between;
 			gap: 1rem;
+			@include md {
+				flex-direction: row;
+			}
 		}
 		&__title {
 				font-weight: 600;
@@ -52,22 +67,35 @@
 		}
 	}
 
-	&__meetings {
-		background-color: #334155;
-		color:white;
-		border-radius: 1rem;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		padding: 0.75rem;
-		&--needs_review {
-			background-color: #9a3412;
+	&__summary {
+		display:flex;
+		gap: 1rem;
+		justify-content: space-between;
+
+		&__button_icon {
+			transform: scale(1.75);
+			@include sm {
+				transform: scale(1);
+			}
 		}
 
-		&__number {
-			font-size: 1.25rem;
-			font-weight: 600;
+		&__meetings {
+			background-color: #334155;
+			color:white;
+			border-radius: 1rem;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			padding: 0.75rem;
+			&--needs_review {
+				background-color: #9a3412;
+			}
+
+			&__number {
+				font-size: 1.25rem;
+				font-weight: 600;
+			}
 		}
 	}
 
