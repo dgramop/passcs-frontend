@@ -597,6 +597,7 @@ function CreateTutorModal({tutors, setTutors, close}) {
 	const [background, setBackground] = useState("");
 
 	const [createdTutor, setCreatedTutor] = useState(null);
+	const [uploadPhotoModal, setUploadPhotoModal] = useState(false);
 	const [error, setError] = useState(null);
 
 	const createTutor = async (e) => {
@@ -625,9 +626,11 @@ function CreateTutorModal({tutors, setTutors, close}) {
 
 	}
 
-	if(createdTutor) {
+	if(uploadPhotoModal) {
+		return (<ProfilePhotoModal tutor_id={createdTutor.id} close={close} />)
+	} else if(createdTutor) {
 		return (
-			<Modal close={close} buttons={{primary:{text:"Close", onClick: close}}} title={`Created ${createdTutor.name}'s Account`}>
+			<Modal close={close} buttons={{primary:{text:"Next", onClick: () => setUploadPhotoModal(true)}}} title={`Created ${createdTutor.name}'s Account`}>
 				Congratulations on growing the team! Make sure you also:
 				<ul>
 					<li>Complete Payroll onboarding</li>
