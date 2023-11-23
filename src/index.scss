@@ -224,7 +224,7 @@ a {
 		}
 }
 
-.payment_form__input, input:not([type=submit]):not([type=file]):not(.react-datetime-picker__inputGroup__input) {
+textarea, .payment_form__input, input:not([type=submit]):not([type=file]):not(.react-datetime-picker__inputGroup__input) {
 		background: #F1F5F9;
 		border: 3px solid #334155;
 		border-radius: 8px;

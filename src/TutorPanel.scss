@@ -4,16 +4,24 @@
 .tutor {
 	display: flex;
 	flex-direction: column;
+	justify-content: space-between;
 	background-color: #E2E8F0;
 	padding: 1.5rem;
 	border-radius: 0.5rem;
 	gap: 1rem;
+
+	&__right {
+		display: flex;
+		gap: 1rem;
+		align-items: center;
+	}
 
 	&__section {
 		display: flex;
 		flex-direction: column;
 		&--top {
 			flex-direction: row;
+			justify-content: space-between;
 			gap: 1rem;
 		}
 		&__title {
@@ -27,26 +35,47 @@
 		}
 	}
 	&__profile {
-		width: 5rem;
-		height: 5rem;
+		width: 4rem;
+		height: 4rem;
 		clip-path: circle();
 		&--archived {
 			filter: grayscale(100%);
 		}
 	}
 
+	&__name {
+		font-size: 1.5rem;
+		font-weight: 600;
+		&--archived {
+			text-decoration-line: line-through;
+		}
+	}
 
-	&__details {
+	&__meetings {
+		background-color: #334155;
+		color:white;
+		border-radius: 1rem;
 		display: flex;
 		flex-direction: column;
+		align-items: center;
 		justify-content: center;
-
-		&__name {
-			font-weight: 600;
-			&--archived {
-				text-decoration-line: line-through;
-			}
+		padding: 0.75rem;
+		&--needs_review {
+			background-color: #9a3412;
 		}
+
+		&__number {
+			font-size: 1.25rem;
+			font-weight: 600;
+		}
+	}
+
+	&__left {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		gap: 1rem;
 	}
 
 	&__offering {
@@ -152,11 +181,8 @@
 	}
 
 	&__tutors {
-		display: grid;
-		grid-template-columns: 1fr;
-		@include sm {
-			grid-template-columns: 1fr 1fr;
-		}
+		display: flex;
+		flex-direction: column;
 		@include md {
 			padding-right: 2rem;
 		}

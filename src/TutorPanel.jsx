@@ -1,4 +1,4 @@
-import {Add, AdminPanelSettings, Archive, ArchiveOutlined, ArchiveSharp, ArrowBack, Bookmarks, Class, CollectionsBookmark, Delete, DeleteSharp, Event, EventNote, EventSharp, History, People, PlusOne, Restore, RestoreFromTrashRounded, RestoreFromTrashSharp, Summarize} from "@mui/icons-material";
+import {Add, AdminPanelSettings, Archive, ArchiveOutlined, ArchiveSharp, ArrowBack, Bookmarks, Class, CollectionsBookmark, Delete, DeleteSharp, Event, EventNote, EventSharp, Expand, History, LoginSharp, Menu, More, People, PlusOne, Restore, RestoreFromTrashRounded, RestoreFromTrashSharp, Summarize, Unarchive} from "@mui/icons-material";
 import {useEffect, useState} from "react";
 import "./TutorPanel.scss";
 import {Link, Outlet, useNavigate, useOutletContext, useParams} from "react-router-dom"
@@ -502,25 +502,35 @@ function Tutor({tutor, start_date, end_date, reload, ...props}) {
 
 	phone_friendly = phone_friendly.substring(0, phone_friendly.length - 7)+"-"+phone_friendly.substring(phone_friendly.length-7, phone_friendly.length - 4)+"-"+phone_friendly.substring(phone_friendly.length - 4)
 
+	let scheduled_hours = meetings && Math.round(customer_meetings.reduce((minutes, meeting) => {return minutes + meeting.meeting.duration_mins}, 0)*100/60)/100;
+	let confirmed_hours = meetings && Math.round(customer_meetings.filter((meeting) => {
+		return meeting.meeting.notes !== "" && meeting.meeting.notes != null
+	}).reduce((minutes, meeting) => {return minutes + meeting.meeting.duration_mins}, 0)*100/60)/100
+
 	return (
 			<div className="tutor" >
 				<div className="tutor__section tutor__section--top">
-					<img className={"tutor__profile "+(tutor.role==='Archived' ? "tutor__profile--archived" : "")} alt={tutor.name} src={`/${tutor.id}.jpg`} />
-					<div className="tutor__details">
-						<div className={"tutor__details__name "+(tutor.role==='Archived' ? "tutor__details__name--archived" : "")}>{tutor.name} {tutor.role === 'Supervisor' && <AdminPanelSettings className="fixicon"/>}</div>
-						<div className="tutor__details__meetings">{meetings && Math.round(customer_meetings.reduce((minutes, meeting) => {return minutes + meeting.meeting.duration_mins}, 0)*100/60)/100} scheduled hours</div>
-						<div className="tutor__details__meetings">{meetings && Math.round(customer_meetings.filter((meeting) => {
-							return meeting.meeting.notes !== "" && meeting.meeting.notes != null
-						}).reduce((minutes, meeting) => {return minutes + meeting.meeting.duration_mins}, 0)*100/60)/100} confirmed hours</div>
+					<div className="tutor__left">
+						<img className={"tutor__profile "+(tutor.role==='Archived' ? "tutor__profile--archived" : "")} alt={tutor.name} src={`/${tutor.id}.jpg`} />
+						<div className={"tutor__name "+(tutor.role==='Archived' ? "tutor__details__name--archived" : "")}>{tutor.name} {tutor.role === 'Supervisor' && <AdminPanelSettings className="fixicon"/>}</div>
+					</div>
+					<div className="tutor__right">
+						<div className="tutor__meetings"><div className="tutor__meetings__number">{scheduled_hours === null ? '~' : scheduled_hours}</div><small>scheduled hours</small></div>
+						<div className={"tutor__meetings "+(scheduled_hours != confirmed_hours ? "tutor__meetings--needs_review" : "")}><div className="tutor__meetings__number">{confirmed_hours === null ? '~' : confirmed_hours}</div><small>confirmed hours</small></div>
+						<Button secondary onClick={() => setShowAll(!showAll)}><Menu/></Button>
+						<Button secondary onClick={() => setArchivePopup(true)}>{tutor.role==="Archived" ? <Unarchive/> : <Archive/>}</Button>
+						<Button secondary onClick={() => {navigate(`/tutors/${tutor.id}/dashboard/history`)}}><LoginSharp/></Button>
 					</div>
 				</div>
+				{archivePopup && <ArchiveTutorPopup reload={reload} offerings={offerings} close={() => setArchivePopup(false)} tutor={tutor}/>}
 				{showAll && <>
 					<div className="tutor__section">
 						<div className="tutor__section__title">Contact</div>
-						<div className="tutor__details__meetings">{phone_friendly}</div>
-						<div className="tutor__details__meetings">{tutor.email}</div>
+						<ul>
+							<li>{phone_friendly}</li>
+							<li>{tutor.email}</li>
+						</ul>
 					</div>
-					{archivePopup && <ArchiveTutorPopup reload={reload} offerings={offerings} close={() => setArchivePopup(false)} tutor={tutor}/>}
 					{offerings && <Offerings reload={load_offerings} nobuttons={tutor.role==="Archived"} offerings={offerings} />}
 					<div className="tutor__section">
 						<div className="tutor__section__title">Add/Modify qualification</div>
@@ -536,16 +546,104 @@ function Tutor({tutor, start_date, end_date, reload, ...props}) {
 						<Button secondary onClick={async () => { await submitBackground(background, tutor.id); reload() }}>Submit</Button>
 					</div>
 				</>}
-
-					<div className="tutor__section">
-						<Button secondary onClick={() => setShowAll(!showAll)}>See {!showAll && 'More'}{showAll && 'Less'}</Button>
-						<Button secondary red onClick={() => setArchivePopup(true)}>{tutor.role==="Archived" ? "Unarchive" : "Archive"} Tutor</Button>
-						<Button onClick={() => {navigate(`/tutors/${tutor.id}/dashboard/history`)}}>View Dashboard</Button>
-					</div>
 				</div>)
 }
 
-export function Supervisor(props) {
+function ProfilePhotoModal({close}) {
+	/*let submitPhoto = async (e) => {
+	}*/
+
+	return (
+		<Modal>
+			<form method="POST" action="/api/tutors/myself/photo">
+				<input type="file" name="photo"/>
+				<input type="submit" name="photo"/>
+			</form>
+		</Modal>
+	)
+}
+
+function CreateTutorModal({close}) {
+	const [name, setName] = useState("");
+	const [email, setEmail] = useState("");
+	const [phone, setPhone] = useState("");
+	const [background, setBackground] = useState("");
+
+	const [createdTutor, setCreatedTutor] = useState(null);
+	const [error, setError] = useState(null);
+
+	const createTutor = async (e) => {
+		if(e) e.preventDefault()
+
+		let form = new FormData();
+		form.append("name", name)
+		form.append("email", email)
+		form.append("phone", phone.replace(/[\(\)\-\s]+/g, ''))
+		form.append("background", background)
+
+		try {
+			let tutorresp = await fetch("/api/tutors", {method: "POST", body:form});
+			let tutordata = await tutorresp.json();
+
+			if(tutordata.error) {
+				setError(tutordata.error)
+			} else setCreatedTutor(tutordata.data);
+		} catch(e) {
+			console.log(e);
+			setError("Unable to process this request");
+		}
+
+	}
+
+	if(createdTutor) {
+		return (
+			<Modal close={close} buttons={{primary:{text:"Close", onClick: close}}} title={`Created ${createdTutor.name}'s Account`}>
+				Congratulations on growing the team! Make sure you also:
+				<ul>
+					<li>Complete Payroll onboarding</li>
+					<li>Complete I-9 Verification</li>
+					<li>Send signed offer letter to corporate</li>
+					<li>Send signed employee agreement to corporate</li>
+					<li>Set up a passCS email account for the tutor (if not already done)</li>
+					<li>Follow through on training your new tutor (shadows, evaluations etc.)</li>
+				</ul>
+				<b>{createdTutor.name}'s account is in an "archived" status. You should unarchive them once they are ready for booking and display on our website</b>
+			</Modal>
+		)
+	} else return (
+		<Modal 
+			title={"Create a Tutor"}
+			close={close} 
+			buttons={{secondaries:[{text:"Close", onClick:close}], primary:{text:"Create Tutor", onClick:createTutor}}}>
+
+			<form className="payflow__inputs" onSubmit={createTutor}>
+				<div className="payflow__inputgroup">
+					<label className="payflow__inputgroup__title" for="name">First Name</label>
+					<input name="name" type="text" placeholder="Dhruv" onChange={(e) => setName(e.target.value)} value={name} />
+				</div>
+
+				<div className="payflow__inputgroup">
+					<label className="payflow__inputgroup__title" for="email">Email</label>
+					<input name="email" type="email" placeholder="dhruv@passcs.io" onChange={(e) => setEmail(e.target.value)} value={email} />
+				</div>
+
+				<div className="payflow__inputgroup">
+					<label className="payflow__inputgroup__title" for="phone">Phone</label>
+					<input name="phone" type="phone" placeholder="571-524-3033" onChange={(e) => setPhone(e.target.value)} value={phone} />
+				</div>
+
+				<div className="payflow__inputgroup">
+					<label className="payflow__inputgroup__title" for="background">Bio</label>
+					<textarea name="background" type="background" placeholder="Dhruv started his tutoring career as a teaching assistant for CS262..." onChange={(e) => setBackground(e.target.value)} value={background} />
+				</div>
+				{error && <span className={"genericError"}>{error}</span>}
+
+			</form>
+		</Modal>
+	)
+}
+
+export function TeamView(props) {
 	const { selected, setSelected } = useOutletContext();
 	const [tutors, setTutors] = useState(null);
 	const [startDate, setStartDate] = useState(new Date(Date.now()-1000*60*60*24*7));
@@ -570,8 +668,9 @@ export function Supervisor(props) {
 
 	return (
 		<div className="booking_container">
+			{createTutor && <CreateTutorModal close={() => setCreateTutor(false)}/>}
 			<div className="booking_container__title">
-				Your Team {/*<div className="booking_container__title__addbutton" onClick={()=>{setCreateTutor(true)}} ><Add /></div>*/}
+				Your Team 
 			</div>
 			<div>
 				<b>View summary by time period:</b><br/>
@@ -592,6 +691,7 @@ export function Supervisor(props) {
 			</div>
 			<div className="booking_container__tutors">
 				{tutors && tutors.filter((t) => showArchived || t.role !== 'Archived').sort((a, b)=> a.name - b.name).map((tutor) => <Tutor key={tutor.id} start_date={startDate} end_date={endDate} tutor={tutor} reload={load_tutors} />)}
+				<Button onClick={()=>{setShowArchived(true); setCreateTutor(true)}}><Add /></Button>
 			</div>
 		</div>
 	)
