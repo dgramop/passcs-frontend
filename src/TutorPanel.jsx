@@ -549,6 +549,7 @@ export function Supervisor(props) {
 	const [startDate, setStartDate] = useState(new Date(Date.now()-1000*60*60*24*7));
 	const [endDate, setEndDate] = useState(DateTime.fromJSDate(new Date(Date.now())).endOf('day').toJSDate());
 	const [createTutor, setCreateTutor] = useState(false);
+	const [showArchived, setShowArchived] = useState(false);
 
 	useEffect(() => {
 		setSelected("supervisor")
@@ -584,10 +585,11 @@ export function Supervisor(props) {
 					if(!parsed_time.invalid) {
 						setEndDate(parsed_time.endOf('day').toJSDate())
 					}
-				}} />@11:59pm
+				}} />@11:59pm<br/>
+				<input type="checkbox" onChange={(e) => setShowArchived(!showArchived)} checked={showArchived} name="show_archived"/><label for="show_archived">Show Archived</label>
 			</div>
 			<div className="booking_container__tutors">
-				{tutors && tutors.sort((a, b)=> a.name - b.name).map((tutor) => <Tutor key={tutor.id} start_date={startDate} end_date={endDate} tutor={tutor} reload={load_tutors} />)}
+				{tutors && tutors.filter((t) => showArchived || t.role !== 'Archived').sort((a, b)=> a.name - b.name).map((tutor) => <Tutor key={tutor.id} start_date={startDate} end_date={endDate} tutor={tutor} reload={load_tutors} />)}
 			</div>
 		</div>
 	)
