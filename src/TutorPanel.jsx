@@ -11,6 +11,7 @@ import {Button} from "./Components";
 import {DateTime} from "luxon";
 
 import {compute_overall_grade, Grade} from "./StudentGradebook"
+import {IconButton, Tooltip} from "@mui/material";
 
 // TODO: DUPLICATION! consolidate Sidebar with DashNav from StudentDashboard.
 // Work on more direct features to actually making the critical worflows possible
@@ -63,7 +64,7 @@ export function TutorPanelSidebar(props) {
 		<div className="sidebar">
 			{photoModal && <ProfilePhotoModal tutor_id={tutor_id} close={() => setPhotoModal(false)}/>}
 			<div className="sidebar__profilecard sidebar__profilecard--clickable" onClick={() => setPhotoModal(true)}>
-				{tutor && <img className="sidebar__profilecard__photo" src={`/${tutor.id}.jpg`} alt="Your profile" />}
+				{tutor && <img className="sidebar__profilecard__photo" src={`/tutor_images/${tutor.id}.jpg`} alt="Your profile" />}
 				<div className="sidebar__profilecard__info">
 					<div className="sidebar__profilecard__name">
 						{tutor && tutor.name.split(" ")[0]}
@@ -512,8 +513,10 @@ function Tutor({tutor, start_date, end_date, reload, ...props}) {
 			<div className="tutor" >
 				<div className="tutor__section tutor__section--top">
 					<div className="tutor__left">
-						<img role="button" onClick={()=>setPhotoModal(true)} className={"tutor__profile "+(tutor.role==='Archived' ? "tutor__profile--archived" : "")} alt={tutor.name} src={`/${tutor.id}.jpg`} />
-						<div className={"tutor__name "+(tutor.role==='Archived' ? "tutor__details__name--archived" : "")}>{tutor.name} {tutor.role === 'Supervisor' && <AdminPanelSettings className="fixicon"/>}</div>
+						<Tooltip title="Change Photo">
+							<img role="button" onClick={()=>setPhotoModal(true)} className={"tutor__profile "+(tutor.role==='Archived' ? "tutor__profile--archived" : "")} alt={tutor.name} src={`/tutor_images/${tutor.id}.jpg`} />
+						</Tooltip>
+						<div onClick={() => setShowAll(!showAll)} role="button" className={"tutor__name "+(tutor.role==='Archived' ? "tutor__details__name--archived" : "")}>{tutor.name} {tutor.role === 'Supervisor' && <Tooltip title="Supervisor"><AdminPanelSettings className="fixicon"/></Tooltip>}</div>
 					</div>
 					<div className="tutor__right">
 						<div className="tutor__summary">
@@ -521,9 +524,15 @@ function Tutor({tutor, start_date, end_date, reload, ...props}) {
 							<div className={"tutor__summary__meetings "+(scheduled_hours !== confirmed_hours ? "tutor__summary__meetings--needs_review" : "")}><div className="tutor__summary__meetings__number">{confirmed_hours === null ? '~' : confirmed_hours}</div><small>confirmed hours</small></div>
 						</div>
 						<div className="tutor__summary tutor__summary--buttons">
-							<Button secondary onClick={() => setShowAll(!showAll)}>{showAll && <ExpandLess className="tutor__summary__button_icon"/>}{!showAll && <ExpandMore className="tutor__summary__button_icon"/>}</Button>
-							<Button secondary onClick={() => setArchivePopup(true)}>{tutor.role==="Archived" ? <Unarchive className="tutor__summary__button_icon"/> : <Archive className="tutor__summary__button_icon"/>}</Button>
-							<Button secondary onClick={() => {navigate(`/tutors/${tutor.id}/dashboard/history`)}}><LoginSharp className="tutor__summary__button_icon"/></Button>
+							<Tooltip title="Expand">
+								<IconButton onClick={() => setShowAll(!showAll)}>{showAll && <ExpandLess className="tutor__summary__button_icon"/>}{!showAll && <ExpandMore className="tutor__summary__button_icon"/>}</IconButton>
+							</Tooltip>
+							<Tooltip title={tutor.role==="Archived" ? "Unarchive" : "Archive"}>
+								<IconButton onClick={() => setArchivePopup(true)}>{tutor.role==="Archived" ? <Unarchive className="tutor__summary__button_icon"/> : <Archive className="tutor__summary__button_icon"/>}</IconButton>
+							</Tooltip>
+							<Tooltip title="Open Dashboard">
+								<IconButton onClick={() => {navigate(`/tutors/${tutor.id}/dashboard/history`)}}><LoginSharp className="tutor__summary__button_icon"/></IconButton>
+							</Tooltip>
 						</div>
 					</div>
 				</div>
@@ -580,7 +589,7 @@ function ProfilePhotoModal({tutor_id, close}) {
 	if(success) {
 		return (
 			<Modal close={close} title="Succesfully uploaded photo" buttons={{primary:{text:"Close", onClick:close}}}>
-				<img className="tutor__profile" src={`/${tutor_id}.jpg`} alt="Recently uploaded profile" />
+				<img className="tutor__profile" src={`/tutor_images/${tutor_id}.jpg#${Math.random()}`} alt="Recently uploaded profile" />
 			</Modal>
 		);
 	} else return (

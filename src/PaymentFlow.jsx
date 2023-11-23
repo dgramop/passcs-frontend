@@ -318,7 +318,7 @@ function Appointment({slot_etc, meeting, class_style, frequency, size, onBook, f
 			</div>
 			<div className="payflow__appt__tutor">
 				<div className="payflow__appt__tutor__profile">
-					<img className="payflow__appt__tutor__profile__image" src={`/${encodeURIComponent(slot_etc.offering.tutor.id)}.jpg`} alt="Headshot for tutor" />
+					<img className="payflow__appt__tutor__profile__image" src={`/tutor_images/${encodeURIComponent(slot_etc.offering.tutor.id)}.jpg`} alt="Headshot for tutor" />
 					<div className="payflow__appt__tutor__profile__desc">
 						<div className="payflow__appt__tutor__profile__desc__name">{slot_etc.offering.tutor.name}</div>
 						<div className="payflow__appt__tutor__profile__desc__qualifier">{slot_etc.offering.qualification}</div>

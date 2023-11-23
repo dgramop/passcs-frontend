@@ -337,7 +337,7 @@ export function Meeting({ staff, payments, meeting, display_notes, display_tutor
 						{staff && display_tutor && "Attendees"}
 					</div>
 					<div className="meeting__body__section__people">
-						{((!staff && original_payment) || display_tutor) && <Person imgsrc={"/"+encodeURIComponent(meeting.tutor.id)+".jpg"} name={meeting.tutor.name} phone={meeting.tutor.phone} email={meeting.tutor.email} />}
+						{((!staff && original_payment) || display_tutor) && <Person imgsrc={"/tutor_images/"+encodeURIComponent(meeting.tutor.id)+".jpg"} name={meeting.tutor.name} phone={meeting.tutor.phone} email={meeting.tutor.email} />}
 						{staff && payments && Object.values(payments.reduce((map, payment) => {
 							if(map[payment.customer.id]) {
 								map[payment.customer.id].push(payment);

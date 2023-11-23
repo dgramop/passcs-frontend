@@ -64,7 +64,7 @@ function TutorCard({tutor, ...props}) {
 	return (
 		<div className="minicard tutorcard">
 			<div className="tutorcard__header">
-				<img className="tutorcard__header__image" src={"/"+tutor.id+".jpg"} alt={tutor.name}/>
+				<img className="tutorcard__header__image" src={"/tutor_images/"+tutor.id+".jpg"} alt={tutor.name}/>
 				<div className="tutorcard__header__details">
 					<div className="tutorcard__header__details__name">
 						{tutor.name.split(" ")[0]}
