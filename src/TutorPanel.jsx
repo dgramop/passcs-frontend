@@ -435,6 +435,7 @@ function Tutor({tutor, start_date, end_date, reload, ...props}) {
 	const [selectedCourse, setSelectedCourse] = useState(null);
 	const [qualification, setQualification] = useState("");
 	const [background, setBackground] = useState(tutor.background);
+	const [showAll, setShowAll] = useState(false);
 
 	let load_offerings = async () => {
 		let offeringsresp = await fetch(`/api/tutors/${tutor.id}/offerings`);
@@ -513,34 +514,35 @@ function Tutor({tutor, start_date, end_date, reload, ...props}) {
 						}).reduce((minutes, meeting) => {return minutes + meeting.meeting.duration_mins}, 0)*100/60)/100} confirmed hours</div>
 					</div>
 				</div>
-				<div className="tutor__section">
-					<div className="tutor__section__title">Contact</div>
-					<div className="tutor__details__meetings">{phone_friendly}</div>
-					<div className="tutor__details__meetings">{tutor.email}</div>
-				</div>
-				{archivePopup && <ArchiveTutorPopup reload={reload} offerings={offerings} close={() => setArchivePopup(false)} tutor={tutor}/>}
-				{offerings && <Offerings reload={load_offerings} nobuttons={tutor.role==="Archived"} offerings={offerings} />}
-				<div className="tutor__section">
-					<div className="tutor__section__title">Add/Modify qualification</div>
-					Class
-					<Select autoFocus value={selectedCourse} onChange={(val) => setSelectedCourse(val)} placeholder="Select or type..." className="payflow__inputgroup__select" options={courseOptions} />
-					Qualification
-					<input type="text" onChange={(e) => setQualification(e.target.value)} value={qualification}/>
-					<Button secondary onClick={submitQualification}>Submit</Button>
-				</div>
-				<div className="tutor__section">
-					<div className="tutor__section__title">Update background</div>
-					<textarea style={{fontSize:"inherit"}} value={background} onChange={(e) => setBackground(e.target.value)}/>
-					<Button secondary onClick={async () => { await submitBackground(background, tutor.id); reload() }}>Submit</Button>
-				</div>
+				{showAll && <>
+					<div className="tutor__section">
+						<div className="tutor__section__title">Contact</div>
+						<div className="tutor__details__meetings">{phone_friendly}</div>
+						<div className="tutor__details__meetings">{tutor.email}</div>
+					</div>
+					{archivePopup && <ArchiveTutorPopup reload={reload} offerings={offerings} close={() => setArchivePopup(false)} tutor={tutor}/>}
+					{offerings && <Offerings reload={load_offerings} nobuttons={tutor.role==="Archived"} offerings={offerings} />}
+					<div className="tutor__section">
+						<div className="tutor__section__title">Add/Modify qualification</div>
+						Class
+						<Select autoFocus value={selectedCourse} onChange={(val) => setSelectedCourse(val)} placeholder="Select or type..." className="payflow__inputgroup__select" options={courseOptions} />
+						Qualification
+						<input type="text" onChange={(e) => setQualification(e.target.value)} value={qualification}/>
+						<Button secondary onClick={submitQualification}>Submit</Button>
+					</div>
+					<div className="tutor__section">
+						<div className="tutor__section__title">Update background</div>
+						<textarea style={{fontSize:"inherit"}} value={background} onChange={(e) => setBackground(e.target.value)}/>
+						<Button secondary onClick={async () => { await submitBackground(background, tutor.id); reload() }}>Submit</Button>
+					</div>
+				</>}
 
-				<div className="tutor__section">
-					<div className="tutor__section__title">Manage</div>
-					<Button secondary red onClick={() => setArchivePopup(true)}>{tutor.role==="Archived" ? "Unarchive" : "Archive"} Tutor</Button>
-					<Button onClick={() => {navigate(`/tutors/${tutor.id}/dashboard/history`)}}>View Dashboard</Button>
-				</div>
-
-		</div>)
+					<div className="tutor__section">
+						<Button secondary onClick={() => setShowAll(!showAll)}>See {!showAll && 'More'}{showAll && 'Less'}</Button>
+						<Button secondary red onClick={() => setArchivePopup(true)}>{tutor.role==="Archived" ? "Unarchive" : "Archive"} Tutor</Button>
+						<Button onClick={() => {navigate(`/tutors/${tutor.id}/dashboard/history`)}}>View Dashboard</Button>
+					</div>
+				</div>)
 }
 
 export function Supervisor(props) {
@@ -549,6 +551,7 @@ export function Supervisor(props) {
 	const [startDate, setStartDate] = useState(new Date(Date.now()-1000*60*60*24*7));
 	const [endDate, setEndDate] = useState(DateTime.fromJSDate(new Date(Date.now())).endOf('day').toJSDate());
 	const [createTutor, setCreateTutor] = useState(false);
+	const [showArchived, setShowArchived] = useState(false);
 
 	useEffect(() => {
 		setSelected("supervisor")
@@ -584,10 +587,11 @@ export function Supervisor(props) {
 					if(!parsed_time.invalid) {
 						setEndDate(parsed_time.endOf('day').toJSDate())
 					}
-				}} />@11:59pm
+				}} />@11:59pm<br/>
+				<input type="checkbox" onChange={(e) => setShowArchived(!showArchived)} checked={showArchived} name="show_archived"/><label for="show_archived">Show Archived</label>
 			</div>
 			<div className="booking_container__tutors">
-				{tutors && tutors.sort((a, b)=> a.name - b.name).map((tutor) => <Tutor key={tutor.id} start_date={startDate} end_date={endDate} tutor={tutor} reload={load_tutors} />)}
+				{tutors && tutors.filter((t) => showArchived || t.role !== 'Archived').sort((a, b)=> a.name - b.name).map((tutor) => <Tutor key={tutor.id} start_date={startDate} end_date={endDate} tutor={tutor} reload={load_tutors} />)}
 			</div>
 		</div>
 	)
