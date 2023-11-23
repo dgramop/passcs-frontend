@@ -435,6 +435,7 @@ function Tutor({tutor, start_date, end_date, reload, ...props}) {
 	const [selectedCourse, setSelectedCourse] = useState(null);
 	const [qualification, setQualification] = useState("");
 	const [background, setBackground] = useState(tutor.background);
+	const [showAll, setShowAll] = useState(false);
 
 	let load_offerings = async () => {
 		let offeringsresp = await fetch(`/api/tutors/${tutor.id}/offerings`);
@@ -513,34 +514,35 @@ function Tutor({tutor, start_date, end_date, reload, ...props}) {
 						}).reduce((minutes, meeting) => {return minutes + meeting.meeting.duration_mins}, 0)*100/60)/100} confirmed hours</div>
 					</div>
 				</div>
-				<div className="tutor__section">
-					<div className="tutor__section__title">Contact</div>
-					<div className="tutor__details__meetings">{phone_friendly}</div>
-					<div className="tutor__details__meetings">{tutor.email}</div>
-				</div>
-				{archivePopup && <ArchiveTutorPopup reload={reload} offerings={offerings} close={() => setArchivePopup(false)} tutor={tutor}/>}
-				{offerings && <Offerings reload={load_offerings} nobuttons={tutor.role==="Archived"} offerings={offerings} />}
-				<div className="tutor__section">
-					<div className="tutor__section__title">Add/Modify qualification</div>
-					Class
-					<Select autoFocus value={selectedCourse} onChange={(val) => setSelectedCourse(val)} placeholder="Select or type..." className="payflow__inputgroup__select" options={courseOptions} />
-					Qualification
-					<input type="text" onChange={(e) => setQualification(e.target.value)} value={qualification}/>
-					<Button secondary onClick={submitQualification}>Submit</Button>
-				</div>
-				<div className="tutor__section">
-					<div className="tutor__section__title">Update background</div>
-					<textarea style={{fontSize:"inherit"}} value={background} onChange={(e) => setBackground(e.target.value)}/>
-					<Button secondary onClick={async () => { await submitBackground(background, tutor.id); reload() }}>Submit</Button>
-				</div>
+				{showAll && <>
+					<div className="tutor__section">
+						<div className="tutor__section__title">Contact</div>
+						<div className="tutor__details__meetings">{phone_friendly}</div>
+						<div className="tutor__details__meetings">{tutor.email}</div>
+					</div>
+					{archivePopup && <ArchiveTutorPopup reload={reload} offerings={offerings} close={() => setArchivePopup(false)} tutor={tutor}/>}
+					{offerings && <Offerings reload={load_offerings} nobuttons={tutor.role==="Archived"} offerings={offerings} />}
+					<div className="tutor__section">
+						<div className="tutor__section__title">Add/Modify qualification</div>
+						Class
+						<Select autoFocus value={selectedCourse} onChange={(val) => setSelectedCourse(val)} placeholder="Select or type..." className="payflow__inputgroup__select" options={courseOptions} />
+						Qualification
+						<input type="text" onChange={(e) => setQualification(e.target.value)} value={qualification}/>
+						<Button secondary onClick={submitQualification}>Submit</Button>
+					</div>
+					<div className="tutor__section">
+						<div className="tutor__section__title">Update background</div>
+						<textarea style={{fontSize:"inherit"}} value={background} onChange={(e) => setBackground(e.target.value)}/>
+						<Button secondary onClick={async () => { await submitBackground(background, tutor.id); reload() }}>Submit</Button>
+					</div>
+				</>}
 
-				<div className="tutor__section">
-					<div className="tutor__section__title">Manage</div>
-					<Button secondary red onClick={() => setArchivePopup(true)}>{tutor.role==="Archived" ? "Unarchive" : "Archive"} Tutor</Button>
-					<Button onClick={() => {navigate(`/tutors/${tutor.id}/dashboard/history`)}}>View Dashboard</Button>
-				</div>
-
-		</div>)
+					<div className="tutor__section">
+						<Button secondary onClick={() => setShowAll(!showAll)}>See {!showAll && 'More'}{showAll && 'Less'}</Button>
+						<Button secondary red onClick={() => setArchivePopup(true)}>{tutor.role==="Archived" ? "Unarchive" : "Archive"} Tutor</Button>
+						<Button onClick={() => {navigate(`/tutors/${tutor.id}/dashboard/history`)}}>View Dashboard</Button>
+					</div>
+				</div>)
 }
 
 export function Supervisor(props) {
