@@ -1,5 +1,5 @@
 import {Add, AdminPanelSettings, Archive, ArchiveOutlined, ArchiveSharp, ArrowBack, Bookmarks, Class, CollectionsBookmark, Delete, DeleteSharp, Event, EventNote, EventSharp, Expand, History, LoginSharp, Menu, More, People, PlusOne, Restore, RestoreFromTrashRounded, RestoreFromTrashSharp, Summarize, Unarchive} from "@mui/icons-material";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import "./TutorPanel.scss";
 import {Link, Outlet, useNavigate, useOutletContext, useParams} from "react-router-dom"
 import {Meeting} from "./StudentDashboard";
@@ -39,7 +39,7 @@ export function TutorBackgroundPopup({tutor_id, initialbg, close}) {
 export function TutorPanelSidebar(props) {
 	let {tutor_id} = useParams();
 	let [tutor, setTutor] = useState(null);
-	let [backgroundPopup, setBackgroundPopup] = useState(false);
+	let [photoModal, setPhotoModal] = useState(false);
 	const navigate = useNavigate();
 
 	let loadTutor = async (tutor_id) => {
@@ -61,8 +61,8 @@ export function TutorPanelSidebar(props) {
 
 	return (
 		<div className="sidebar">
-			{backgroundPopup && <TutorBackgroundPopup initialbg={tutor.background} tutor_id={tutor_id} close={async () => {await loadTutor(tutor_id); setBackgroundPopup(false)}}/>}
-			<div className="sidebar__profilecard sidebar__profilecard--clickable" onClick={() => setBackgroundPopup(true)}>
+			{photoModal && <ProfilePhotoModal tutor_id={tutor_id} close={() => setPhotoModal(false)}/>}
+			<div className="sidebar__profilecard sidebar__profilecard--clickable" onClick={() => setPhotoModal(true)}>
 				{tutor && <img className="sidebar__profilecard__photo" src={`/${tutor.id}.jpg`} alt="Your profile" />}
 				<div className="sidebar__profilecard__info">
 					<div className="sidebar__profilecard__name">
@@ -436,6 +436,7 @@ function Tutor({tutor, start_date, end_date, reload, ...props}) {
 	const [qualification, setQualification] = useState("");
 	const [background, setBackground] = useState(tutor.background);
 	const [showAll, setShowAll] = useState(false);
+	const [photoModal, setPhotoModal] = useState(false);
 
 	let load_offerings = async () => {
 		let offeringsresp = await fetch(`/api/tutors/${tutor.id}/offerings`);
@@ -511,7 +512,7 @@ function Tutor({tutor, start_date, end_date, reload, ...props}) {
 			<div className="tutor" >
 				<div className="tutor__section tutor__section--top">
 					<div className="tutor__left">
-						<img className={"tutor__profile "+(tutor.role==='Archived' ? "tutor__profile--archived" : "")} alt={tutor.name} src={`/${tutor.id}.jpg`} />
+						<img role="button" onClick={()=>setPhotoModal(true)} className={"tutor__profile "+(tutor.role==='Archived' ? "tutor__profile--archived" : "")} alt={tutor.name} src={`/${tutor.id}.jpg`} />
 						<div className={"tutor__name "+(tutor.role==='Archived' ? "tutor__details__name--archived" : "")}>{tutor.name} {tutor.role === 'Supervisor' && <AdminPanelSettings className="fixicon"/>}</div>
 					</div>
 					<div className="tutor__right">
@@ -523,6 +524,7 @@ function Tutor({tutor, start_date, end_date, reload, ...props}) {
 					</div>
 				</div>
 				{archivePopup && <ArchiveTutorPopup reload={reload} offerings={offerings} close={() => setArchivePopup(false)} tutor={tutor}/>}
+				{photoModal && <ProfilePhotoModal tutor_id={tutor.id} close={()=>setPhotoModal(false)}/>}
 				{showAll && <>
 					<div className="tutor__section">
 						<div className="tutor__section__title">Contact</div>
@@ -549,21 +551,46 @@ function Tutor({tutor, start_date, end_date, reload, ...props}) {
 				</div>)
 }
 
-function ProfilePhotoModal({close}) {
-	/*let submitPhoto = async (e) => {
-	}*/
+function ProfilePhotoModal({tutor_id, close}) {
+	const [error, setError] = useState(null);
+	const [files, setFiles] = useState([]);
+	const [success, setSuccess] = useState(false);
 
-	return (
-		<Modal>
-			<form method="POST" action="/api/tutors/myself/photo">
-				<input type="file" name="photo"/>
-				<input type="submit" name="photo"/>
+	let submitPhoto = async (e) => {
+		if(e) e.preventDefault();
+
+		try {
+			let uploadresp = await fetch(`/api/tutors/${tutor_id}/photo`, {method:"POST", body:files[0]});
+			let uploaddata = await uploadresp.json();
+			if(uploaddata.error) {
+				setError(uploaddata.error);
+			} else {
+				setSuccess(true);
+			}
+		} catch(e) {
+			setError("Unable to contact server");
+			console.log(e);
+		}
+	}
+
+	if(success) {
+		return (
+			<Modal close={close} title="Succesfully uploaded photo" buttons={{primary:{text:"Close", onClick:close}}}>
+				<img className="tutor__profile" src={`/${tutor_id}.jpg`} alt="Recently uploaded profile" />
+			</Modal>
+		);
+	} else return (
+		<Modal close={close} title="Upload a profile photo" buttons={{secondaries:[{text:"Close", onClick: close}], primary:{text:"Upload", onClick:submitPhoto}}}>
+			This form accepts JPEG files only.
+			<form method="POST" onSubmit={submitPhoto}>
+				<input type="file" name="photo" onChange={(e) => setFiles([...e.target.files])}/>
+				{error && <div className="genericError">{error}</div>}
 			</form>
 		</Modal>
 	)
 }
 
-function CreateTutorModal({close}) {
+function CreateTutorModal({tutors, setTutors, close}) {
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [phone, setPhone] = useState("");
@@ -587,7 +614,10 @@ function CreateTutorModal({close}) {
 
 			if(tutordata.error) {
 				setError(tutordata.error)
-			} else setCreatedTutor(tutordata.data);
+			} else {
+				setTutors([...tutors, tutordata.data]);
+				setCreatedTutor(tutordata.data);
+			}
 		} catch(e) {
 			console.log(e);
 			setError("Unable to process this request");
@@ -668,7 +698,7 @@ export function TeamView(props) {
 
 	return (
 		<div className="booking_container">
-			{createTutor && <CreateTutorModal close={() => setCreateTutor(false)}/>}
+			{createTutor && <CreateTutorModal tutors={tutors} setTutors={setTutors} close={() => setCreateTutor(false)}/>}
 			<div className="booking_container__title">
 				Your Team 
 			</div>
