@@ -38,6 +38,7 @@
 		width: 4rem;
 		height: 4rem;
 		clip-path: circle();
+		cursor: pointer;
 		&--archived {
 			filter: grayscale(100%);
 		}
