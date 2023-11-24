@@ -1,6 +1,6 @@
 // supercedes CustomerDashboard
 import {Book, Check, Class, CreditCard, Edit, Event, EventRepeat, Face, Group, History, LocationOn, Pending, School} from "@mui/icons-material"
-import {Card} from "@mui/material"
+import {Card, IconButton, Tooltip} from "@mui/material"
 import {useEffect, useState} from "react"
 import DateTimePicker from "react-datetime-picker"
 import {Link, Outlet, useNavigate, useOutletContext} from "react-router-dom"
@@ -118,7 +118,7 @@ function Person({name, phone, email, imgsrc, empty, addl_items, ...props}) {
 			<div className="person__details">
 				<div className="person__details__item person__details__item--name">
 					{!empty && name}
-					{!empty && <EventRepeat className={["fixicon person__details__subicon", (props.subicon ? "person__details__subicon--active" :"")].join(" ")}/>}
+					{!empty && <Tooltip title="Weekly Subscription"><EventRepeat className={["fixicon person__details__subicon", (props.subicon ? "person__details__subicon--active" :"")].join(" ")}/></Tooltip>}
 				</div>
 				{addl_items && addl_items.map((item) => <div className="person__details__item person__details__item--payment">
 					{item}
@@ -297,20 +297,20 @@ export function Meeting({ staff, payments, meeting, display_notes, display_tutor
 	// TODO: get and calculate offset epoch from backend
 	let show_footer = props.show_footer || meeting.occurrence_epoch*1000 > Date.now()
 	return (
-		<div title={meeting.id} className="meeting">
+		<div meeting_id={meeting.id} className="meeting">
 			{confirmCancel && <CancelModal reload={reload} close={()=>setConfirmCancel(null)} subscription={original_payment?.subscription} payment={original_payment} meeting={meeting} isTutor={confirmCancel==="tutor_meeting"} isSubscription={confirmCancel==="subscription"} />}
 			{editScheduleModal && <EditScheduleModal reload={reload} close={()=>setEditScheduleModal(false)} meeting={meeting} />}
 			<div className="meeting__header">
 				<div className="meeting__header__datetime">
 					<span className="meeting__header__date">
-						{display_notes && (meeting.notes == "" || meeting.notes == null) && "• "}
+						{display_notes && (meeting.notes === "" || meeting.notes == null) && "• "}
 						{`${dateinfo.weekday}, ${dateinfo.month} ${date.getDate()}`}
 					</span>
 					<span className="meeting__header__time">
 						{dateinfo.hours}:{dateinfo.minutes}{dateinfo.am ? "am":"pm"} - {endinfo.hours}:{endinfo.minutes}{endinfo.am ? "am":"pm"}
 					</span>
 					{staff && <span className="meeting__header__edit">
-						<Edit onClick={() => setEditScheduleModal(true)}/>
+						<Tooltip title="Reschedule/Enter Overtime"><Edit onClick={() => setEditScheduleModal(true)}/></Tooltip>
 					</span>}
 				</div>
 				<div className="meeting__header__chips">
@@ -353,6 +353,7 @@ export function Meeting({ staff, payments, meeting, display_notes, display_tutor
 			</div>
 			{show_footer && <div className="meeting__footer">
 				{staff && payments != null && <Button onClick={() => setConfirmCancel("tutor_meeting")} secondary>Cancel Meeting</Button>}
+				{staff && <Button onClick={() => setEditScheduleModal(true)} >Reschedule/Edit Duration</Button>}
 				{!staff && original_payment?.subscription != null && <Button onClick={() => setConfirmCancel("subscription")} secondary>Cancel Subscription</Button>}
 				{!staff && original_payment && <Button onClick={() => setConfirmCancel("meeting")}>Skip Meeting</Button>}
 			</div>}
