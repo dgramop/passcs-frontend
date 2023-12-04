@@ -31,7 +31,7 @@ export function RadioSelect({options, onChange, value, ...props}) {
 	)
 }
 
-function Assurance(props) {
+export function Assurance(props) {
 		return (
 		<div className="assurance">
 				<span className="assurance__icon material-icons">{props.icon}</span>
@@ -237,7 +237,7 @@ function Pay({slot_etc, capacity, course_style, subscription, back, standalone, 
 					Your payment is secured by Stripe and SSL
 			</Assurance>
 			<Assurance icon="check">
-					Eligible for the passCS Guarantee, subject to <a href="TODO">terms</a>
+					Eligible for the passCS Guarantee, subject to <a href="/terms" taget="_blank">terms</a>
 			</Assurance>
 			{subscription && <Assurance icon="logout">
 					Easy cancellation
