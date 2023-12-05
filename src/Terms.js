@@ -84,11 +84,16 @@ export default function Terms(props) {
 
 			<section>
 				<h2> Cancellation Policy </h2>
+				<b>For meetings</b>
 				<p>
 					You must arrive on time for your meeting. If you arrive late, no time extension will be provided. If you arrive more than 15 minutes late, your meeting will be considered a no-show and will be canceled (you will still incur full liability, i.e. no refund will be provided)<br/><br/>
 					Customer-requested cancellation must be done 12 hours before the meeting's start time, though facilities may be provided through the website that allow customers to cancel later (with full refund). Customer-requested cancellations that happen after this time are considered no-shows, and will not be refunded.<br/><br/>
 					At the passCS's discretion, exceptions to this policy may be made on a case-by-case basis. You may also contact your tutor to request that they reschedule your meeting (at their discretion).<br/><br/>
 					Your tutor may cancel the meeting at any time for any reason, in the event a tutor cancels the meeting you will recieve a refund for that meeting, either as a credit to your account if you paid in bulk or back to your original payment method. In some instances, a substitute tutor may be offered. If you choose to attend the meeting with the substitute tutor, you will not recieve any refund.
+				</p>
+				<b>For bootcamps</b>
+				<p>
+					Cancellations must be made within 7 days of purchase, and will incur a 10% penalty. A refund will be based on the amount paid, factoring in all discounts.
 				</p>
 			</section>
 
