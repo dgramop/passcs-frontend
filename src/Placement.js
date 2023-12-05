@@ -30,6 +30,7 @@ function Header({...props}) {
 }
 function HeavyDay({day}) {
 		return(<SellCard title={`Day ${day}`}> 
+			1/{day}/24 (In-Person)
 				<ul>
 					<li><b>10am:</b> <br/>Mini-lecture</li>
 					<li><b>10:30am:</b> <br/>Small groups</li>
@@ -43,7 +44,7 @@ function HeavyDay({day}) {
 
 function LightDay({day}) {
 			
-			return (<SellCard title={`Day ${day}`}> <ul>
+			return (<SellCard title={<>Day {day}</>}> 1/{day}/24 (In-Person)<ul>
 					<li><b>10am:</b> <ul><li>Exit quiz review, corrections, and retakes</li></ul></li>
 					<li><b>11am:</b> <ul><li>ALEKS modules study groups w/ tutors</li><li>One-on-one meetings</li></ul></li>
 					<li><b>12pm:</b> <br/>One-on-one meetings</li>
@@ -111,8 +112,15 @@ export function Placement({props}) {
 			<HeavyDay day={3}/>
 			<LightDay day={4}/>
 			<HeavyDay day={5}/>
-			<SellCard title="Day 6"> Async day/day-off to complete ALEKS modules and practice at home. One-on-One tutoring for students who need it</SellCard>
+			<SellCard title="Day 6"> 1/6/24 (Async)<br/>
+				<ul>
+					<li>Complete remaining ALEKS modules and practice at home.</li>
+					<li>One-on-One tutoring for students who need it</li>
+					<li>Make-up/buffer day</li>
+				</ul>
+				</SellCard>
 			<SellCard title="Day 7: Graduation"> 
+				1/7/24 (In-Person)
 				<ul>
 					<li><b>10AM:</b> Review game</li>
 					<li><b>11:15AM:</b> Exit Quiz Awards</li>
