@@ -6,11 +6,11 @@ export default function Terms(props) {
 		<div className="container">
 			<Link to="/">Back to Home</Link>
 			<section>
-				<h2> The passCS Guarantee </h2>
+				<h2> The passCS Guarantee (for courses) </h2>
 				<p>
 					In order for a student (herein "You") to qualify for the passCS Guarentee, the following must be true
 					<ul>
-						<li>You have never failed a course with passCS previously, and</li>
+						<li>You have never failed a course or placement test with passCS previously, and</li>
 						<li>You failed the class (F or D final grade), and</li>
 						<li>You completed the course (for example withdrawal/incomplete status does not count as failing), and</li>
 						<li>You did not have receive a grade high enough to allow the course to fill any of your degree requirements, and</li>
@@ -41,6 +41,39 @@ export default function Terms(props) {
 					Additionally, passCS reserves the right to refuse service, at any time, for any reason (or no reason at all). 
 				</p>
 			</section>
+
+			<section>
+				<h2> The passCS Guarantee (for Math Placement Test Bootcamps) </h2>
+				<p>
+					In order for a student (herein "You") to qualify for the passCS Guarentee, the following must be true
+					<ul>
+						<li>You took the same exam for which the bootcamp was for within 7 days of completing the bootcamp,</li>
+						<li>You did not have receive a score high enough to place into a higher class, and</li>
+						<li>Your score, if below 55 points, did not improve by 20 or more points, and if above or equal to 55 points, did not improve by more than 10 points</li>
+						<li>You attended the entirety of each days and activities of the bootcamp on-time, including additional one-on-one or extra tutoring if offered</li>
+						<li>You made a concerted effort to improve in the exam, </li>
+						<li>You made no effort to fail</li>
+						<li>You didn’t violate your university’s honor code or receive any sanction (including but not limited to exam failure) for cheating (includes “plea deals” with professors that don’t receive an official honor council hearing), and</li>
+						<li>You completed all pre-requsite assignments necessary to take the exam by the time you took the exam for the second time</li>
+					</ul>
+
+					If you'd like to make a claim, you must provide evidence of meeting these criteria within 14 days of the bootcamp's completion, in writing to dhruv@passcs.io. If asked, you agree to provide official test scores and the number of attempts you have left<br/>
+
+					<b>Parameters</b>
+					<ul>
+						<li>If you have not taken the exam before, there will be no guaranteed improvement</li>
+						<li>You will not be refunded for no-show meetings or skipped meetings</li>
+						<li>You will not be refunded for meetings that occurred before the bootcamp began or after the bootcamp ended</li>
+						<li>You will not be refunded more than what you paid passCS Inc. for the bootcamp</li>
+						<li>You will not be refunded tuition you paid or will pay to your university or college</li>
+						<li>You agree not to hold passCS liable for any damages caused by failing or otherwise not passing a class</li>
+					</ul>
+
+					Other than the limited warranty laid out above, our services are provided AS-IS, without warranties or guarentees, implied or otherwise expressed.<br/><br/>
+					Additionally, passCS reserves the right to refuse service, at any time, for any reason (or no reason at all). 
+				</p>
+			</section>
+
 
 			<section>
 				<h2> Gradebook Tool Accuracy</h2>
