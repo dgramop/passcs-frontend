@@ -8,7 +8,7 @@ import {Link, useNavigate} from "react-router-dom";
 import {Check, Phone, Support, SupportAgent, Verified} from '@mui/icons-material';
 
 
-function Hero({...props}) {
+export function Hero({...props}) {
 	const [loginModal, setLoginModal] = useState(false)
 	const [userType, setUserType] = useState(null)
 
@@ -95,6 +95,60 @@ function QuoteCard({children, name, position, ...props}) {
 	)
 }
 
+
+/**
+ * @param singular - if there's only one card (changes the body to be the contents of that card) 
+ * @param children - this prop expects children, for example, cards
+ * @param title - title of the section
+ */
+export function Section({children, singular, title, className, ...props}) {
+	return (<section className={`home_section ${className ? className : ""}`}>
+		<h2 className="home_section__title">
+			{title}
+		</h2>
+		{!singular && <div className="home_section__cards">
+			{children}
+		</div>}
+		{singular && <div className="home_section__card home_card">
+			{children}
+		</div>}
+
+	</section>)
+}
+
+export function SellCard({icon, title, children}) {
+	return (<div className="home_card">
+		<div className="home_card__header">
+			{icon && <div className="home_card__header__icon_container">
+				{React.cloneElement(icon, {className: "home_card__header__icon" })}
+			</div>}
+			<div className="home_card__header__title home_card__header__title--small">{title}</div>
+		</div>
+		<div className="home_card__body">
+			{children}
+		</div>
+	</div>)
+}
+
+export function GuaranteeCard({...props}) {
+			return (
+				<Section title="Pass or your money back" singular>
+						<div className="home_card__header">
+							<div className="home_card__header__icon_container">
+								<Verified className="home_card__header__icon" />
+							</div>
+							<div className="home_card__header__title">
+								The passCS Guarantee
+							</div>
+						</div>
+						<div className="home_card__body">
+							<p>Get that extra peace of mind. If you don’t pass after taking at least 12 hours of one-on-one passCS Tutoring, we’ll refund the money you paid us. <Link to="/terms">See additional terms</Link></p>
+							<p>We hire the best tutors available - people that can relate to both our students and to the topic they’re tutoring. It shows: we've only had to refund less than one percent of our students so far.</p>
+						</div>
+				</Section>
+			)
+}
+
 export default function Home({...props}) {
 	const [tutors, setTutors] = useState(null)
 
@@ -113,7 +167,6 @@ export default function Home({...props}) {
 		<>
 			<Hero />
 			<div className="home_section_container">
-				
 				<section className="home_section">
 					<h2 className="home_section__title">Tutoring that <i>works</i></h2>
 					<div className="home_section__cards">
@@ -134,24 +187,7 @@ export default function Home({...props}) {
 						</QuoteCard>*/}
 					</div>
 				</section>
-				
-				<section className="home_section">
-					<h2 className="home_section__title">Pass or your money back</h2>
-					<div className="home_section__card home_card">
-						<div className="home_card__header">
-							<div className="home_card__header__icon_container">
-								<Verified className="home_card__header__icon" />
-							</div>
-							<div className="home_card__header__title">
-								The passCS Guarantee
-							</div>
-						</div>
-						<div className="home_card__body">
-							<p>Get that extra peace of mind. If you don’t pass after taking at least 12 hours of one-on-one passCS Tutoring, we’ll refund the money you paid us. <Link to="/terms">See additional terms</Link></p>
-							<p>We hire the best tutors available - people that can relate to both our students and to the topic they’re tutoring. It shows: we've only had to refund less than one percent of our students so far.</p>
-						</div>
-					</div>
-				</section>
+				<GuaranteeCard />
 				<section className="home_section">
 					<h2 className="home_section__title">Who we are</h2>
 					<div className="home_section__cards">

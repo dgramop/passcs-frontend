@@ -7,6 +7,7 @@ import Terms from './Terms';
 import {Routes, Route} from "react-router-dom"
 import Gradebook from "./StudentGradebook.jsx"
 import {Loader} from './Components';
+import {Placement} from './Placement';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
 								<Route path="gradebooks/:gradebook_id" element={<Gradebook tutorview /> }/>
 							</Route>
 							<Route path="terms" element={<Terms/>}/>
+							<Route path="placement" element={<Placement/>}/>
 				  </Route>
 		  </Routes>
   );
