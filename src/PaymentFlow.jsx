@@ -441,6 +441,7 @@ export default function PaymentFlow({reload, embed, className, autoscroll, ...pr
 
 			let compsci = []
 			let math = []
+			let phys = []
 			let other = []
 			let it = []
 			for(let course of coursesdata.data) {
@@ -453,12 +454,21 @@ export default function PaymentFlow({reload, embed, className, autoscroll, ...pr
 					math.push({label: `${course.course_number} (${course.course_name})`, value: course.id, num:num, school: course.school})
 				} else if(subj.toLowerCase() === "it") {
 					it.push({label: `${course.course_number} (${course.course_name})`, value: course.id, num:num, school: course.school})
-				} else {
+				} else if(subj.toLowerCase() === "phys"){
+					phys.push({label: `${course.course_number} (${course.course_name})`, value: course.id, num:num, school: course.school})
+				} 
+				else {
 					other.push({label: `${course.course_number} (${course.course_name})`, value: course.id, num:num, school:course.school})
 				}
 			}
 
-			const course_options = [{label:"Computer Science",options:compsci.sort((a,b) => a.num - b.num)}, {label:"Math",options:math.sort((a,b) => a.num - b.num)}, {label:"Information Technology (IT)",options:it.sort((a,b) => a.num - b.num)}, {label:"Other",options:other.sort((a,b) => a.num - b.num)}];
+			const course_options = [
+				{label:"Computer Science",options:compsci.sort((a,b) => a.num - b.num)},
+				{label:"Math",options:math.sort((a,b) => a.num - b.num)},
+				{label:"Information Technology (IT)",options:it.sort((a,b) => a.num - b.num)},
+				{label:"Physics", options:phys.sort((a,b) => a.num - b.num)},
+				{label:"Other",options:other.sort((a,b) => a.num - b.num)}
+			];
 			setCourseOptions(course_options)
 		}
 
