@@ -435,6 +435,14 @@ export default function PaymentFlow({reload, embed, className, autoscroll, ...pr
 	const [modality, setModality] = useState(null);
 
 	useEffect(() => {
+		if (window.location.hash == "#nova") {
+			setSelectedSchool("NOVA");
+		} else {
+			setSelectedSchool("George Mason University");
+		}
+	}, [window.location.hash])
+
+	useEffect(() => {
 		let get_classes = async () => {
 			let coursesresp = await fetch("/api/courses/")
 			let coursesdata = await coursesresp.json()
@@ -572,7 +580,7 @@ export default function PaymentFlow({reload, embed, className, autoscroll, ...pr
 			<section className="payflow__inputs">
 				<section className="payflow__inputgroup">
 					<h3 className="payflow__inputgroup__title">Select your school</h3>
-					<RadioSelect onChange={setSelectedSchool} value={selectedSchool} options={[{label:"GMU", value:"George Mason University"}, {label:"High School", value:"High School"}]}/>
+					<RadioSelect onChange={setSelectedSchool} value={selectedSchool} options={[{label:"GMU", value:"George Mason University"}, {label:"NOVA", value:"NOVA"}]}/>
 				</section>
 				<section className="payflow__inputgroup">
 					<h3 className="payflow__inputgroup__title">What course can we help you with?</h3>
@@ -592,7 +600,7 @@ export default function PaymentFlow({reload, embed, className, autoscroll, ...pr
 				
 				<section className="payflow__inputgroup">
 					<h3 className="payflow__inputgroup__title">Where would you like to meet?</h3>
-					<RadioSelect onChange={setModality} value={modality} options={[{label:({"George Mason University":"On-Campus", "High School":"GMU Library"})[selectedSchool] || "GMU Fenwick Library", value:"in-person"}, {label:"Online", value:"online"}]}/>
+					<RadioSelect onChange={setModality} value={modality} options={[{label:({"George Mason University":"On-Campus", "High School":"GMU Library"})[selectedSchool] || "NOVA CE", value:"in-person"}, {label:"Online", value:"online"}]}/>
 				</section>
 				{error && <span className="genericError">{error}</span>}
 			</section>
